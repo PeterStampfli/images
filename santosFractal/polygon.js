@@ -46,11 +46,11 @@ Polygon.star = 1;
 Polygon.additionalVertices = false;
 Polygon.initialAddVertices = false;
 
-Polygon.subdivisions = [4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+Polygon.subdivisions = [5, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
 Polygon.indices = [];
 Polygon.indices.length = 12;
 Polygon.useOffset = false;
-Polygon.generations = 1;
+Polygon.generations = 3;
 Polygon.subdivApproach = 'graphEuclidean';
 //Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
@@ -158,6 +158,7 @@ Polygon.minMaxSurface = function() {
 // normalize width to 0 ... 0.999
 Polygon.normalizeSurface = function() {
     const diff = Polygon.maxSurface - Polygon.minSurface;
+    console.log(Polygon.minSurface, Polygon.maxSurface);
     const length = Polygon.collection.length;
     if (Math.abs(diff / Polygon.maxSurface) < 0.001) {
         for (let i = 0; i < length; i++) {
@@ -183,7 +184,7 @@ Polygon.normalizeSurface = function() {
             Polygon.collection[i].cosAngle = (Polygon.collection[i].cosAngle - minCosAngle) * iADiff;
         }
     }
-        const wDiff = Polygon.maxWidth - Polygon.minWidth;
+    const wDiff = Polygon.maxWidth - Polygon.minWidth;
     if (wDiff < 0.001) {
         for (let i = 0; i < length; i++) {
             Polygon.collection[i].width = 0.5;
@@ -284,6 +285,7 @@ Polygon.prototype.HBSFromHueValue = function() {
     const value = this.value;
     this.saturation = (1 - value) * Polygon.saturationFrom + value * Polygon.saturationTo;
     this.brightness = (1 - value) * Polygon.brightnessFrom + value * Polygon.brightnessTo;
+    console.log(this.brightness, this.saturation, this.hue);
 };
 
 // particular colorings
@@ -349,45 +351,25 @@ Polygon.prototype.getCenter = function() {
 // calculate width=surface/perimeter^2
 Polygon.prototype.setSurface = function() {
     const length = this.cornersX.length;
-    var ax, ay, bx, by;
-    switch (length) {
-        case 3:
-            // triangle without additional vertices
-            // take sides
-            ax = this.cornersX[1] - this.cornersX[0];
-            ay = this.cornersY[1] - this.cornersY[0];
-            bx = this.cornersX[2] - this.cornersX[0];
-            by = this.cornersY[2] - this.cornersY[0];
-            break;
-        case 5:
-            // triangle with additional vertices (indices 1 and 4)
-            ax = this.cornersX[2] - this.cornersX[0];
-            ay = this.cornersY[2] - this.cornersY[0];
-            bx = this.cornersX[3] - this.cornersX[0];
-            by = this.cornersY[3] - this.cornersY[0];
-            break;
-        case 4:
-            // quadrilateral without additional vertices
-            // take diagonals
-            ax = this.cornersX[2] - this.cornersX[0];
-            ay = this.cornersY[2] - this.cornersY[0];
-            bx = this.cornersX[3] - this.cornersX[1];
-            by = this.cornersY[3] - this.cornersY[1];
-            break;
-        case 6:
-            // quadrilateral with additional vertices (indices 1 and 5)
-            // take diagonals
-            ax = this.cornersX[3] - this.cornersX[0];
-            ay = this.cornersY[3] - this.cornersY[0];
-            bx = this.cornersX[4] - this.cornersX[2];
-            by = this.cornersY[4] - this.cornersY[2];
-            break;
+    // do for all numbers of corners
+    const originX = this.cornersX[0];
+    const originY = this.cornersY[0];
+    let newSideX = this.cornersX[1] - originX;
+    let newSideY = this.cornersY[1] - originY;
+    let surface = 0;
+    for (let i = 2; i < length; i++) {
+        let lastSideX = newSideX;
+        let lastSideY = newSideY;
+        newSideX = this.cornersX[i] - originX;
+        newSideY = this.cornersY[i] - originY;
+        const area = newSideX * lastSideY - newSideY * lastSideX;
+        surface += area;
     }
-    this.surface = Math.abs(ax * by - ay * bx);
-    ax = this.cornersX[1] - this.cornersX[0];
-    ay = this.cornersY[1] - this.cornersY[0];
-    bx = this.cornersX[length - 1] - this.cornersX[0];
-    by = this.cornersY[length - 1] - this.cornersY[0];
+    this.surface = surface;
+    let ax = this.cornersX[1] - this.cornersX[0];
+    let ay = this.cornersY[1] - this.cornersY[0];
+    let bx = this.cornersX[length - 1] - this.cornersX[0];
+    let by = this.cornersY[length - 1] - this.cornersY[0];
     this.cosAngle = Math.abs((ax * bx + ay * by)) / Math.sqrt((ax * ax + ay * ay) * (bx * bx + by * by));
     let perimeter = Math.sqrt(bx * bx + by * by);
     for (let i = 1; i < length; i++) {
@@ -396,6 +378,7 @@ Polygon.prototype.setSurface = function() {
         perimeter += Math.sqrt(bx * bx + by * by);
     }
     this.width = this.surface / perimeter / perimeter;
+    console.log('surf,cosa,width', this.surface, this.cosAngle, this.width);
 };
 
 // adding a corner
@@ -1137,9 +1120,12 @@ Polygon.prototype.mod4for8 = function() {
 
 // subdivide the polygon or show
 Polygon.prototype.subdivide = function() {
+    // indices go from 0 ... number of subdivisions-1
+    // reset indices of child tiles
     for (let i = this.generation; i < Polygon.generations; i++) {
         Polygon.indices[i] = -1;
     }
+    // increase index of this tile
     Polygon.indices[this.generation - 1] += 1;
     // if final generation achieved store polygon elsse continue fragmentation
     if (this.generation >= Polygon.generations) {
@@ -1158,49 +1144,85 @@ Polygon.prototype.subdivide = function() {
         }
     } else {
         const nChilds = Polygon.subdivisions[this.generation];
-        switch (Polygon.subdivApproach) {
-            case 'graphEuclidean':
-                this.graphEuclidean();
-                break;
-            case 'modular 3':
-                switch (nChilds) {
-                    case 5:
-                        this.mod3for5();
-                        break;
-                    case 6:
-                        this.mod3for6();
-                        break;
-                    default:
-                        if (Polygon.noAlert) {
-                            Polygon.noAlert = false;
-                            alert('modular 3 not implemented for subdivision into ' + nChilds);
-                        }
-                }
-                break;
-            case 'modular 4':
-                switch (nChilds) {
-                    case 4:
-                        this.mod4for4();
-                        break;
-                    case 5:
-                        this.mod4for5();
-                        break;
-                    case 6:
-                        this.mod4for6();
-                        break;
-                    case 7:
-                        this.mod4for7();
-                        break;
-                    case 8:
-                        this.mod4for8();
-                        break;
-                    default:
-                        if (Polygon.noAlert) {
-                            Polygon.noAlert = false;
-                            alert('modular 4 not implemented for subdivision into ' + nChilds);
-                        }
-                }
-                break;
+        if (nChilds === 1) {
+            // concentric appraoch
+            console.log('concentric');
+            let length = this.cornersX.length;
+            var centerX, centerY;
+            [centerX, centerY] = this.getCenter();
+            const midX = [];
+            const midY = [];
+            midX.length = length;
+            midY.length = length;
+            const p0 = new Polygon(this.generation + 1);
+            for (let i = 0; i < length; i++) {
+                midX[i] = 0.5 * (centerX + this.cornersX[i]);
+                midY[i] = 0.5 * (centerY + this.cornersY[i]);
+                p0.addCorner(midX[i], midY[i]);
+            }
+            console.log(p0);
+            p0.subdivide();
+            const p = new Polygon(this.generation + 1);
+            p.addCorner(midX[0], midY[0]);
+            p.addCorner(midX[length - 1], midY[length - 1]);
+            p.addCorner(this.cornersX[length - 1], this.cornersY[length - 1]);
+            p.addCorner(this.cornersX[0], this.cornersY[0]);
+            p.subdivide();
+            for (let i = 1; i < length; i++) {
+                const p = new Polygon(this.generation + 1);
+                p.addCorner(midX[i], midY[i]);
+                p.addCorner(midX[i - 1], midY[i - 1]);
+                p.addCorner(this.cornersX[i - 1], this.cornersY[i - 1]);
+                p.addCorner(this.cornersX[i], this.cornersY[i]);
+                p.subdivide();
+            }
+
+
+        } else {
+            switch (Polygon.subdivApproach) {
+                case 'graphEuclidean':
+                    this.graphEuclidean();
+                    break;
+                case 'modular 3':
+                    switch (nChilds) {
+                        case 5:
+                            this.mod3for5();
+                            break;
+                        case 6:
+                            this.mod3for6();
+                            break;
+                        default:
+                            if (Polygon.noAlert) {
+                                Polygon.noAlert = false;
+                                alert('modular 3 not implemented for subdivision into ' + nChilds);
+                            }
+                    }
+                    break;
+                case 'modular 4':
+                    switch (nChilds) {
+                        case 4:
+                            this.mod4for4();
+                            break;
+                        case 5:
+                            this.mod4for5();
+                            break;
+                        case 6:
+                            this.mod4for6();
+                            break;
+                        case 7:
+                            this.mod4for7();
+                            break;
+                        case 8:
+                            this.mod4for8();
+                            break;
+                        default:
+                            if (Polygon.noAlert) {
+                                Polygon.noAlert = false;
+                                alert('modular 4 not implemented for subdivision into ' + nChilds);
+                            }
+                    }
+                    break;
+            }
         }
     }
 };
