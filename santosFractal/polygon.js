@@ -46,7 +46,7 @@ Polygon.star = 1;
 Polygon.additionalVertices = false;
 Polygon.initialAddVertices = false;
 
-Polygon.subdivisions = [5, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+Polygon.subdivisions = [5, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
 Polygon.indices = [];
 Polygon.indices.length = 12;
 Polygon.useOffset = false;
@@ -1144,7 +1144,51 @@ Polygon.prototype.subdivide = function() {
         }
     } else {
         const nChilds = Polygon.subdivisions[this.generation];
-        if (nChilds === 1) {
+        if (nChilds === 0) {
+            console.log('concentric-sides')
+            let length = this.cornersX.length;
+            var centerX, centerY;
+            [centerX, centerY] = this.getCenter();
+            const sideX = [];
+            const sideY = [];
+            sideX.length = length;
+            sideY.length = length;
+            sideX[0] = 0.5 * (this.cornersX[0] + this.cornersX[length - 1]);
+            sideY[0] = 0.5 * (this.cornersY[0] + this.cornersY[length - 1]);
+            for (let i = 1; i < length; i++) {
+                sideX[i] = 0.5 * (this.cornersX[i] + this.cornersX[i - 1]);
+                sideY[i] = 0.5 * (this.cornersY[i] + this.cornersY[i - 1]);
+            }
+            const midX = [];
+            const midY = [];
+            midX.length = length;
+            midY.length = length;
+            const p0 = new Polygon(this.generation + 1);
+            for (let i = 0; i < length; i++) {
+                midX[i] = 0.5 * (centerX + sideX[i]);
+                midY[i] = 0.5 * (centerY + sideY[i]);
+                p0.addCorner(midX[i], midY[i]);
+            }
+            p0.subdivide();
+            const p = new Polygon(this.generation + 1);
+p.addCorner(this.cornersX[length-1],this.cornersY[length-1]);
+p.addCorner(sideX[0],sideY[0]);
+p.addCorner(midX[0],midY[0]);
+p.addCorner(midX[length-1],midY[length-1]);
+p.addCorner(sideX[length-1],sideY[length-1]);
+p.subdivide();
+for (let i = 1; i < length; i++) {
+                const p = new Polygon(this.generation + 1);
+                p.addCorner(this.cornersX[i-1], this.cornersY[i-1]);
+                p.addCorner(sideX[i], sideY[i]);
+                p.addCorner(midX[i], midY[i]);
+                p.addCorner(midX[i-1], midY[i-1]);
+                p.addCorner(sideX[i-1], sideY[i-1]);
+                p.subdivide();
+            }
+
+
+        } else if (nChilds === 1) {
             // concentric appraoch
             console.log('concentric');
             let length = this.cornersX.length;
@@ -1160,7 +1204,6 @@ Polygon.prototype.subdivide = function() {
                 midY[i] = 0.5 * (centerY + this.cornersY[i]);
                 p0.addCorner(midX[i], midY[i]);
             }
-            console.log(p0);
             p0.subdivide();
             const p = new Polygon(this.generation + 1);
             p.addCorner(midX[0], midY[0]);
@@ -1176,8 +1219,6 @@ Polygon.prototype.subdivide = function() {
                 p.addCorner(this.cornersX[i], this.cornersY[i]);
                 p.subdivide();
             }
-
-
         } else {
             switch (Polygon.subdivApproach) {
                 case 'graphEuclidean':
