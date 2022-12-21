@@ -364,7 +364,8 @@ create();
 draw();
 
 const stereographicProjector=new Sphere(0,0,1,Math.sqrt(2));
-const testCircle=new Circle(0,0,0,1,0,0,1);
+const testCircle=new Circle(0,0,0,1,0,1,0);
 console.log(testCircle);
 const proj= stereographicProjector.invertCircle(testCircle);
 console.log(proj);
+proj.drawProjection();

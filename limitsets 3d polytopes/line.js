@@ -5,8 +5,6 @@ import {
 }
 from "../libgui/modules.js";
 
-const big = 1000;
-
 // line defined in 3d by a point and direction vector(normalized)
 export function Line(pointX, pointY, pointZ, directionX, directionY, directionZ) {
     // make unique direction vector
@@ -50,6 +48,7 @@ export function Line(pointX, pointY, pointZ, directionX, directionY, directionZ)
 // default is unit vector in z-direction
 // for diagnostics
 Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
+    const eps=0.01
     const big = 1000;
     const normFactor = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
     nx *= normFactor;
@@ -77,13 +76,8 @@ Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
         directionX = this.directionX;
         directionY = this.directionY;
     }
-    const canvasContext = output.canvasContext;
-    canvasContext.beginPath();
-    canvasContext.moveTo(pointX + big * directionX, pointY + big * directionY);
-    canvasContext.lineTo(pointX - big * directionX, pointY - big * directionY);
-    canvasContext.stroke();
+    SVG.createPolyline([pointX + big * directionX, pointY + big * directionY,pointX - big * directionX, pointY - big * directionY]);
 };
-
 
 // test if two lines are equal, if argument is not Line then they are also not equal
 Line.prototype.equals = function(other) {
@@ -106,8 +100,6 @@ Line.prototype.equals = function(other) {
         if (Math.abs(other.pointZ - this.pointZ) > eps) {
             return false;
         }
-
-
         return true;
     } else {
         return false;

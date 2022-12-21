@@ -10,6 +10,11 @@ import {
 }
 from "./circle.js";
 
+import {
+    Line
+}
+from "./line.js";
+
 export function Sphere(centerX, centerY, centerZ, radius) {
     this.centerX = centerX;
     this.centerY = centerY;
@@ -65,6 +70,7 @@ Sphere.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
 
 // return true if sphere touches another sphere
 Sphere.prototype.touches = function(otherSphere) {
+    const eps = 0.001;
     const dx = this.centerX - otherSphere.centerX;
     const dy = this.centerY - otherSphere.centerY;
     const dz = this.centerZ - otherSphere.centerZ;
@@ -128,6 +134,7 @@ Sphere.prototype.invertLine = function(line) {
 // even if it is not changed
 // use intersection of circle plane and circle sphere
 Sphere.prototype.invertCircle = function(circle) {
+    const eps = 0.001;
     // vector from center of this mapping sphere to center of circle
     const sphereToCircleCenterX = circle.centerX - this.centerX;
     const sphereToCircleCenterY = circle.centerY - this.centerY;
@@ -152,9 +159,9 @@ Sphere.prototype.invertCircle = function(circle) {
             const imagePointZ = this.centerZ + factor * sphereToCircleCenterZ;
             // direction is perpendicular to vector from sphere center to circle center
             // is in plane and thus perpendicular to the normal vector of the plane
-            const directionX = sphereToCircleCenterY * circle.normalZ - sphereImageCenterZ * circle.normalY;
-            const directionY = sphereToCircleCenterZ * circle.normalX - sphereImageCenterX * circle.normalZ;
-            const directionZ = sphereToCircleCenterX * circle.normalY - sphereImageCenterY * circle.normalX;
+            const directionX = sphereToCircleCenterY * circle.normalZ - sphereToCircleCenterZ * circle.normalY;
+            const directionY = sphereToCircleCenterZ * circle.normalX - sphereToCircleCenterX * circle.normalZ;
+            const directionZ = sphereToCircleCenterX * circle.normalY - sphereToCircleCenterY * circle.normalX;
             return new Line(imagePointX, imagePointY, imagePointZ, directionX, directionY, directionZ);
         } else {
             // the circle image is a circle, the normal vector to its plane is unchanged
@@ -197,7 +204,7 @@ Sphere.prototype.invertCircle = function(circle) {
             const sphereImagePlanePointY = this.centerY + dMappingSphereToSphereImagePlane * sphereImagePlaneNormalY;
             const sphereImagePlanePointZ = this.centerZ + dMappingSphereToSphereImagePlane * sphereImagePlaneNormalZ;
             // the circle's image is intersection between this plane and the spherical image of the circle's plane
-            const dPlaneImageCenterToSphereImagePlane = sphereImagePlaneNormalX * (sphereImagePlanePointX - planeImageCenterX) + phereImagePlaneNormalY * (sphereImagePlanePointY - planeImageCenterY) + phereImagePlaneNormalZ * (sphereImagePlanePointZ - planeImageCenterZ);
+            const dPlaneImageCenterToSphereImagePlane = sphereImagePlaneNormalX * (sphereImagePlanePointX - planeImageCenterX) + sphereImagePlaneNormalY * (sphereImagePlanePointY - planeImageCenterY) + sphereImagePlaneNormalZ * (sphereImagePlanePointZ - planeImageCenterZ);
             const circleImageCenterX = planeImageCenterX + dPlaneImageCenterToSphereImagePlane * sphereImagePlaneNormalX;
             const circleImageCenterY = planeImageCenterY + dPlaneImageCenterToSphereImagePlane * sphereImagePlaneNormalY;
             const circleImageCenterZ = planeImageCenterZ + dPlaneImageCenterToSphereImagePlane * sphereImagePlaneNormalZ;
