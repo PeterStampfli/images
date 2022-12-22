@@ -328,12 +328,12 @@ function cubeWithPyramids() {
     project(-1, 1, -1, 1);
     project(-1, -1, 1, 1);
     project(-1, -1, -1, 1);
-    project(1.5,0,0, 0.5);
-    project(-1.5,0,0, 0.5);    
-    project(0,1.5,0, 0.5);
-    project(0,-1.5,0, 0.5);
-        project(0,0,1.5, 0.5);
-    project(0,0,-1.5, 0.5);
+    project(1.5, 0, 0, 0.5);
+    project(-1.5, 0, 0, 0.5);
+    project(0, 1.5, 0, 0.5);
+    project(0, -1.5, 0, 0.5);
+    project(0, 0, 1.5, 0.5);
+    project(0, 0, -1.5, 0.5);
 }
 
 function cubeoctahedron() {
@@ -391,11 +391,11 @@ gui.add({
     options: {
         tetrahedron: projectedTetrahedron,
         octahedron: projectedOctahedron,
-        cube:projectedCube,
-        ikosahedron:ikosahedron,
-        dodecahedron:dodecahedron,
-        cubeoctahedron:cubeoctahedron,
-        cubeWithPyramids:cubeWithPyramids
+        cube: projectedCube,
+        ikosahedron: ikosahedron,
+        dodecahedron: dodecahedron,
+        cubeoctahedron: cubeoctahedron,
+        cubeWithPyramids: cubeWithPyramids
     },
     onChange: function() {
         create();

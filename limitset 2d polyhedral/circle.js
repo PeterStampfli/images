@@ -43,17 +43,18 @@ function prec(x) {
 }
 
 Circle.prototype.writeSCAD = function() {
+    const size = Circle.size;
     // export to Circle.SCADtext
+    if (Circle.first) {
+        Circle.first = false;
+    } else {
+        Circle.SCADtext += ',';
+    }
     if (Circle.planar) {
         // planar, for comparision,...
-        if (Circle.first) {
-            Circle.first = false;
-        } else {
-            Circle.SCADtext += ',';
-        }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(Circle.size * this.centerX) + ',' + prec(Circle.size * this.centerY) + ',0],';
-        Circle.SCADtext += prec(Circle.size * this.radius) + ',[0,0,1]]';
+        Circle.SCADtext += '[[' + prec(size * this.centerX) + ',' + prec(size * this.centerY) + ',0],';
+        Circle.SCADtext += prec(size * this.radius) + ',[0,0,1]]';
     } else {
         // inversion maps circle to the surface of the hyperbolic sphere of radius 1
         // we are now in three dimensions
@@ -78,22 +79,18 @@ Circle.prototype.writeSCAD = function() {
         const imageCircleCenterX = factor * invSphereCenterX;
         const imageCircleCenterY = factor * invSphereCenterY;
         const imageCircleCenterZ = factor * invSphereCenterZ;
-        if (Circle.first) {
-            Circle.first = false;
-        } else {
-            Circle.SCADtext += ',';
-        }
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(Circle.size * imageCircleCenterX) + ',' + prec(Circle.size * imageCircleCenterY) + ',' + prec(Circle.size * imageCircleCenterZ) + '],';
-        Circle.SCADtext += prec(Circle.size * imageCircleRadius) + ',[' + prec(invSphereCenterX) + ',' + prec(invSphereCenterY) + ',' + prec(invSphereCenterZ) + ']]';
+        Circle.SCADtext += '[[' + prec(size * imageCircleCenterX) + ',' + prec(size * imageCircleCenterY) + ',' + prec(size * imageCircleCenterZ) + '],';
+        Circle.SCADtext += prec(size * imageCircleRadius) + ',[' + prec(invSphereCenterX) + ',' + prec(invSphereCenterY) + ',' + prec(invSphereCenterZ) + ']]';
     }
 };
 
 Circle.prototype.draw = function() {
+    const size = Circle.size;
     const eps = 0.01;
     if (Circle.planar) {
-        if (Circle.size * this.radius > Circle.minDrawingRadius) {
-            SVG.createCircle(Circle.size * this.centerX, Circle.size * this.centerY, Circle.size * this.radius);
+        if (size * this.radius > Circle.minDrawingRadius) {
+            SVG.createCircle(size * this.centerX, size * this.centerY, size * this.radius);
         }
     } else {
         // inversion maps circle to the surface of the hyperbolic sphere of radius 1
@@ -124,12 +121,12 @@ Circle.prototype.draw = function() {
             let d = Math.sqrt(imageCircleCenterX * imageCircleCenterX + imageCircleCenterY * imageCircleCenterY + imageCircleCenterZ * imageCircleCenterZ);
             let smallHalfAxis = Math.abs(imageCircleCenterZ / d * imageCircleRadius);
             const angle = Math.atan2(imageCircleCenterY, imageCircleCenterX);
-            if (Circle.size * smallHalfAxis > 0.5) {
-                SVG.createEllipse(Circle.size * imageCircleCenterX, Circle.size * imageCircleCenterY, Circle.size * smallHalfAxis, Circle.size * imageCircleRadius, angle);
+            if (size * smallHalfAxis > 0.5) {
+                SVG.createEllipse(size * imageCircleCenterX, size * imageCircleCenterY, size * smallHalfAxis, size * imageCircleRadius, angle);
             } else {
                 const dx = imageCircleRadius * imageCircleCenterY / d;
                 const dy = -imageCircleRadius * imageCircleCenterX / d;
-                SVG.createPolyline([Circle.size * (imageCircleCenterX - dx), Circle.size * (imageCircleCenterY - dy), Circle.size * (imageCircleCenterX + dx), Circle.size * (imageCircleCenterY + dy)]);
+                SVG.createPolyline([size * (imageCircleCenterX - dx), size * (imageCircleCenterY - dy), size * (imageCircleCenterX + dx), size * (imageCircleCenterY + dy)]);
             }
         }
     }

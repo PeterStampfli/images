@@ -109,8 +109,12 @@ module drawLines(points, length, weight = 1, eps = 0.001){
     }
 }
 
-// circles: center point, normal vector, radius, weight for drawing
+// circles: center point, radius>0, normal vector, weight for drawing
+// lines: endpointa, "radius"<0, endpointB
 module drawCircle(center, radius, normal,weight=1){
+    if (radius<0){
+        drawLine(center, normal,weight);
+    }
     if (radius>weight){
         translate(center) orient(normal) rotate_extrude(angle = 360) translate([radius,0,0]) circle(weight);
     }

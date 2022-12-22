@@ -146,7 +146,7 @@ const mappingSpheres = [];
 
 // add a mapping sphere
 function addMappingSphere(centerX, centerY, centerZ, radius) {
-    const mappingSphere = new Sphere(centerX, centerY, centerZ,radius);
+    const mappingSphere = new Sphere(centerX, centerY, centerZ, radius);
     mappingSphere.images = [];
     const length = main.generations;
     mappingSphere.images.length = length;
@@ -157,9 +157,9 @@ function addMappingSphere(centerX, centerY, centerZ, radius) {
 }
 
 // add a mapping sphere, normalized to hyperbolic radius 1
-function addNormalizedMappingSphere(centerX, centerY, centerZ, radius){
-    const rHyp=Math.sqrt(centerX*centerX+centerY*centerY+centerZ*centerZ-radius*radius);
-    addMappingSphere(centerX/rHyp, centerY/rHyp, centerZ/rHyp, radius/rHyp)
+function addNormalizedMappingSphere(centerX, centerY, centerZ, radius) {
+    const rHyp = Math.sqrt(centerX * centerX + centerY * centerY + centerZ * centerZ - radius * radius);
+    addMappingSphere(centerX / rHyp, centerY / rHyp, centerZ / rHyp, radius / rHyp);
 }
 
 function tetrahedron() {
@@ -233,9 +233,9 @@ gui.add({
     options: {
         tetrahedron: tetrahedron,
         octahedron: octahedron,
-        cube:cube,
-        ikosahedron:ikosahedron,
-        dodecahedron:dodecahedron
+        cube: cube,
+        ikosahedron: ikosahedron,
+        dodecahedron: dodecahedron
     },
     onChange: function() {
         create();
@@ -306,10 +306,10 @@ function create() {
         generation1();
     }
     if (main.generations >= 2) {
-      //  generation2();
+        //  generation2();
     }
     for (let gen = 3; gen <= main.generations; gen++) {
-      //  newGeneration(gen);
+        //  newGeneration(gen);
         if (nImages > main.maxElements) {
             break;
         }
@@ -317,6 +317,8 @@ function create() {
     currentElementsController.setValueOnly(nImages);
 }
 
+// save as scad data
+//
 function makeSCAD() {
     Circle.SCADtext = 'imageCircles=[';
     Circle.first = true;
@@ -363,9 +365,9 @@ SVG.draw = draw;
 create();
 draw();
 
-const stereographicProjector=new Sphere(0,0,1,Math.sqrt(2));
-const testCircle=new Circle(0,0,0,1,0,1,0);
+const stereographicProjector = new Sphere(0, 0, 1, Math.sqrt(2));
+const testCircle = new Circle(0, 0, 0, 1, 0, 1, 0);
 console.log(testCircle);
-const proj= stereographicProjector.invertCircle(testCircle);
+const proj = stereographicProjector.invertCircle(testCircle);
 console.log(proj);
 proj.drawProjection();

@@ -43,12 +43,29 @@ export function Line(pointX, pointY, pointZ, directionX, directionY, directionZ)
     this.pointZ = pointZ - d * directionZ;
 }
 
+
+//  [one point], -1, [other point]
+Line.prototype.writeSCAD = function() {
+    const big = 10;
+    const size = Circle.size;
+    // export to Circle.SCADtext
+    if (Circle.first) {
+        Circle.first = false;
+    } else {
+        Circle.SCADtext += ',';
+    }
+    Circle.SCADtext += '\n';
+    Circle.SCADtext += '[[' + prec(size * (this.pointX + big * this.directionX)) + ',' + prec(size * (this.pointY + big * this.directionY)) + ',' + prec(size * (this.pointZ + big * this.directionZ)) + '],';
+    Circle.SCADtext += '-1,';
+    Circle.SCADtext += '[' + prec(size * (this.pointX - big * this.directionX)) + ',' + prec(size * (this.pointY - big * this.directionY)) + ',' + prec(size * (this.pointZ - big * this.directionZ))+ ']]';
+};
+
 // draw projection in plane perpendicular to the n=(nx,ny,nz) direction
 // n is normal vector to a plane with relevant design to check
 // default is unit vector in z-direction
 // for diagnostics
 Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
-    const eps=0.01
+    const eps = 0.01;
     const big = 1000;
     const normFactor = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
     nx *= normFactor;
@@ -76,7 +93,7 @@ Line.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
         directionX = this.directionX;
         directionY = this.directionY;
     }
-    SVG.createPolyline([pointX + big * directionX, pointY + big * directionY,pointX - big * directionX, pointY - big * directionY]);
+    SVG.createPolyline([pointX + big * directionX, pointY + big * directionY, pointX - big * directionX, pointY - big * directionY]);
 };
 
 // test if two lines are equal, if argument is not Line then they are also not equal

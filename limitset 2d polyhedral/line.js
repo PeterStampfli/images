@@ -9,15 +9,12 @@ import {
     Circle
 } from "./circle.js";
 
-
-const big = 10000;
-const eps = 0.001;
-
 // n is normal vector to line, d is distance from origin, d>=0
 // normalizes n, enforces d >= 0, normal vector pointing away from origin.
 // point d*normalVector is on the line, the line is orthogonal to the normal vector and going through this point
 // thus the definition is unique
 export function Line(nX, nY, d) {
+    const eps = 0.001;
     if (d < 0) {
         nX = -nX;
         nY = -nY;
@@ -49,26 +46,31 @@ function prec(x) {
 
 Line.prototype.writeSCAD = function() {
     // export to Circle.SCADtext
+    const big = 10;
+    const size = Circle.size;
+    if (Circle.first) {
+        Circle.first = false;
+    } else {
+        Circle.SCADtext += ',';
+    }
     if (Circle.planar) {
-        // planar, for comparision,...
-        // can't do this
-        // a line is a circle of infinite radius ...
+        const px = this.d * this.nX;
+        const py = this.d * this.nY;
+        Circle.SCADtext += '\n';
+        Circle.SCADtext += '[[' + prec(size * (px + big * this.nY)) + ',' + prec(size * (py - big * this.nX)) + ',0],' + '-1' + ',';
+        Circle.SCADtext += '[' + prec(size * (px - big * this.nY)) + ',' + prec(size * (py + big * this.nX)) + ',0]]';
     } else {
         // invert line to the hyperbolic sphere with radius 1, we are now in three dimensions
         // inversion center at (0,0,1), radius sqrt(2)
         // this gives a great circle, center at origin, radius is hyperbolic radius = 1
-        // normal is inside xy-plane, perpendicular to the line
-        if (Circle.first) {
-            Circle.first = false;
-        } else {
-            Circle.SCADtext += ',';
-        }
+        // normal is inside xy-plane, perpendicular to the line, thus same as normal to the line
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[0,0,0],' + prec(Circle.size) + ',[' + prec(this.nX) + ',' + prec(this.nY) + ',0]]';
+        Circle.SCADtext += '[[0,0,0],' + prec(size) + ',[' + prec(this.nX) + ',' + prec(this.nY) + ',0]]';
     }
 };
 
 Line.prototype.draw = function() {
+    const big = 1000;
     const px = this.d * this.nX;
     const py = this.d * this.nY;
     const length = (Circle.planar) ? big : Circle.size;
@@ -77,6 +79,7 @@ Line.prototype.draw = function() {
 
 // test if two lines are equal, if argument is not Line then they are also not equal
 Line.prototype.equals = function(other) {
+    const eps = 0.001;
     if (other instanceof Line) {
         if (Math.abs(other.nX - this.nX) > eps) {
             return false;

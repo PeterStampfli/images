@@ -85,17 +85,32 @@ Circle.prototype.equals = function(other) {
     }
 };
 
+//  [center], radius>0, [normal]
+Circle.prototype.writeSCAD = function() {
+    const size = Circle.size;
+    // export to Circle.SCADtext
+    if (Circle.first) {
+        Circle.first = false;
+    } else {
+        Circle.SCADtext += ',';
+    }
+    Circle.SCADtext += '\n';
+    Circle.SCADtext += '[[' + prec(size * this.centerX) + ',' + prec(size * this.centerY) + ',' + prec(size * this.centerY) + '],';
+    Circle.SCADtext += prec(size * this.radius) + ',';
+    Circle.SCADtext += '[' + prec(size * this.normalX) + ',' + prec(size * this.normalY) + ',' + prec(size * this.normalZ) + ']]';
+};
+
 // sphere that does the stereographic projection
-const stereographicProjector=new Sphere(0,0,1,Math.sqrt(2));
+const stereographicProjector = new Sphere(0, 0, 1, Math.sqrt(2));
 
 // draw sphere as normal projection or after stereographic projection (via inversion)
 Circle.prototype.draw = function() {
     const eps = 0.01;
     if (Circle.planar) {
         console.log(this);
-        const projectedCircle=stereographicProjector.invertCircle(this);
+        const projectedCircle = stereographicProjector.invertCircle(this);
         console.log(projectedCircle);
-        projectedCircle.drawProjection(0,0,1);
+        projectedCircle.drawProjection(0, 0, 1);
     } else {
         this.drawProjection(0, 0, 1);
     }
@@ -106,6 +121,7 @@ Circle.prototype.draw = function() {
 // default is unit vector in z-direction
 // for diagnostics
 Circle.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
+    const size = Circle.size;
     const eps = 0.0001;
     const normFactor = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
     nx *= normFactor;
@@ -143,14 +159,14 @@ Circle.prototype.drawProjection = function(nx = 0, ny = 0, nz = 1) {
     // large axis equal to radius, small axis is cos(theta_normalVector)*radius=normalZ*radius
     // normalized normal vector
     const smallHalfAxis = this.radius * Math.abs(normalZ);
-    if (Circle.size * smallHalfAxis > 0.5) {
-        SVG.createEllipse(Circle.size * centerX, Circle.size * centerY, Circle.size * this.radius, Circle.size * smallHalfAxis, angle);
+    if (size * smallHalfAxis > 0.5) {
+        SVG.createEllipse(size * centerX, size * centerY, size * this.radius, size * smallHalfAxis, angle);
     } else {
         // the circle has become essentially a line, the large axis, direction (-normalX,normalY)
         const d = Math.sqrt(normalX * normalX + normalY * normalY);
-        const dx=- this.radius*normalX/d;
-        const dy=- this.radius*normalY/d;
-        SVG.createPolyline([Circle.size * (centerX - dx), Circle.size * (centerY - dy), Circle.size * (centerX + dx), Circle.size * (centerY + dy)]);
+        const dx = -this.radius * normalX / d;
+        const dy = -this.radius * normalY / d;
+        SVG.createPolyline([size * (centerX - dx), size * (centerY - dy), size * (centerX + dx), size * (centerY + dy)]);
     }
 };
 

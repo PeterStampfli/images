@@ -1,0 +1,92 @@
+{
+    "name": "filled gap (8-fold)",
+
+    "order": 16,
+    "inflation": 1.8477,
+    "maxGeneration": 5,
+    "drawGeneration": 0,
+    "initial": "hRhomb",
+
+    "range": 2,
+
+    "tiles": {
+        "hRhomb": {
+            "color": "#2020e0",
+            "angle": 1,
+            "shape": [
+                [],
+                [1],
+                [1, 1]
+            ],
+            "overprint": [
+                [],
+                [1,  1]
+            ], 
+                       "substitution": [{
+                "name": "hRhomb",
+                "origin": [1],
+                "orientation":7
+            }]
+        },
+        "square": {
+            "color": "#ffff00",
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1]
+            ],
+            "border": [],
+            "overprint": [
+                [],
+                [1, 0, 1]
+            ],
+            "angle": 1,
+            "substitution": [{
+                "name": "rhomb"
+            }, {
+                "name": "hSquare",
+                "origin": [1, 1, 0, -1],
+                "orientation": 3
+            }, {
+                "name": "hSquare",
+                "origin": [0, 1]
+            }, {
+                "name": "rhomb",
+                "origin": [2, 1, 0, -1],
+                "orientation": 2
+            }, {
+                "name": "rhomb"
+            }, {
+                "name": "square",
+                "origin": [1, 1]
+            }, {
+                "name": "hSquare",
+                "origin": [1, 1, 1]
+            }, {
+                "name": "rhomb",
+                "origin": [2, 1, 1],
+                "orientation": 1
+            }, {
+                "name": "hSquare",
+                "origin": [2, 2, 1],
+                "orientation": 5
+            }]
+        },
+        "square": {
+            "color": "#ffff00",
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1],
+                [0, 0, 1]
+            ],
+            "angle": 2,
+            "composition": [{
+                "name": "hSquare"
+            }, {
+                "name": "hSquare",
+                "origin": [1, 0, 1],
+                "orientation": 4
+            }]
+        }
+}

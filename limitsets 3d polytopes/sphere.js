@@ -23,17 +23,36 @@ export function Sphere(centerX, centerY, centerZ, radius) {
     this.radius2 = radius * radius;
 }
 
+function prec(x) {
+    return x.toPrecision(4);
+}
+
+// mapping spheres: array of arrays of [centerX,centerY,centerZ],radius
+Sphere.prototype.writeSCAD = function() {
+    const size = Circle.size;
+    // export to Circle.SCADtext
+    if (Circle.first) {
+        Circle.first = false;
+    } else {
+        Circle.SCADtext += ',';
+    }
+    Circle.SCADtext += '\n';
+    Circle.SCADtext += '[[' + prec(size * this.centerX) + ',' + prec(size * this.centerY) + ',' + prec(size * this.centerZ) + '],';
+    Circle.SCADtext += prec(size * this.radius) + ']';
+};
+
 // draw the sphere in top-down projection as a circle
 // or make an inversion/stereographic projection such that it is on the xy-plane (surface of poincare half-plane)
 
 Sphere.prototype.draw = function() {
+    const size = Circle.size;
     const eps = 0.01;
     if (Circle.planar) {
         // invert at sphere with radius r=sqrt(2), center at (0,0,1)
         const factor = 2 / (this.centerX * this.centerX + this.centerY * this.centerY + (this.centerZ - 1) * (this.centerZ - 1) - this.radius * this.radius);
-        SVG.createCircle(Circle.size * factor * this.centerX, Circle.size * factor * this.centerY, Circle.size * Math.abs(factor) * this.radius);
+        SVG.createCircle(size * factor * this.centerX, size * factor * this.centerY, size * Math.abs(factor) * this.radius);
     } else {
-        SVG.createCircle(Circle.size * this.centerX, Circle.size * this.centerY, Circle.size * this.radius);
+        SVG.createCircle(size * this.centerX, size * this.centerY, size * this.radius);
     }
 };
 
