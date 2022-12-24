@@ -52,7 +52,7 @@ Polygon.indices.length = 12;
 Polygon.useOffset = false;
 Polygon.generations = 2;
 Polygon.subdivApproach = 'graphEuclidean';
-Polygon.subdivApproach = 'modular 3';
+Polygon.subdivApproach = 'modular 4';
 Polygon.centerWeight = 1;
 Polygon.shift = false;
 Polygon.shiftValue = 0.5;
@@ -664,6 +664,69 @@ Polygon.prototype.shiftMod4 = function() {
 
 // subdivision of triangles into triangles
 //==========================================================
+
+Polygon.prototype.triangleTo2Triangles = function() {
+    let midX12 = 0.5 * (this.cornersX[2] + this.cornersX[1]);
+    let midY12 = 0.5 * (this.cornersY[2] + this.cornersY[1]);
+    const p1 = new Polygon(this.generation + 1);
+    p1.addCorner(this.cornersX[0], this.cornersY[0]);
+    p1.addCorner(this.cornersX[1], this.cornersY[1]);
+    p1.addCorner(midX12, midY12);
+    p1.subdivide();
+    const p2 = new Polygon(this.generation + 1);
+    p2.addCorner(midX12, midY12);
+    p2.addCorner(this.cornersX[2], this.cornersY[2]);
+    p2.addCorner(this.cornersX[0], this.cornersY[0]);
+    p2.subdivide();
+};
+
+Polygon.prototype.triangleTo3Triangles = function() {
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    const p1 = new Polygon(this.generation + 1);
+    p1.addCorner(centerX, centerY);
+    p1.addCorner(this.cornersX[0], this.cornersY[0]);
+    p1.addCorner(this.cornersX[1], this.cornersY[1]);
+    p1.subdivide();
+    const p2 = new Polygon(this.generation + 1);
+    p2.addCorner(centerX, centerY);
+    p2.addCorner(this.cornersX[1], this.cornersY[1]);
+    p2.addCorner(this.cornersX[2], this.cornersY[2]);
+    p2.subdivide();
+    const p3 = new Polygon(this.generation + 1);
+    p3.addCorner(centerX, centerY);
+    p3.addCorner(this.cornersX[2], this.cornersY[2]);
+    p3.addCorner(this.cornersX[0], this.cornersY[0]);
+    p3.subdivide();
+};
+
+Polygon.prototype.triangleTo4Triangles = function() {
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    let midX12 = 0.5 * (this.cornersX[2] + this.cornersX[1]);
+    let midY12 = 0.5 * (this.cornersY[2] + this.cornersY[1]);
+    const p1 = new Polygon(this.generation + 1);
+    p1.addCorner(centerX, centerY);
+    p1.addCorner(this.cornersX[0], this.cornersY[0]);
+    p1.addCorner(this.cornersX[1], this.cornersY[1]);
+    p1.subdivide();
+    const p2 = new Polygon(this.generation + 1);
+    p2.addCorner(centerX, centerY);
+    p2.addCorner(this.cornersX[1], this.cornersY[1]);
+    p2.addCorner(midX12, midY12);
+    p2.subdivide();
+    const p3 = new Polygon(this.generation + 1);
+    p3.addCorner(centerX, centerY);
+    p3.addCorner(midX12, midY12);
+    p3.addCorner(this.cornersX[2], this.cornersY[2]);
+    p3.subdivide();
+    const p4 = new Polygon(this.generation + 1);
+    p4.addCorner(centerX, centerY);
+    p4.addCorner(this.cornersX[2], this.cornersY[2]);
+    p4.addCorner(this.cornersX[0], this.cornersY[0]);
+    p4.subdivide();
+};
+
 Polygon.prototype.triangleTo5Triangles = function() {
     var centerX, centerY;
     [centerX, centerY] = this.getCenter();
@@ -741,6 +804,92 @@ Polygon.prototype.triangleTo6Triangles = function() {
 
 // triangles to quadrangles
 //=======================================================
+
+
+Polygon.prototype.triangleTo2Quads = function() {
+    let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
+    let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
+    let midX2 = 0.5 * (this.cornersX[0] + this.cornersX[2]);
+    let midY2 = 0.5 * (this.cornersY[0] + this.cornersY[2]);
+    let midX12 = 0.5 * (this.cornersX[2] + this.cornersX[1]);
+    let midY12 = 0.5 * (this.cornersY[2] + this.cornersY[1]);
+    const p1 = new Polygon(this.generation + 1);
+    p1.addCorner(this.cornersX[0], this.cornersY[0]);
+    p1.addCorner(midX1, midY1);
+    p1.addCorner(this.cornersX[1], this.cornersY[1]);
+    p1.addCorner(midX12, midY12);
+    p1.subdivide();
+    const p2 = new Polygon(this.generation + 1);
+    p2.addCorner(midX12, midY12);
+    p2.addCorner(this.cornersX[2], this.cornersY[2]);
+    p2.addCorner(midX2, midY2);
+    p2.addCorner(this.cornersX[0], this.cornersY[0]);
+    p2.subdivide();
+};
+
+Polygon.prototype.triangleTo3Quads = function() {
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
+    let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
+    let midX2 = 0.5 * (this.cornersX[0] + this.cornersX[2]);
+    let midY2 = 0.5 * (this.cornersY[0] + this.cornersY[2]);
+    let midX12 = 0.5 * (this.cornersX[2] + this.cornersX[1]);
+    let midY12 = 0.5 * (this.cornersY[2] + this.cornersY[1]);
+    const p1 = new Polygon(this.generation + 1);
+    p1.addCorner(centerX, centerY);
+    p1.addCorner(midX2, midY2);
+    p1.addCorner(this.cornersX[0], this.cornersY[0]);
+    p1.addCorner(midX1, midY1);
+    p1.subdivide();
+    const p2 = new Polygon(this.generation + 1);
+    p2.addCorner(centerX, centerY);
+    p2.addCorner(midX1, midY1);
+    p2.addCorner(this.cornersX[1], this.cornersY[1]);
+    p2.addCorner(midX12, midY12);
+    p2.subdivide();
+    const p3 = new Polygon(this.generation + 1);
+    p3.addCorner(centerX, centerY);
+    p3.addCorner(midX12, midY12);
+    p3.addCorner(this.cornersX[1], this.cornersY[1]);
+    p3.addCorner(midX2, midY2);
+    p3.subdivide();
+};
+
+Polygon.prototype.triangleTo4Quads = function() {
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter();
+    let midX1 = 0.5 * (this.cornersX[0] + this.cornersX[1]);
+    let midY1 = 0.5 * (this.cornersY[0] + this.cornersY[1]);
+    let midX2 = 0.5 * (this.cornersX[0] + this.cornersX[2]);
+    let midY2 = 0.5 * (this.cornersY[0] + this.cornersY[2]);
+    let midX12 = 0.5 * (this.cornersX[2] + this.cornersX[1]);
+    let midY12 = 0.5 * (this.cornersY[2] + this.cornersY[1]);
+    const p1 = new Polygon(this.generation + 1);
+    p1.addCorner(centerX, centerY);
+    p1.addCorner(midX2, midY2);
+    p1.addCorner(this.cornersX[0], this.cornersY[0]);
+    p1.addCorner(midX1, midY1);
+    p1.subdivide();
+    const p2 = new Polygon(this.generation + 1);
+    p2.addCorner(centerX, centerY);
+    p2.addCorner(midX1, midY1);
+    p2.addCorner(this.cornersX[1], this.cornersY[1]);
+    p2.addCorner(0.5 * (midX12 + this.cornersX[1]), 0.5 * (midY12 + this.cornersY[1]));
+    p2.subdivide();
+    const p3 = new Polygon(this.generation + 1);
+    p3.addCorner(centerX, centerY);
+    p3.addCorner(0.5 * (midX12 + this.cornersX[1]), 0.5 * (midY12 + this.cornersY[1]));
+    p3.addCorner(midX12, midY12);
+    p3.addCorner(0.5 * (midX12 + this.cornersX[2]), 0.5 * (midY12 + this.cornersY[2]));
+    p3.subdivide();
+    const p4 = new Polygon(this.generation + 1);
+    p4.addCorner(centerX, centerY);
+    p4.addCorner(0.5 * (midX12 + this.cornersX[2]), 0.5 * (midY12 + this.cornersY[2]));
+    p4.addCorner(this.cornersX[2], this.cornersY[2]);
+    p4.addCorner(midX2, midY2);
+    p4.subdivide();
+};
 
 Polygon.prototype.triangleTo6Quads = function() {
     var centerX, centerY;
@@ -1167,6 +1316,21 @@ Polygon.prototype.subdivide = function() {
                     break;
                 case 'modular 3':
                     switch (nChilds) {
+                        case 2:
+                            if (nCorners === 3) {
+                                this.triangleTo2Triangles();
+                            }
+                            break;
+                        case 3:
+                            if (nCorners === 3) {
+                                this.triangleTo3Triangles();
+                            }
+                            break;
+                        case 4:
+                            if (nCorners === 3) {
+                                this.triangleTo4Triangles();
+                            }
+                            break;
                         case 5:
                             if (nCorners === 3) {
                                 this.triangleTo5Triangles();
@@ -1182,6 +1346,9 @@ Polygon.prototype.subdivide = function() {
                 case 'modular 4':
                     switch (nChilds) {
                         case 4:
+                            if (nCorners === 3) {
+                                this.triangleTo4Quads();
+                            }
                             if (nCorners === 4) {
                                 this.quadTo4Quads();
                             }
