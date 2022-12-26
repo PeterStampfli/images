@@ -12,6 +12,36 @@ import {
     Polygon
 } from "./polygon.js";
 
+import {
+    graphEuclidean
+}
+from "./graphEuclidean.js";
+graphEuclidean.setup();
+
+import {
+    initial
+}
+from "./initial.js";
+initial.setup();
+
+import {
+    mod3
+}
+from "./mod3.js";
+mod3.setup();
+
+import {
+    mod4
+}
+from "./mod4.js";
+mod4.setup();
+
+import {
+    colors
+}
+from "./colors.js";
+colors.setup();
+
 const gui = new ParamGui({
     closed: false
 });
@@ -388,39 +418,7 @@ function makeStructure() {
     }
     // for collecting polygons
     Polygon.collection.length = 0;
-    const subdivisions = Polygon.subdivisions[0];
-    var basisPolygon;
-    if (Polygon.initial === 'double triangles') {
-        if (((subdivisions & 1) === 0) && (subdivisions > 5)) {
-            basisPolygon = Polygon.createRegular(subdivisions / 2);
-        } else {
-            if (Polygon.noAlert) {
-                Polygon.noAlert = false;
-                alert('cannot do double triangles for odd number of children or initial subdivison smaller than 6 ');
-            }
-            return;
-        }
-    } else {
-        if (subdivisions === 2) {
-            basisPolygon = Polygon.createRegular(4);
-        } else {
-            basisPolygon = Polygon.createRegular(subdivisions);
-        }
-    }
-    switch (Polygon.initial) {
-        case 'triangles':
-            basisPolygon.initialTriangles();
-            break;
-        case 'double triangles':
-            basisPolygon.initialDoubleTriangles();
-            break;
-        case 'quadrangles':
-            basisPolygon.initialQuadrangles();
-            break;
-        case 'pseudo quadrangles':
-            basisPolygon.initialPseudoQuadrangles();
-            break;
-    }
+Polygon.createInitial();
     Polygon.setSurfaces();
     Polygon.minMaxSurface();
 }
