@@ -113,7 +113,7 @@ module drawLines(points, length, weight = 1, eps = 0.001){
 // lines: endpointa, "radius"<0, endpointB
 module drawCircle(center, radius, normal,weight=1){
     if (radius<0){
-        drawLine(center, normal,weight);
+        drawLine(center, normal,2*weight);
     }
     if (radius>weight){
         translate(center) orient(normal) rotate_extrude(angle = 360) translate([radius,0,0]) circle(weight);

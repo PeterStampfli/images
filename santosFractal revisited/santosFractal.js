@@ -13,34 +13,16 @@ import {
 } from "./polygon.js";
 
 import {
-    graphEuclidean
-}
-from "./graphEuclidean.js";
-graphEuclidean.setup();
-
-import {
-    initial
-}
-from "./initial.js";
-initial.setup();
-
-import {
-    mod3
-}
-from "./mod3.js";
-mod3.setup();
-
-import {
-    mod4
-}
-from "./mod4.js";
-mod4.setup();
-
-import {
     colors
 }
 from "./colors.js";
 colors.setup();
+
+import {
+    subdivs
+}
+from "./subdivisions.js";
+subdivs.setup();
 
 const gui = new ParamGui({
     closed: false
@@ -73,14 +55,7 @@ gui.add({
     type: 'selection',
     params: Polygon,
     property: 'colors',
-    options: ['hue(width)-value(surface)','hue(angle)-value(surface)', 'grey surfaces', 'grey angles', 'magenta-green', 'modular(hue2-value1)'],
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'boolean',
-    params: Polygon,
-    property: 'spin',
+    options: ['hue(width)-value(surface)', 'hue(angle)-value(surface)', 'grey surfaces', 'grey angles', 'magenta-green', 'modular(hue2-value1)'],
     onChange: function() {
         draw();
     }
@@ -138,16 +113,6 @@ gui.add({
     onChange: function() {
         draw();
     }
-}).add({
-    type: 'number',
-    params: Polygon,
-    property: 'hueAlternance',
-    labelText: 'alternance',
-    min: 0,
-    max: 1,
-    onChange: function() {
-        draw();
-    }
 });
 
 gui.add({
@@ -199,226 +164,48 @@ gui.add({
 gui.add({
     type: 'number',
     params: Polygon,
-    property: 'centerWeight',
+    property: 'symmetry',
+    step: 1,
+    min: 3,
     onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'boolean',
-    params: Polygon,
-    property: 'trueBaryCenter',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'selection',
-    params: Polygon,
-    property: 'subdivApproach',
-    labelText: 'method',
-    options: [
-        'graphEuclidean', 'modular 3', 'modular 4'
-    ],
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'selection',
-    params: Polygon,
-    property: 'initial',
-    options: [
-        'triangles', 'double triangles', 'quadrangles', 'pseudo quadrangles'
-    ],
-    onChange: function() {
+        makeStructure();
         draw();
     }
 }).add({
-    type: 'number',
+    type: 'boolean',
     params: Polygon,
     property: 'star',
-    min: 0.1,
+    labelText: 'star',
     onChange: function() {
-        draw();
-    }
-});
-
-const generationsController = gui.add({
-    type: 'number',
-    params: Polygon,
-    property: 'generations',
-    min: 1,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 0,
-    labelText: 'subdivs &nbsp;&nbsp; 0',
-    min: 3,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 1,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 2,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 3,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 4,
-    labelText: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4',
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 5,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 6,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 7,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-});
-gui.add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 8,
-    labelText: '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8',
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 9,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 10,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: Polygon.subdivisions,
-    property: 11,
-    min: 0,
-    step: 1,
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'boolean',
-    params: Polygon,
-    property: 'initialAddVertices',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'boolean',
-    params: Polygon,
-    property: 'additionalVertices',
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
-    type: 'boolean',
-    params: Polygon,
-    property: 'shift',
-    onChange: function() {
+        makeStructure();
         draw();
     }
 }).add({
     type: 'number',
     params: Polygon,
-    property: 'shiftValue',
-    min: 0.1,
-    labelText: '',
+    property: 'starFactor',
+    labelText: 'factor',
     onChange: function() {
+        makeStructure();
         draw();
     }
 });
 
 function makeStructure() {
-    Polygon.indices.fill(-1);
-    Polygon.noAlert = true;
-    if (Polygon.generations > Polygon.subdivisions.length) {
-        generationsController.setValueOnly(Polygon.subdivisions.length);
-    }
     // for collecting polygons
     Polygon.collection.length = 0;
-Polygon.createInitial();
+    const polygon = new Polygon(0);
+    const delta = (Polygon.symmetry & 1) ? 0 : Math.PI / Polygon.symmetry;
+    const dAngle = 2 * Math.PI / Polygon.symmetry;
+    for (let i = 0; i < Polygon.symmetry; i++) {
+        let angle = i * dAngle + delta;
+        polygon.addCorner(Polygon.size * Math.sin(angle), Polygon.size * Math.cos(angle));
+        if (Polygon.star) {
+            angle += 0.5 * dAngle;
+            polygon.addCorner(Polygon.starFactor * Polygon.size * Math.sin(angle), Polygon.starFactor * Polygon.size * Math.cos(angle));
+        }
+    }
+    polygon.subdivide();
     Polygon.setSurfaces();
     Polygon.minMaxSurface();
 }

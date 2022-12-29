@@ -43,7 +43,7 @@ function prec(x) {
 }
 
 Circle.prototype.writeSCAD = function() {
-    const size = Circle.size;
+    let size = Circle.size;
     // export to Circle.SCADtext
     if (Circle.first) {
         Circle.first = false;
@@ -52,8 +52,9 @@ Circle.prototype.writeSCAD = function() {
     }
     if (Circle.planar) {
         // planar, for comparision,...
+        size=2*size;
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(size * this.centerX) + ',' + prec(size * this.centerY) + ',0],';
+        Circle.SCADtext += '[[' + prec(size * this.centerX) + ',' + prec(size * this.centerY) + ','+prec(-size/2)+'],';
         Circle.SCADtext += prec(size * this.radius) + ',[0,0,1]]';
     } else {
         // inversion maps circle to the surface of the hyperbolic sphere of radius 1

@@ -47,7 +47,7 @@ function prec(x) {
 Line.prototype.writeSCAD = function() {
     // export to Circle.SCADtext
     const big = 10;
-    const size = Circle.size;
+    let size = Circle.size;
     if (Circle.first) {
         Circle.first = false;
     } else {
@@ -56,9 +56,10 @@ Line.prototype.writeSCAD = function() {
     if (Circle.planar) {
         const px = this.d * this.nX;
         const py = this.d * this.nY;
+        size=2*size;
         Circle.SCADtext += '\n';
-        Circle.SCADtext += '[[' + prec(size * (px + big * this.nY)) + ',' + prec(size * (py - big * this.nX)) + ',0],' + '-1' + ',';
-        Circle.SCADtext += '[' + prec(size * (px - big * this.nY)) + ',' + prec(size * (py + big * this.nX)) + ',0]]';
+        Circle.SCADtext += '[[' + prec(size * (px + big * this.nY)) + ',' + prec(size * (py - big * this.nX)) + ','+prec(-size/2)+'],' + '-1' + ',';
+        Circle.SCADtext += '[' + prec(size * (px - big * this.nY)) + ',' + prec(size * (py + big * this.nX)) + ','+prec(-size/2)+']';
     } else {
         // invert line to the hyperbolic sphere with radius 1, we are now in three dimensions
         // inversion center at (0,0,1), radius sqrt(2)

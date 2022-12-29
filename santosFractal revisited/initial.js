@@ -9,8 +9,21 @@ export const initial = {};
 
 initial.setup = function() {
 
-    // make triangles, one for each side
+    // make initial triangles, one for each side
     Polygon.prototype.initialTriangles = function() {
+        if (Polygon.subdivisions[0] === 2) {
+            const p1 = new Polygon(this.generation + 1);
+            p1.addCorner(-1, -1);
+            p1.addCorner(-1, 1);
+            p1.addCorner(1, 1);
+            p1.subdivide();
+            const p2 = new Polygon(this.generation + 1);
+            p2.addCorner(-1, -1);
+            p2.addCorner(1, -1);
+            p2.addCorner(1, 1);
+            p2.subdivide();
+            return;
+        }
         const centerX = 0;
         const centerY = 0;
         const nChilds = this.nCorners;
@@ -23,8 +36,7 @@ initial.setup = function() {
                 p.addCorner(0.5 * (centerX + this.cornersX[i]), 0.5 * (centerY + this.cornersY[i]));
             }
             p.addCorner(this.cornersX[i], this.cornersY[i]);
-            let ip = i + 1;
-            if (ip === nChilds) {
+            const ip =  (i+1){
                 ip = 0;
             }
             p.addCorner(this.cornersX[ip], this.cornersY[ip]);
@@ -163,33 +175,5 @@ initial.setup = function() {
 
     // create regular polygon with n corners, generation 0
 
-    Polygon.createRegular = function(n) {
-        const polygon = new Polygon(0);
-        const delta = (n & 1) ? 0 : Math.PI / n;
-        for (let i = 0; i < n; i++) {
-            const angle = 2 * i * Math.PI / n + delta;
-            polygon.addCorner(Polygon.size * Math.sin(angle), Polygon.size * Math.cos(angle));
-        }
-        return polygon;
-    };
-
-    Polygon.createInitial = function() {
-        const subdivisions = Polygon.subdivisions[0];
-        var basisPolygon;
-                basisPolygon = Polygon.createRegular(subdivisions);
-        switch (Polygon.initial) {
-            case 'triangles':
-                basisPolygon.initialTriangles();
-                break;
-            case 'double triangles':
-                basisPolygon.initialDoubleTriangles();
-                break;
-            case 'quadrangles':
-                basisPolygon.initialQuadrangles();
-                break;
-            case 'pseudo quadrangles':
-                basisPolygon.initialPseudoQuadrangles();
-                break;
-        }
-    };
+   
 };
