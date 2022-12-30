@@ -112,9 +112,8 @@ Polygon.drawCollection = function() {
     }
 };
 
-// calculate center of polygon
-Polygon.prototype.getCenter = function() {
-    console.log(this.generation);
+// calculate center of polygon, shift towards/away center possible
+Polygon.prototype.getCenter = function(originExtra=0) {
     if (this.generation === 0) {
         return [0, 0];
     }
@@ -141,9 +140,8 @@ Polygon.prototype.getCenter = function() {
     const factor = 0.333 / areaSum;
     centerX *= factor;
     centerY *= factor;
-    const originExtra = Polygon.originExtra;
     centerX = (centerX + originExtra * originX) / (1 + originExtra);
-    centerY = (centerX + originExtra * originY) / (1 + originExtra);
+    centerY = (centerY + originExtra * originY) / (1 + originExtra);
     return [centerX, centerY];
 };
 
@@ -154,37 +152,22 @@ Polygon.prototype.addCorner = function(x, y) {
     this.nCorners += 1;
 };
 
+// adding interpolated corners
+// n corners from start to end, including end, without start
+Polygon.prototype.addCorners = function(n, startX, startY, endX, endY) {
+    const dx = (endX - startX) / n;
+    const dy = (endY - startY) / n;
+    let x = startX;
+    let y = startY;
+    for (let i = 0; i < n; i++) {
+        x += dx;
+        y += dy;
+        this.addCorner(x, y);
+    }
+};
+
 // special subdivisions
 //====================================================
-
-// scaling an array of vectors
-function scaleVectors(scale, vectorsX, vectorsY) {
-    const length = vectorsX.length;
-    for (let i = 0; i < length; i++) {
-        vectorsX[i] *= scale;
-        vectorsY[i] *= scale;
-    }
-}
-
-// copy an array with spread operator
-// [...theArray]
-
-// calculating midpoints of vectors
-// mid[0]=0.5*(vectors[0]+vectors[1])
-function midVectors(scale, vectorsX, vectorsY) {
-    const length = vectorsX.length;
-    const midX = [];
-    const midY = [];
-    midX.length = length;
-    midY.length = length;
-    midX[0] = 0.5 * (vectorsX[length - 1] + vectorsX[0]);
-    midY[0] = 0.5 * (vectorsY[length - 1] + vectorsY[0]);
-    for (let i = 1; i < length; i++) {
-        midX[0] = 0.5 * (vectorsX[i - 1] + vectorsX[i]);
-        midY[0] = 0.5 * (vectorsY[i - 1] + vectorsY[i]);
-    }
-    return [midX, midY];
-}
 
 
 
@@ -275,6 +258,10 @@ Polygon.prototype.subdivide = function() {
     if (this.generation >= Polygon.generations) {
         Polygon.collection.push(this);
     } else {
-        this.simpleTriangles();
+       // this.simpleTriangles(2,2);
+        //this.simpleQuadrangles();
+        //this.halfQuadrangles(2,1);
+     //   this.concentricQuadrangles(0.4,1,2,2);
+        this.concentricPentangles();
     }
 };

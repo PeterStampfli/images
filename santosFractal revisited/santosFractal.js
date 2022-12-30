@@ -164,6 +164,18 @@ gui.add({
 gui.add({
     type: 'number',
     params: Polygon,
+    property: 'generations',
+    step: 1,
+    min: 0,
+    onChange: function() {
+        makeStructure();
+        draw();
+    }
+});
+
+gui.add({
+    type: 'number',
+    params: Polygon,
     property: 'symmetry',
     step: 1,
     min: 3,
