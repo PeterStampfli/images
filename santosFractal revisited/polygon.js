@@ -38,7 +38,7 @@ Polygon.colors = 'hue(angle)-value(surface)';
 // geometry options
 Polygon.size = 600;
 
-Polygon.symmetry = 5;
+Polygon.symmetry = 6;
 Polygon.star = false;
 Polygon.starFactor = 0.5;
 
@@ -262,6 +262,8 @@ Polygon.prototype.subdivide = function() {
         //this.simpleQuadrangles();
         //this.halfQuadrangles(2,1);
      //   this.concentricQuadrangles(0.4,1,2,2);
-        this.concentricPentangles();
+      //  this.concentricPentangles();
+     // this.concentricHalfPentangles(0.4,2,1,2);
+      this.concentricHalfHexagons();
     }
 };
