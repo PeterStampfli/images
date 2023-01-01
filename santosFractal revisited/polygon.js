@@ -33,26 +33,30 @@ Polygon.saturationFrom = 1.5;
 Polygon.saturationTo = 0.3;
 Polygon.hueFrom = 0;
 Polygon.hueTo = 0.5;
-Polygon.colors = 'hue(angle)-value(surface)';
 
 // geometry options
 Polygon.size = 600;
-
+// initial
 Polygon.symmetry = 6;
 Polygon.star = false;
 Polygon.starFactor = 0.5;
-
-
-Polygon.useOffset = false;
 Polygon.generations = 1;
-Polygon.subdivApproach = 'graphEuclidean';
-Polygon.subdivApproach = 'modular 4';
-Polygon.originExtra = 0;
-Polygon.shift = false;
-Polygon.shiftValue = 0.5;
-
-// other
-Polygon.noAlert = true;
+// subdivs
+Polygon.subControls = [];
+Polygon.subControls.length = 10;
+const length = Polygon.subControls.length;
+for (let i = 0; i < length; i++) {
+    const subControls = {};
+    Polygon.subControls[i]=subControls;
+    subControls.subDiv = 'simpleQuadrangles';
+    subControls.origin = 0;
+    subControls.ratio = 0.4;
+    subControls.insideVertices = 1;
+    subControls.radialVertices = 1;
+    subControls.outsideVertices = 1;
+}
+Polygon.subControls[0].subDiv='simpleTriangles';
+console.log(Polygon.subControls)
 
 // collecting polygons
 Polygon.collection = [];
@@ -113,7 +117,7 @@ Polygon.drawCollection = function() {
 };
 
 // calculate center of polygon, shift towards/away center possible
-Polygon.prototype.getCenter = function(originExtra=0) {
+Polygon.prototype.getCenter = function(originExtra = 0) {
     if (this.generation === 0) {
         return [0, 0];
     }
@@ -166,91 +170,7 @@ Polygon.prototype.addCorners = function(n, startX, startY, endX, endY) {
     }
 };
 
-// special subdivisions
-//====================================================
-
-
-
-
-//=======================================================
-// decomposition into a central polygon and pentagons per corner
-Polygon.prototype.concentricPentagons = function() {
-    let length = this.cornersX.length;
-    var centerX, centerY;
-    [centerX, centerY] = this.getCenter();
-    // points at middle of sides
-    const sideX = [];
-    const sideY = [];
-    sideX.length = length;
-    sideY.length = length;
-    sideX[0] = 0.5 * (this.cornersX[0] + this.cornersX[length - 1]);
-    sideY[0] = 0.5 * (this.cornersY[0] + this.cornersY[length - 1]);
-    for (let i = 1; i < length; i++) {
-        sideX[i] = 0.5 * (this.cornersX[i] + this.cornersX[i - 1]);
-        sideY[i] = 0.5 * (this.cornersY[i] + this.cornersY[i - 1]);
-    }
-    // points between middle of sides and center
-    const midX = [];
-    const midY = [];
-    midX.length = length;
-    midY.length = length;
-    const p0 = new Polygon(this.generation + 1);
-    for (let i = 0; i < length; i++) {
-        midX[i] = 0.5 * (centerX + sideX[i]);
-        midY[i] = 0.5 * (centerY + sideY[i]);
-        p0.addCorner(midX[i], midY[i]);
-    }
-    p0.subdivide();
-    const p = new Polygon(this.generation + 1);
-    p.addCorner(this.cornersX[length - 1], this.cornersY[length - 1]);
-    p.addCorner(sideX[0], sideY[0]);
-    p.addCorner(midX[0], midY[0]);
-    p.addCorner(midX[length - 1], midY[length - 1]);
-    p.addCorner(sideX[length - 1], sideY[length - 1]);
-    p.subdivide();
-    for (let i = 1; i < length; i++) {
-        const p = new Polygon(this.generation + 1);
-        p.addCorner(this.cornersX[i - 1], this.cornersY[i - 1]);
-        p.addCorner(sideX[i], sideY[i]);
-        p.addCorner(midX[i], midY[i]);
-        p.addCorner(midX[i - 1], midY[i - 1]);
-        p.addCorner(sideX[i - 1], sideY[i - 1]);
-        p.subdivide();
-    }
-};
-
-Polygon.prototype.concentricQuads = function() {
-    // concentric appraoch
-    console.log('concentric quads');
-    let length = this.cornersX.length;
-    var centerX, centerY;
-    [centerX, centerY] = this.getCenter();
-    const midX = [];
-    const midY = [];
-    midX.length = length;
-    midY.length = length;
-    const p0 = new Polygon(this.generation + 1);
-    for (let i = 0; i < length; i++) {
-        midX[i] = 0.5 * (centerX + this.cornersX[i]);
-        midY[i] = 0.5 * (centerY + this.cornersY[i]);
-        p0.addCorner(midX[i], midY[i]);
-    }
-    p0.subdivide();
-    const p = new Polygon(this.generation + 1);
-    p.addCorner(midX[0], midY[0]);
-    p.addCorner(midX[length - 1], midY[length - 1]);
-    p.addCorner(this.cornersX[length - 1], this.cornersY[length - 1]);
-    p.addCorner(this.cornersX[0], this.cornersY[0]);
-    p.subdivide();
-    for (let i = 1; i < length; i++) {
-        const p = new Polygon(this.generation + 1);
-        p.addCorner(midX[i], midY[i]);
-        p.addCorner(midX[i - 1], midY[i - 1]);
-        p.addCorner(this.cornersX[i - 1], this.cornersY[i - 1]);
-        p.addCorner(this.cornersX[i], this.cornersY[i]);
-        p.subdivide();
-    }
-};
+Polygon.subDivs = ['simpleTriangles', 'simpleQuadrangles', 'halfQuadrangles', 'concentricQuadrangles', 'concentricPentangles', 'concentricHalfPentangles', 'concentricHalfHexagons', 'innerPolygon'];
 
 // subdivide the polygon or store it for showing
 Polygon.prototype.subdivide = function() {
@@ -258,12 +178,37 @@ Polygon.prototype.subdivide = function() {
     if (this.generation >= Polygon.generations) {
         Polygon.collection.push(this);
     } else {
-       // this.simpleTriangles(2,2);
-        //this.simpleQuadrangles();
-        //this.halfQuadrangles(2,1);
-     //   this.concentricQuadrangles(0.4,1,2,2);
-      //  this.concentricPentangles();
-     // this.concentricHalfPentangles(0.4,2,1,2);
-      this.concentricHalfHexagons();
+        const subControls = Polygon.subControls[this.generation];
+        const ratio=subControls.ratio;
+        const insideVertices=subControls.insideVertices;
+        const radialVertices=subControls.radialVertices;
+        const outsideVertices=subControls.outsideVertices;
+        console.log(this.generation,subControls.subDiv);
+        switch (subControls.subDiv) {
+            case 'simpleTriangles':
+                this.simpleTriangles(subControls);
+                break;
+            case 'simpleQuadrangles':
+                this.simpleQuadrangles(subControls);
+                break;
+            case 'halfQuadrangles':
+                this.halfQuadrangles(subControls);
+                break;
+            case 'concentricQuadrangles':
+                this.concentricQuadrangles(subControls);
+                break;
+            case 'concentricPentangles':
+                this.concentricPentangles(subControls);
+                break;
+            case 'concentricHalfHexagons':
+                this.concentricHalfHexagons(subControls);
+                break;
+            case 'concentricHalfPentangles':
+                this.concentricPentangles(subControls);
+                break;
+            case 'innerPolygon':
+                this.innerPolygon(subControls);
+                break;
+        }
     }
 };

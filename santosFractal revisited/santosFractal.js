@@ -52,16 +52,6 @@ gui.add({
 });
 
 gui.add({
-    type: 'selection',
-    params: Polygon,
-    property: 'colors',
-    options: ['hue(width)-value(surface)', 'hue(angle)-value(surface)', 'grey surfaces', 'grey angles', 'magenta-green', 'modular(hue2-value1)'],
-    onChange: function() {
-        draw();
-    }
-});
-
-gui.add({
     type: 'number',
     params: Polygon,
     property: 'brightnessFrom',
@@ -203,6 +193,35 @@ gui.add({
     }
 });
 
+
+
+const length = Polygon.subControls.length;
+for (let i = 0; i < length; i++) {
+    const subControls=Polygon.subControls[i];
+       gui.add({
+        type: 'selection',
+        params: subControls,
+        property: 'subDiv',
+        labelText: i + ' ',
+        options: Polygon.subDivs,
+        onChange: function() {
+            console.log(Polygon.subControls)
+            makeStructure();
+            draw();
+        }
+    });
+
+
+
+   /* subControls.subDiv = 'simpleQuadrangles';
+    subControls.origin = 0;
+    subControls.ratio = 0.4;
+    subControls.insideVertices = 1;
+    subControls.radialVertices = 1;
+    subControls.outsideVertices = 1;
+    */
+}
+
 function makeStructure() {
     // for collecting polygons
     Polygon.collection.length = 0;
@@ -224,56 +243,14 @@ function makeStructure() {
 
 function makeColors() {
     const length = Polygon.collection.length;
-    switch (Polygon.colors) {
-        case 'grey surfaces':
-            Polygon.normalizeSurface();
-            Polygon.greySurfaces();
-            break;
-        case 'grey angles':
-            Polygon.normalizeSurface();
-            Polygon.greyAngles();
-            break;
-        case 'magenta-green':
-            Polygon.normalizeSurface();
-            Polygon.magentaGreen();
-            break;
-        case 'hue(angle)-value(surface)':
-            Polygon.normalizeSurface();
-            for (let i = 0; i < length; i++) {
-                const polygon = Polygon.collection[i];
-                polygon.hue = polygon.cosAngle;
-                polygon.value = polygon.normalizedSurface;
-            }
-            Polygon.hueValue();
-            break;
-        case 'hue(width)-value(surface)':
-            Polygon.normalizeSurface();
-            for (let i = 0; i < length; i++) {
-                const polygon = Polygon.collection[i];
-                polygon.hue = polygon.width;
-                polygon.value = polygon.normalizedSurface;
-            }
-            Polygon.hueValue();
-            break;
-        case 'modular(hue2-value1)':
-            const lastSubdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 1)];
-            const last2Subdiv = Polygon.subdivisions[Math.max(0, Polygon.generations - 2)];
-            const prod2Subdiv = lastSubdiv * last2Subdiv;
-            const iLastSubdiv = 1 / (lastSubdiv - 1);
-            const iProd2Subdiv = 1 / (prod2Subdiv - 1);
-            for (let i = 0; i < length; i++) {
-                const polygon = Polygon.collection[i];
-                let iEff = i;
-                if (Polygon.spin && (Math.floor(i / lastSubdiv) & 1 === 1)) {
-                    iEff = iEff + lastSubdiv - 1 - 2 * (iEff % lastSubdiv);
-                }
-                // normalize to 0...1
-                polygon.hue = (iEff % prod2Subdiv) * iProd2Subdiv;
-                polygon.value = (iEff % lastSubdiv) * iLastSubdiv;
-            }
-            Polygon.hueValue();
-            break;
+    Polygon.normalizeSurface();
+    for (let i = 0; i < length; i++) {
+        const polygon = Polygon.collection[i];
+        polygon.hue = polygon.width;
+        polygon.value = polygon.normalizedSurface;
     }
+    Polygon.hueValue();
+
 }
 
 function drawOnly() {

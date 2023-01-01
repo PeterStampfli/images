@@ -44,9 +44,11 @@ subdivs.setup = function() {
         return [midX, midY];
     };
 
-    Polygon.prototype.simpleTriangles = function(radialVertices = 1, outsideVertices = 1) {
+    Polygon.prototype.simpleTriangles = function(subControls) {
+        const radialVertices = subControls.radialVertices;
+        const outsideVertices = subControls.outsideVertices;
         var centerX, centerY;
-        [centerX, centerY] = this.getCenter();
+        [centerX, centerY] = this.getCenter(subControls.origin);
         const nCorners = this.nCorners;
         for (let i = 0; i < nCorners; i++) {
             const ip = (i + 1) % nCorners;
@@ -58,9 +60,11 @@ subdivs.setup = function() {
         }
     };
 
-    Polygon.prototype.simpleQuadrangles = function(radialVertices = 1, outsideVertices = 1) {
+    Polygon.prototype.simpleQuadrangles = function(subControls) {
+        const radialVertices = subControls.radialVertices;
+        const outsideVertices = subControls.outsideVertices;
         var centerX, centerY;
-        [centerX, centerY] = this.getCenter();
+        [centerX, centerY] = this.getCenter(subControls.origin);
         var midX, midY;
         [midX, midY] = this.midVectors();
         const nCorners = this.nCorners;
@@ -75,9 +79,11 @@ subdivs.setup = function() {
         }
     };
 
-    Polygon.prototype.halfQuadrangles = function(radialVertices = 1, outsideVertices = 1) {
+    Polygon.prototype.halfQuadrangles = function(subControls) {
+        const radialVertices = subControls.radialVertices;
+        const outsideVertices = subControls.outsideVertices;
         var centerX, centerY;
-        [centerX, centerY] = this.getCenter();
+        [centerX, centerY] = this.getCenter(subControls.origin);
         const nCorners = this.nCorners;
         for (let i = 0; i < nCorners - 1; i += 2) {
             const ip = (i + 1) % nCorners;
@@ -91,12 +97,15 @@ subdivs.setup = function() {
         }
     };
 
-    Polygon.prototype.concentricQuadrangles = function(ratio = 0.4, insideVertices = 1, radialVertices = 1, outsideVertices = 1) {
+    Polygon.prototype.concentricQuadrangles = function(subControls) {
+        const insideVertices = subControls.insideVertices;
+        const radialVertices = subControls.radialVertices;
+        const outsideVertices = subControls.outsideVertices;
         var centerX, centerY;
-        [centerX, centerY] = this.getCenter();
+        [centerX, centerY] = this.getCenter(subControls.origin);
         const nCorners = this.nCorners;
         var innerX, innerY;
-        [innerX, innerY] = scaledVectors(ratio, centerX, centerY, this.cornersX, this.cornersY);
+        [innerX, innerY] = scaledVectors(subControls.ratio, centerX, centerY, this.cornersX, this.cornersY);
         const p = new Polygon(this.generation + 1);
         for (let i = 0; i < nCorners; i++) {
             const ip = (i + 1) % nCorners;
@@ -112,16 +121,19 @@ subdivs.setup = function() {
             p.addCorners(insideVertices, innerX[ip], innerY[ip], innerX[i], innerY[i]);
             p.subdivide();
         }
-    }
+    };
 
-    Polygon.prototype.concentricPentangles = function(ratio = 0.4, insideVertices = 1, radialVertices = 1, outsideVertices = 1) {
+    Polygon.prototype.concentricPentangles = function(subControls) {
+        const insideVertices = subControls.insideVertices;
+        const radialVertices = subControls.radialVertices;
+        const outsideVertices = subControls.outsideVertices;
         var centerX, centerY;
-        [centerX, centerY] = this.getCenter();
+        [centerX, centerY] = this.getCenter(subControls.origin);
         const nCorners = this.nCorners;
         var midX, midY;
         [midX, midY] = this.midVectors();
         var innerX, innerY;
-        [innerX, innerY] = scaledVectors(ratio, centerX, centerY, midX, midY);
+        [innerX, innerY] = scaledVectors(subControls.ratio, centerX, centerY, midX, midY);
         const p = new Polygon(this.generation + 1);
         for (let i = 0; i < nCorners; i++) {
             const ip = (i + 1) % nCorners;
@@ -138,16 +150,19 @@ subdivs.setup = function() {
             p.addCorners(insideVertices, innerX[ip], innerY[ip], innerX[i], innerY[i]);
             p.subdivide();
         }
-    }
+    };
 
-    Polygon.prototype.concentricHalfPentangles = function(ratio = 0.4, insideVertices = 1, radialVertices = 1, outsideVertices = 1) {
+    Polygon.prototype.concentricHalfPentangles = function(subControls) {
+        const insideVertices = subControls.insideVertices;
+        const radialVertices = subControls.radialVertices;
+        const outsideVertices = subControls.outsideVertices;
         var centerX, centerY;
-        [centerX, centerY] = this.getCenter();
+        [centerX, centerY] = this.getCenter(subControls.origin);
         var innerX, innerY;
-        [innerX, innerY] = scaledVectors(ratio, centerX, centerY, this.cornersX,this.cornersY);
+        [innerX, innerY] = scaledVectors(subControls.ratio, centerX, centerY, this.cornersX, this.cornersY);
         const nCorners = this.nCorners;
         const p = new Polygon(this.generation + 1);
-        for (let i = 0; i < nCorners-1; i+=2) {
+        for (let i = 0; i < nCorners - 1; i += 2) {
             const ip = (i + 2) % nCorners;
             p.addCorners(insideVertices, innerX[i], innerY[i], innerX[ip], innerY[ip]);
         }
@@ -156,40 +171,65 @@ subdivs.setup = function() {
             const ip = (i + 1) % nCorners;
             const ip2 = (i + 2) % nCorners;
             const p = new Polygon(this.generation + 1);
-            p.addCorners(radialVertices, innerX[i],innerY[i], this.cornersX[i], this.cornersY[i]);
+            p.addCorners(radialVertices, innerX[i], innerY[i], this.cornersX[i], this.cornersY[i]);
             p.addCorners(outsideVertices, this.cornersX[i], this.cornersY[i], this.cornersX[ip], this.cornersY[ip]);
             p.addCorners(outsideVertices, this.cornersX[ip], this.cornersY[ip], this.cornersX[ip2], this.cornersY[ip2]);
-            p.addCorners(radialVertices, this.cornersX[ip2], this.cornersY[ip2], innerX[ip2],innerY[ip2] );
+            p.addCorners(radialVertices, this.cornersX[ip2], this.cornersY[ip2], innerX[ip2], innerY[ip2]);
             p.addCorners(insideVertices, innerX[ip2], innerY[ip2], innerX[i], innerY[i]);
             p.subdivide();
         }
     };
 };
 
-    Polygon.prototype.concentricHalfHexagons = function(ratio = 0.4, insideVertices = 1, radialVertices = 1, outsideVertices = 1) {
-        var centerX, centerY;
-        [centerX, centerY] = this.getCenter();
-        const nCorners = this.nCorners;
-        var midX, midY;
-        [midX, midY] = this.midVectors();
-        var innerX, innerY;
-        [innerX, innerY] = scaledVectors(ratio, centerX, centerY, midX, midY);
-        const p = new Polygon(this.generation + 1);
-        for (let i = 0; i < nCorners-1; i+=2) {
-            const ip = (i + 2) % nCorners;
-            p.addCorners(insideVertices, innerX[i], innerY[i], innerX[ip], innerY[ip]);
-        }
-        p.subdivide();
-        for (let i = 0; i < nCorners-1; i+=2) {
-            const ip = (i + 1) % nCorners;
-            const ip2 = (i + 2) % nCorners;
-            const p = new Polygon(this.generation + 1);
-            p.addCorners(radialVertices, innerX[i], innerY[i], midX[i], midY[i]);
-            p.addCorners(radialVertices, midX[i], midY[i], this.cornersX[i], this.cornersY[i]);
-            p.addCorners(outsideVertices, this.cornersX[i], this.cornersY[i], this.cornersX[ip], this.cornersY[ip]);
-            p.addCorners(radialVertices, this.cornersX[ip], this.cornersY[ip], midX[ip2], midY[ip2]);
-            p.addCorners(radialVertices, midX[ip2], midY[ip2], innerX[ip2], innerY[ip2]);
-            p.addCorners(insideVertices, innerX[ip2], innerY[ip2], innerX[i], innerY[i]);
-            p.subdivide();
-        }
+Polygon.prototype.concentricHalfHexagons = function(subControls) {
+    const insideVertices = subControls.insideVertices;
+    const radialVertices = subControls.radialVertices;
+    const outsideVertices = subControls.outsideVertices;
+    var centerX, centerY;
+    [centerX, centerY] = this.getCenter(subControls.origin);
+    const nCorners = this.nCorners;
+    var midX, midY;
+    [midX, midY] = this.midVectors();
+    var innerX, innerY;
+    [innerX, innerY] = scaledVectors(subControls.ratio, centerX, centerY, midX, midY);
+    const p = new Polygon(this.generation + 1);
+    for (let i = 0; i < nCorners - 1; i += 2) {
+        const ip = (i + 2) % nCorners;
+        p.addCorners(insideVertices, innerX[i], innerY[i], innerX[ip], innerY[ip]);
     }
+    p.subdivide();
+    for (let i = 0; i < nCorners - 1; i += 2) {
+        const ip = (i + 1) % nCorners;
+        const ip2 = (i + 2) % nCorners;
+        const p = new Polygon(this.generation + 1);
+        p.addCorners(radialVertices, innerX[i], innerY[i], midX[i], midY[i]);
+        p.addCorners(radialVertices, midX[i], midY[i], this.cornersX[i], this.cornersY[i]);
+        p.addCorners(outsideVertices, this.cornersX[i], this.cornersY[i], this.cornersX[ip], this.cornersY[ip]);
+        p.addCorners(radialVertices, this.cornersX[ip], this.cornersY[ip], midX[ip2], midY[ip2]);
+        p.addCorners(radialVertices, midX[ip2], midY[ip2], innerX[ip2], innerY[ip2]);
+        p.addCorners(insideVertices, innerX[ip2], innerY[ip2], innerX[i], innerY[i]);
+        p.subdivide();
+    }
+};
+
+
+Polygon.prototype.innerPolygon = function(subControls) {
+    const insideVertices = subControls.insideVertices;
+    const outsideVertices = subControls.outsideVertices;
+    const nCorners = this.nCorners;
+    const p = new Polygon(this.generation + 1);
+    for (let i = 0; i < nCorners - 1; i += 2) {
+        const ip = (i + 2) % nCorners;
+        p.addCorners(insideVertices, this.cornersX[i], this.cornersY[i], this.cornersX[ip], this.cornersY[ip]);
+    }
+    p.subdivide();
+    for (let i = 0; i < nCorners - 1; i += 2) {
+        const ip = (i + 1) % nCorners;
+        const ip2 = (i + 2) % nCorners;
+        const p = new Polygon(this.generation + 1);
+        p.addCorners(outsideVertices, this.cornersX[i], this.cornersY[i], this.cornersX[ip], this.cornersY[ip]);
+        p.addCorners(outsideVertices, this.cornersX[ip], this.cornersY[ip], this.cornersX[ip2], this.cornersY[ip2]);
+        p.addCorners(insideVertices, this.cornersX[ip2], this.cornersY[ip2], this.cornersX[i], this.cornersY[i]);
+        p.subdivide();
+    }
+};

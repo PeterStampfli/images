@@ -10,7 +10,6 @@ export const colors = {};
 colors.setup = function() {
 
     // calculate the surface of the polygon and store it in its field
-    // and calculate cos of angle between lines going out from center=vertex[0]
     // calculate width=surface/perimeter^2
     Polygon.prototype.setSurface = function() {
         const length = this.cornersX.length;
@@ -33,7 +32,6 @@ colors.setup = function() {
         let ay = this.cornersY[1] - this.cornersY[0];
         let bx = this.cornersX[length - 1] - this.cornersX[0];
         let by = this.cornersY[length - 1] - this.cornersY[0];
-        this.cosAngle = Math.abs((ax * bx + ay * by)) / Math.sqrt((ax * ax + ay * ay) * (bx * bx + by * by));
         let perimeter = Math.sqrt(bx * bx + by * by);
         for (let i = 1; i < length; i++) {
             bx = this.cornersX[i] - this.cornersX[i - 1];
@@ -44,17 +42,15 @@ colors.setup = function() {
     };
 
 
-    // calculate surfaces and cosAngles
+    // calculate surfaces and widths
     Polygon.setSurfaces = function() {
         Polygon.collection.forEach(polygon => polygon.setSurface());
     };
 
-    // minimum and maximum surface, and acosAngles, and width
+    // minimum and maximum surface, and width
     Polygon.minMaxSurface = function() {
         let minSurface = Polygon.collection[0].surface;
         let maxSurface = minSurface;
-        let minCosAngle = Polygon.collection[0].cosAngle;
-        let maxCosAngle = minCosAngle;
         let minWidth = Polygon.collection[0].width;
         let maxWidth = minWidth;
         const length = Polygon.collection.length;
@@ -62,24 +58,18 @@ colors.setup = function() {
             const surface = Polygon.collection[i].surface;
             minSurface = Math.min(minSurface, surface);
             maxSurface = Math.max(maxSurface, surface);
-            const cosAngle = Polygon.collection[i].cosAngle;
-            minCosAngle = Math.min(minCosAngle, cosAngle);
-            maxCosAngle = Math.max(maxCosAngle, cosAngle);
             const width = Polygon.collection[i].width;
             minWidth = Math.min(minWidth, width);
             maxWidth = Math.max(maxWidth, width);
         }
         Polygon.minSurface = minSurface;
         Polygon.maxSurface = maxSurface;
-        Polygon.minCosAngle = minCosAngle;
-        Polygon.maxCosAngle = maxCosAngle;
-        Polygon.minWidth = minWidth;
+         Polygon.minWidth = minWidth;
         Polygon.maxWidth = maxWidth;
     };
 
     // normalize surfaces between 0 and 0.999
     // if all nearly same surface - make it 0.9999
-    // normalize cosAngle to 0...0.999
     // normalize width to 0 ... 0.999
     Polygon.normalizeSurface = function() {
         const diff = Polygon.maxSurface - Polygon.minSurface;
@@ -94,18 +84,6 @@ colors.setup = function() {
             for (let i = 0; i < length; i++) {
                 let x = (Polygon.collection[i].surface - minSurface) * iDiff;
                 Polygon.collection[i].normalizedSurface = x;
-            }
-        }
-        const aDiff = Polygon.maxCosAngle - Polygon.minCosAngle;
-        if (aDiff < 0.001) {
-            for (let i = 0; i < length; i++) {
-                Polygon.collection[i].cosAngle = 0.5;
-            }
-        } else {
-            const iADiff = 0.999 / aDiff;
-            const minCosAngle = Polygon.minCosAngle;
-            for (let i = 0; i < length; i++) {
-                Polygon.collection[i].cosAngle = (Polygon.collection[i].cosAngle - minCosAngle) * iADiff;
             }
         }
         const wDiff = Polygon.maxWidth - Polygon.minWidth;
@@ -178,25 +156,13 @@ colors.setup = function() {
         }
     };
 
-    // grey colors black for smallest to white for largest
-    Polygon.greyAngles = function() {
-        const length = Polygon.collection.length;
-        for (let i = 0; i < length; i++) {
-            const polygon = Polygon.collection[i];
-            const grey = Math.floor(polygon.cosAngle * 255.9);
-            polygon.red = grey;
-            polygon.green = grey;
-            polygon.blue = grey;
-        }
-    };
-
-    // magenta-green  (cosangle-surface)
+    // magenta-green  (width-surface)
     Polygon.magentaGreen = function() {
         const length = Polygon.collection.length;
         for (let i = 0; i < length; i++) {
             const polygon = Polygon.collection[i];
             const green = Math.floor(polygon.normalizedSurface * 255.9);
-            const magenta = Math.floor(polygon.cosAngle * 255.9);
+            const magenta = Math.floor(polygon.width * 255.9);
             polygon.red = magenta;
             polygon.green = green;
             polygon.blue = magenta;
