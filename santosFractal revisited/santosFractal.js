@@ -157,10 +157,7 @@ gui.add({
     property: 'generations',
     step: 1,
     min: 0,
-    onChange: function() {
-        makeStructure();
-        draw();
-    }
+    onChange: doall
 });
 
 gui.add({
@@ -169,57 +166,81 @@ gui.add({
     property: 'symmetry',
     step: 1,
     min: 3,
-    onChange: function() {
-        makeStructure();
-        draw();
-    }
+    onChange: doall
 }).add({
     type: 'boolean',
     params: Polygon,
     property: 'star',
     labelText: 'star',
-    onChange: function() {
-        makeStructure();
-        draw();
-    }
+    onChange: doall
 }).add({
     type: 'number',
     params: Polygon,
     property: 'starFactor',
     labelText: 'factor',
-    onChange: function() {
-        makeStructure();
-        draw();
-    }
+    onChange: doall
 });
-
-
 
 const length = Polygon.subControls.length;
 for (let i = 0; i < length; i++) {
-    const subControls=Polygon.subControls[i];
-       gui.add({
+    const subControls = Polygon.subControls[i];
+    gui.add({
         type: 'selection',
         params: subControls,
         property: 'subDiv',
         labelText: i + ' ',
         options: Polygon.subDivs,
-        onChange: function() {
-            console.log(Polygon.subControls)
-            makeStructure();
-            draw();
-        }
+        onChange: doall
     });
+    const ratioController = gui.add({
+        type: 'number',
+        params: subControls,
+        property: 'ratio',
+        min: 0,
+        onChange: doall
+    });
+    if (i > 0) {
+        ratioController.add({
+            type: 'number',
+            params: subControls,
+            property: 'origin',
+            onChange: doall
+        });
+    }
+if (i<length-1){
+    gui.add({
+        type: 'number',
+        params: subControls,
+        property: 'insideVertices',
+        labelText:'inside',
+        min: 1,
+        onChange: doall
+    }).add({
+        type: 'number',
+        params: subControls,
+        property: 'radialVertices',
+        labelText:'radial',
+        min: 1,
+        onChange: doall
+    }).add({
+        type: 'number',
+        params: subControls,
+        property: 'outsideVertices',
+        labelText:'outside',
+        min: 1,
+        onChange: doall
+    });
+}
 
 
 
-   /* subControls.subDiv = 'simpleQuadrangles';
-    subControls.origin = 0;
-    subControls.ratio = 0.4;
-    subControls.insideVertices = 1;
-    subControls.radialVertices = 1;
-    subControls.outsideVertices = 1;
-    */
+    /* subControls.subDiv = 'simpleQuadrangles';
+     subControls.origin = 0;
+     subControls.ratio = 0.4;
+     subControls.insideVertices = 1;
+     subControls.radialVertices = 1;
+     subControls.outsideVertices = 1;
+     */
 }
 
 function makeStructure() {
@@ -250,10 +271,9 @@ function makeColors() {
         polygon.value = polygon.normalizedSurface;
     }
     Polygon.hueValue();
-
 }
 
-function drawOnly() {
+function draw() {
     SVG.begin();
     SVG.groupAttributes = {
         transform: 'scale(1 -1)',
@@ -266,11 +286,11 @@ function drawOnly() {
     SVG.terminate();
 }
 
-function draw() {
+function doall() {
     makeStructure();
     makeColors();
-    drawOnly();
+    draw();
 }
 
-SVG.draw = draw;
-draw();
+SVG.draw = doall;
+doall();

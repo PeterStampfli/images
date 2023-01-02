@@ -157,16 +157,16 @@ Polygon.prototype.addCorner = function(x, y) {
 };
 
 // adding interpolated corners
-// n corners from start to end, including end, without start
+// n corners from start to end, including start, without end
 Polygon.prototype.addCorners = function(n, startX, startY, endX, endY) {
     const dx = (endX - startX) / n;
     const dy = (endY - startY) / n;
     let x = startX;
     let y = startY;
     for (let i = 0; i < n; i++) {
+        this.addCorner(x, y);
         x += dx;
         y += dy;
-        this.addCorner(x, y);
     }
 };
 
