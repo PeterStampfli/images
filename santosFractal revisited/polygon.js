@@ -56,7 +56,6 @@ for (let i = 0; i < length; i++) {
     subControls.outsideVertices = 1;
 }
 Polygon.subControls[0].subDiv='simpleTriangles';
-console.log(Polygon.subControls)
 
 // collecting polygons
 Polygon.collection = [];
@@ -183,7 +182,6 @@ Polygon.prototype.subdivide = function() {
         const insideVertices=subControls.insideVertices;
         const radialVertices=subControls.radialVertices;
         const outsideVertices=subControls.outsideVertices;
-        console.log(this.generation,subControls.subDiv);
         switch (subControls.subDiv) {
             case 'simpleTriangles':
                 this.simpleTriangles(subControls);

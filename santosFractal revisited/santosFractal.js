@@ -37,18 +37,14 @@ gui.add({
     params: Polygon,
     property: 'size',
     min: 0,
-    onChange: function() {
-        draw();
-    }
+    onChange: draw
 });
 
 gui.add({
     type: 'boolean',
     params: Polygon,
     property: 'fill',
-    onChange: function() {
-        draw();
-    }
+    onChange: draw
 });
 
 gui.add({
@@ -56,17 +52,13 @@ gui.add({
     params: Polygon,
     property: 'brightnessFrom',
     labelText: 'brightness',
-    onChange: function() {
-        draw();
-    }
+    onChange: doall
 }).add({
     type: 'number',
     params: Polygon,
     property: 'brightnessTo',
     labelText: '',
-    onChange: function() {
-        draw();
-    }
+    onChange: doall
 });
 
 gui.add({
@@ -74,17 +66,13 @@ gui.add({
     params: Polygon,
     property: 'saturationFrom',
     labelText: 'saturation',
-    onChange: function() {
-        draw();
-    }
+    onChange: doall
 }).add({
     type: 'number',
     params: Polygon,
     property: 'saturationTo',
     labelText: '',
-    onChange: function() {
-        draw();
-    }
+    onChange: doall
 });
 
 gui.add({
@@ -92,17 +80,13 @@ gui.add({
     params: Polygon,
     property: 'hueFrom',
     labelText: 'hue',
-    onChange: function() {
-        draw();
-    }
+    onChange: doall
 }).add({
     type: 'number',
     params: Polygon,
     property: 'hueTo',
     labelText: '',
-    onChange: function() {
-        draw();
-    }
+    onChange: doall
 });
 
 gui.add({
@@ -110,9 +94,7 @@ gui.add({
     params: Polygon,
     property: 'stroke',
     labelText: 'lines',
-    onChange: function() {
-        draw();
-    }
+    onChange: draw
 });
 
 gui.add({
@@ -120,35 +102,27 @@ gui.add({
     params: Polygon,
     property: 'lineColor',
     labelText: 'line color',
-    onChange: function() {
-        draw();
-    }
+    onChange: draw
 }).add({
     type: 'number',
     params: Polygon,
     property: 'lineWidth',
     labelText: 'width',
     min: 0.1,
-    onChange: function() {
-        draw();
-    }
+    onChange: draw
 });
 
 gui.add({
     type: 'boolean',
     params: Polygon,
     property: 'vertices',
-    onChange: function() {
-        draw();
-    }
+    onChange: draw
 }).add({
     type: 'number',
     params: Polygon,
     property: 'vertexSize',
     labelText: 'size',
-    onChange: function() {
-        draw();
-    }
+    onChange: draw
 });
 
 gui.add({
@@ -207,30 +181,30 @@ for (let i = 0; i < length; i++) {
             onChange: doall
         });
     }
-if (i<length-1){
-    gui.add({
-        type: 'number',
-        params: subControls,
-        property: 'insideVertices',
-        labelText:'inside',
-        min: 1,
-        onChange: doall
-    }).add({
-        type: 'number',
-        params: subControls,
-        property: 'radialVertices',
-        labelText:'radial',
-        min: 1,
-        onChange: doall
-    }).add({
-        type: 'number',
-        params: subControls,
-        property: 'outsideVertices',
-        labelText:'outside',
-        min: 1,
-        onChange: doall
-    });
-}
+    if (i < length - 1) {
+        gui.add({
+            type: 'number',
+            params: subControls,
+            property: 'insideVertices',
+            labelText: 'inside',
+            min: 1,
+            onChange: doall
+        }).add({
+            type: 'number',
+            params: subControls,
+            property: 'radialVertices',
+            labelText: 'radial',
+            min: 1,
+            onChange: doall
+        }).add({
+            type: 'number',
+            params: subControls,
+            property: 'outsideVertices',
+            labelText: 'outside',
+            min: 1,
+            onChange: doall
+        });
+    }
 
 
 
