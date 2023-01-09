@@ -63,6 +63,8 @@ main.generations = 1;
 main.maxElements = 1000;
 main.currentElements = 1000;
 main.geometry = projectedOctahedron;
+main.drawMapping = true;
+main.drawLimitset = true;
 
 gui.add({
     type: 'number',
@@ -117,12 +119,28 @@ gui.add({
     onChange: function() {
         draw();
     }
+}).add({
+    type: 'boolean',
+    params: main,
+    property: 'drawMapping',
+    labelText: '',
+    onChange: function() {
+        draw();
+    }
 });
 gui.add({
     type: 'color',
     params: main,
     property: 'imageColor',
     labelText: 'images',
+    onChange: function() {
+        draw();
+    }
+}).add({
+    type: 'boolean',
+    params: main,
+    property: 'drawLimitset',
+    labelText: '',
     onChange: function() {
         draw();
     }
@@ -449,17 +467,21 @@ function draw() {
         'stroke-linecap': 'round',
         'stroke-linejoin': 'round'
     };
-    SVG.attributes.stroke = main.mappingColor;
-    SVG.createGroup(SVG.attributes);
-    Circle.minDrawingRadius = main.lineWidth;
-    mappingCircles.forEach(circle => circle.draw());
-    SVG.attributes.stroke = main.imageColor;
-    SVG.createGroup(SVG.attributes);
-    const mapLength = mappingCircles.length;
-    for (let i = 0; i < mapLength; i++) {
-        const images = mappingCircles[i].images;
-        for (let gen = 0; gen < main.generations; gen++) {
-            images[gen].forEach(image => image.draw());
+    if (main.drawMapping) {
+        SVG.attributes.stroke = main.mappingColor;
+        SVG.createGroup(SVG.attributes);
+        Circle.minDrawingRadius = main.lineWidth;
+        mappingCircles.forEach(circle => circle.draw());
+    }
+    if (main.drawLimitset) {
+        SVG.attributes.stroke = main.imageColor;
+        SVG.createGroup(SVG.attributes);
+        const mapLength = mappingCircles.length;
+        for (let i = 0; i < mapLength; i++) {
+            const images = mappingCircles[i].images;
+            for (let gen = 0; gen < main.generations; gen++) {
+                images[gen].forEach(image => image.draw());
+            }
         }
     }
     SVG.terminate();
