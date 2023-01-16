@@ -5,7 +5,7 @@
     "inflation": 1.932,
     "maxGeneration": 5,
     "drawGeneration": 1,
-    "initial": "RQRhomb",
+    "initial": "dodecagon",
     "fill": true,
 
     "range": 3,
@@ -20,10 +20,14 @@
                 [0, 0.9659]
             ],
             "overprint": [
-                [0, 1],
+                [],
+                [0, 0.9659],
                 [1]
             ],
-            "border": [],
+            "border": [
+                [],
+                [1]
+            ],
             "substitution": [{
                 "name": "LTriangle",
                 "origin": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
@@ -46,12 +50,19 @@
                 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.9659],
                 [1]
             ],
-            "border": [],
+            "border": [
+                [],
+                [1]
+            ],
             "substitution": [{
                 "name": "RTriangle",
-                "origin": [0,0,0,0,0,0.5],
+                "origin": [0, 0, 0, 0, 0, 0.5],
                 "orientation": 17
-            },{"name":"HRhomb","origin":[0,1,0,0,0,0,0,0,0,0,0,-1],"orientation":11}]
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 11
+            }]
         },
         "HRhomb": {
             "color": "#2020e0",
@@ -79,7 +90,7 @@
             "angle": 4,
             "shape": [
                 [0.5],
-                                [],
+                [],
                 [0, 0, 0, 0, 1]
             ],
             "overprint": [
@@ -87,7 +98,16 @@
                 [0, 0, 0, 0, 1]
             ],
             "border": [],
-            "substitution": []
+            "substitution": [{
+                "name": "LStar"
+            }, {
+                "name": "HRhomb",
+                "orientation": 3
+            }, {
+                "name": "RQRhomb",
+                "origin": [0, 1],
+                "orientation": 13
+            }]
         },
         "RTriangle": {
             "color": "#f020e0",
@@ -98,11 +118,22 @@
                 [0.5, 0, 0, 0, 0, 0, 0, 0, 1]
             ],
             "overprint": [
-                [0.5],
+                [],
                 [0.5, 0, 0, 0, 0, 0, 0, 0, 1]
             ],
             "border": [],
-            "substitution": []
+            "substitution": [{
+                "name": "LQRhomb",
+                "origin": [0.9659],
+                "orientation": 11
+            }, {
+                "name": "RStar",
+                "orientation": 0
+            }, {
+                "name": "HRhomb",
+                "origin": [0.9659, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+                "orientation": 19
+            }]
         },
         "Triangle": {
             "color": "#f0f010",
@@ -132,7 +163,29 @@
                 [0, 1],
                 [0, 0, 0, 1, 0, 1]
             ],
-            "border": []
+            "border": [],
+            "substitution": [{
+                "name": "HRhomb",
+                "orientation": 2
+            }, {
+                "name": "HRhomb",
+                "origin": [1, 0, 1],
+                "orientation": 12
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 0, 1, 0, 1],
+                "orientation": 4
+            }, {
+                "name": "LTriangle",
+                "orientation": 0
+            }, {
+                "name": "Triangle",
+                "origin": [0, 0, 1]
+            }, {
+                "name": "RTriangle",
+                "origin": [0.5, 0, 1, 0, 1],
+                "orientation": 12
+            }]
         },
         "RStar": {
             "color": "#00f010",
@@ -147,7 +200,40 @@
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                 [0, 0, 0, 0, 0, 0, 0, 1, 0, 1]
             ],
-            "border": []
+            "border": [],
+            "substitution": [{
+                "name": "HRhomb",
+                "orientation": 10
+            }, {
+                "name": "Triangle",
+                "origin": [-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+            }, {
+                "name": "HRhomb",
+                "origin": [-1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+                "orientation": 20
+            }, {
+                "name": "LTriangle",
+                "orientation": 12
+            }, {
+                "name": "RTriangle",
+                "origin": [-1.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]
+            }, {
+                "name": "HRhomb",
+                "origin": [-1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+                "orientation": 18
+            }]
+        },
+        "DQRhomb": {
+            "composition": [{
+                "name": "LQRhomb"
+            }, {
+                "name": "RQRhomb",
+                "orientation": 12,
+                "origin": [1]
+            }]
+        },
+        "dodecagon": {
+            "composition": [{"name":"DQRhomb"}]
         }
     }
 }
