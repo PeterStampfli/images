@@ -5,7 +5,7 @@
     "inflation": 1.932,
     "maxGeneration": 5,
     "drawGeneration": 1,
-    "initial": "dodecagon",
+    "initial": "Star",
     "fill": true,
 
     "range": 3,
@@ -222,6 +222,21 @@
                 "origin": [-1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
                 "orientation": 18
             }]
+        },
+        "Star": {
+            "color": "#00f010",
+            "angle": 2,
+            "shape": [
+                [0, 1],
+                [],
+                [0, 0, 0, 1],
+                [0, 0, 0, 1, 0, 1],
+                [0, 0, 0, 1, 0, 1,0,-1],
+                [0,1,0,0,0,0,0,0,0,0,0,-1]
+            ],
+            "border": [],
+            "composition": [{"name":"LStar"},{
+                "name": "RStar","origin":[0,1,0,0,0,0,0,0,0,0,0,-1]}]
         },
         "DQRhomb": {
             "composition": [{
