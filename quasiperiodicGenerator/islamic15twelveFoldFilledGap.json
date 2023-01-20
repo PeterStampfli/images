@@ -5,7 +5,7 @@
     "inflation": 1.932,
     "maxGeneration": 5,
     "drawGeneration": 0,
-    "initial": "Square",
+    "initial": "RQRhomb",
     "fill": false,
 
     "range": 3,
@@ -25,9 +25,9 @@
                 [1]
             ],
             "border": [
-                [0, 0.9659],
+                [0.5,0.484],
                 [0.5],
-                [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1830]
+                [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0.259]
             ],
             "substitution": [{
                 "name": "LTriangle",
@@ -52,9 +52,9 @@
                 [1]
             ],
             "border": [
-                [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.9659],
+                [0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,  0.483],
                 [0.5],
-                [0.5, 0, 0.183]
+                [0.5, 0.259]
             ],
             "substitution": [{
                 "name": "RTriangle",

@@ -5,7 +5,7 @@
     "inflation": 1.932,
     "maxGeneration": 5,
     "drawGeneration": 1,
-    "initial": "Star",
+    "initial": "Square",
     "fill": true,
 
     "range": 3,
@@ -231,14 +231,19 @@
                 [],
                 [0, 0, 0, 1],
                 [0, 0, 0, 1, 0, 1],
-                [0, 0, 0, 1, 0, 1,0,-1],
-                [0,1,0,0,0,0,0,0,0,0,0,-1]
+                [0, 0, 0, 1, 0, 1, 0, -1],
+                [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]
             ],
             "border": [],
-            "composition": [{"name":"LStar"},{
-                "name": "RStar","origin":[0,1,0,0,0,0,0,0,0,0,0,-1]}]
+            "composition": [{
+                "name": "LStar"
+            }, {
+                "name": "RStar",
+                "origin": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1]
+            }]
         },
         "DQRhomb": {
+            "angle": 2,
             "composition": [{
                 "name": "LQRhomb"
             }, {
@@ -248,7 +253,60 @@
             }]
         },
         "dodecagon": {
-            "composition": [{"name":"DQRhomb"}]
+            "composition": [{
+                "name": "DQRhomb"
+            }, {
+                "name": "DQRhomb"
+            }, {
+                "name": "DQRhomb"
+            }, {
+                "name": "DQRhomb"
+            }, {
+                "name": "DQRhomb"
+            }, {
+                "name": "DQRhomb"
+            }]
+        },
+        "Square": {
+            "color": "#00ffff",
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 1]
+            ],
+            "substitution": [{
+                "name": "HRhomb",
+                "orientation": 5
+            }, {
+                "name": "Triangle",
+                "orientation": 1
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 11
+            }, {
+                "name": "Triangle",
+                "orientation": 7
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 1, 0, 1, 0, 1],
+                "orientation": 17
+            }, {
+                "name": "Triangle",
+                "orientation": 13
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 0, 0, 0, 0, 1, 0, 1],
+                "orientation": -1
+            }, {
+                "name": "Triangle",
+                "orientation": 19
+            }, {
+                "name": "Square",
+                "origin": [0, 1],
+                "orientation": 3
+            }]
         }
     }
 }
