@@ -1,0 +1,104 @@
+{
+    "name": "12-fold",
+
+    "order": 24,
+    "inflation": 3.732,
+    "maxGeneration": 5,
+    "drawGeneration": 1,
+    "initial": "rhomb30",
+    "fill": true,
+
+    "range": 3,
+
+    "tiles": {
+        "rhomb30": {
+            "color": "#2020e0",
+            "angle": 2,
+            "shape": [
+                [],
+                [1],
+                [1,0,1],
+                [0,0,1]
+            ],
+            "border": [
+            ],
+            "substitution": [{"name":"rhomb30"}]
+        },
+        "hRhomb60": {
+            "color": "#2020e0",
+            "angle": 4,
+            "shape": [
+                [],
+                [1],
+                [1,0,0,0,1]
+            ],
+            "border": [
+            ],
+            "substitution": []
+        },
+        "rhomb60": {
+            "color": "#2020e0",
+            "angle": 4,
+            "shape": [
+                [],
+                [1],
+                [1,0,0,0,1],
+                [0,0,0,0,1]
+            ],
+            "border": [
+            ],
+            "composition": []
+        },
+        "triangle": {
+            "color": "#f0f010",
+            "angle": 4,
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 1]
+            ],
+            "substitution": []
+        },
+        "square": {
+            "color": "#00ffff",
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 1]
+            ],
+            "substitution": [{
+                "name": "HRhomb",
+                "orientation": 5
+            }, {
+                "name": "Triangle",
+                "orientation": 1
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 11
+            }, {
+                "name": "Triangle",
+                "orientation": 7
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 1, 0, 1, 0, 1],
+                "orientation": 17
+            }, {
+                "name": "Triangle",
+                "orientation": 13
+            }, {
+                "name": "HRhomb",
+                "origin": [0, 0, 0, 0, 0, 1, 0, 1],
+                "orientation": -1
+            }, {
+                "name": "Triangle",
+                "orientation": 19
+            }, {
+                "name": "Square",
+                "origin": [0, 1],
+                "orientation": 3
+            }]
+        }
+    }
+}
