@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="icon" href="data:,">
+
+<head>
+    <title>sequence</title>
+</head>
+
+<body>
+    <noscript><h1>Please enable javascript!!!</h1></noscript>
+
+</body>
+
+
+<script >
+    plus=2+Math.sqrt(3);
+    minus=2-Math.sqrt(3);
+
+    zero=0;
+    one=1;
+    for (i=2;i<20;i++){
+        two=4*one-zero;
+        zero=one;
+        one=two;
+        console.log(i,two,0.5*(Math.pow(plus,i)-Math.pow(minus,i))/Math.sqrt(3));
+    }
+
+</script>
+
+
+</html>
