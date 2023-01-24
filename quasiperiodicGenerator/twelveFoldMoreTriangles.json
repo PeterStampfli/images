@@ -1,0 +1,306 @@
+{
+    "name": "12-fold more triangles",
+
+    "order": 24,
+    "inflation": 3.732,
+    "maxGeneration": 4,
+    "drawGeneration": 1,
+    "initial": "hRhomb60",
+    "fill": true,
+
+    "range": 3,
+
+    "tiles": {
+        "rhomb30": {
+            "color": "#2020e0",
+            "angle": 2,
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1],
+                [0, 0, 1]
+            ],
+            "substitution": [{
+                "name": "rhomb30"
+            }, {
+                "name": "hRhomb60",
+                "origin": [0, 0, 1]
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, -1]
+            }, {
+                "name": "square"
+            }, {
+                "name": "hRhomb60"
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, -1],
+                "orientation": 14
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1, 0, 1, 0, 1, 0, -1, 0, -1],
+                "orientation": 18
+            }, {
+                "name": "square"
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 1, 0, 2, 0, 1, 0, -1, 0, -1],
+                "orientation": 22
+            }, {
+                "name": "hRhomb60",
+                "origin": [2, 0, 1, 0, 2, 0, 1, 0, -1, 0, -2],
+                "orientation": 12
+            }, {
+                "name": "rhomb30",
+                "origin": [2, 0, 2, 0, 2, 0, 1, 0, -1, 0, -2],
+                "orientation": 12
+            }]
+        },
+        "hRhomb60": {
+            "color": "#2020e0",
+            "angle": 4,
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 1]
+            ],
+            "border": [],
+            "overprint": [
+                [],
+                [1, 0, 0, 0, 1]
+            ],
+            "substitution": [{
+                "name": "rhomb30"
+            }, {
+                "name": "hRhomb60",
+                "origin": [0, 0, 1]
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1]
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 10
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1, 0, 1],
+                "orientation": 22
+            }, {
+                "name": "rhomb30",
+                "origin": [2, 0, 1, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 4
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "triangle",
+                "origin": [2, 0, 1, 0, 0, 0, 1, 0, 0, 0, -1],
+                "orientation": 4
+            }, {
+                "name": "hRhomb60",
+                "origin": [2, 0, 1, 0, 0, 0, 1, 0, 1, 0, -1]
+            }, {
+                "name": "rhomb30",
+                "origin": [3, 0, 1, 0, 0, 0, 1, 0, 1, 0, -1],
+                "orientation": 2
+            }, {
+                "name": "hRhomb60",
+                "origin": [3, 0, 2, 0, 0, 0, 1, 0, 1, 0, -1],
+                "orientation": 14
+            }]
+        },
+        "rhomb60": {
+            "color": "#2020e0",
+            "angle": 4,
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 1],
+                [0, 0, 0, 0, 1]
+            ],
+            "border": [],
+            "composition": [{
+                "name": "hRhomb60"
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 0, 0, 1],
+                "orientation": 12
+            }]
+        },
+        "triangle": {
+            "color": "#f0f010",
+            "angle": 4,
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 0, 0, 0, 0, 1]
+            ],
+            "substitution": [{
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 10
+            }, {
+                "name": "hRhomb60",
+                "origin": [0, 0, 0, 0, 1],
+                "orientation": 2
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1]
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "triangle",
+                "origin": [0, 0, 1, 0, 1]
+            }, {
+                "name": "rhomb30",
+                "origin": [2, 0, 1, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 8
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 1, 0, 1, 0, 1],
+                "orientation": 18
+            }, {
+                "name": "rhomb30",
+                "origin": [0, 0, 1, 0, 2, 0, 1],
+                "orientation": 16
+            }, {
+                "name": "rhomb30"
+            }]
+        },
+        "square": {
+            "color": "#00ffff",
+            "angle": 6,
+            "shape": [
+                [],
+                [1],
+                [1, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 1]
+            ],
+            "substitution": [{
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 10
+            }, {
+                "name": "hRhomb60",
+                "origin": [0, 0, 0, 0, 0, 0, 1],
+                "orientation": 4
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1]
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "square",
+                "origin": [0, 0, 1, 0, 1]
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "rhomb30",
+                "origin": [2, 0, 1, 0, 0, 0, 0, 0, 0, 0, -1],
+                "orientation": 6
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30",
+                "origin": [0, 0, 0, 0, 1, 0, 2, 0, 1],
+                "orientation": 18
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "triangle",
+                "origin": [0, 0, 0, 0, 1, 0, 1],
+                "orientation": 2
+            }, {
+                "name": "triangle",
+                "origin": [0, 0, 1, 0, 1, 0, 1]
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 0, 0, 1, 0, 2, 0, 1],
+                "orientation": 22
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1, 0, 1],
+                "orientation":22
+            }, {
+                "name": "triangle"
+            }, {
+                "name": "triangle",
+                "origin": [1, 0, 1, 0, 1,0,1],
+                "orientation":22
+            }, {
+                "name": "triangle",
+                "orientation":4
+            }, {
+                "name": "hRhomb60",
+                "origin": [1, 0, 2, 0, 2],
+                "orientation":16
+            }, {
+                "name": "rhomb30",
+                "origin": [1, 0, 2, 0, 2,0,1],
+                "orientation":12
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }]
+        },
+        "dodecagon":{
+            "composition":[ {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }, {
+                "name": "rhomb30"
+            }]
+        }
+    }
+}
