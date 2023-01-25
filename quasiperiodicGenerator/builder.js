@@ -215,6 +215,7 @@ builder.defineTiling = function(definition) {
         alpha += dalpha;
     }
     // definition.tiles is an object
+    // stored as prototyles, has the various tile definitions
     if ('tiles' in definition) {
         protoTiles = definition.tiles;
     } else {
@@ -254,13 +255,13 @@ builder.defineTiling = function(definition) {
     initialTileController.addHelp('Choose the initial tile or configuration used in the substitution');
     // check if there are markers, in case add controls
     let hasMarker = false;
+    let hasDecoLine = false;
+    console.log('nn');
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
         const protoTile = protoTiles[tileName];
-        if (protoTile.marker) {
-            hasMarker = true;
-            break;
-        }
+        hasMarker = hasMarker || protoTile.marker;
+        hasDecoLine = hasDecoLine || protoTile.line || protoTile.lines;
     }
     if (hasMarker) {
         main.markerColorController.show();
@@ -268,6 +269,13 @@ builder.defineTiling = function(definition) {
     } else {
         main.markerColorController.hide();
         main.markerSizeController.hide();
+    }
+    if (hasDecoLine) {
+        main.decoLineColorController.show();
+        main.decoLineSizeController.show();
+    } else {
+        main.decoLineColorController.hide();
+        main.decoLineSizeController.hide();
     }
     // if there are fill colors add color controllers for tiles, load color
     // first remove preexisting tile color controllers
@@ -298,6 +306,7 @@ builder.defineTiling = function(definition) {
     // tile.overprint - array of vectors
     // tile.border - array of vectors
     // tile.marker - single vector
+    // tile.decoLine - array of vectors
     // tile.substitution.origin - array of vectors
     // tile.composition.origin - array of vectors
     for (let i = 0; i < tileNamesLength; i++) {
@@ -308,6 +317,10 @@ builder.defineTiling = function(definition) {
         }
         if (protoTile.overprint) {
             protoTile.cartesianOverprint = cartesianVectors(protoTile.overprint);
+        }
+        if (protoTile.line) {
+            protoTile.cartesianDecoLine = cartesianVectors(protoTile.line);
+            console.log(protoTile.cartesianDecoLine);
         }
         if (protoTile.border) {
             if (protoTile.border.length === 0) {
@@ -440,6 +453,9 @@ function addTile(tile, generation, drawIt = true) {
         }
         if (protoTile.cartesianMarker) {
             tile.cartesianMarker = transformedVectors(protoTile.cartesianMarker, orientation, size, originX, originY);
+        }
+        if (protoTile.cartesianDecoLine) {
+            tile.cartesianDecoLine = transformedVectors(protoTile.cartesianDecoLine, orientation, size, originX, originY);
         }
     }
 }
@@ -629,6 +645,19 @@ function drawGeneration(generation) {
             if (tile.cartesianMarker) {
                 const radius = tile.size * main.markerSize;
                 SVG.createCircle(tile.cartesianMarker[0], tile.cartesianMarker[1], radius);
+            }
+        }
+    }
+    if (main.drawDecoLine) {
+        console.log('drawdecos');
+        SVG.groupAttributes.stroke = main.decoLineColor;
+        SVG.groupAttributes.fill = 'none';
+        SVG.createGroup(SVG.groupAttributes);
+        for (let i = 0; i < length; i++) {
+            const tile = tilesToDraw[i];
+            if (tile.cartesianDecoLine) {
+                console.log('this')
+                SVG.createPolyline(tile.cartesianDecoLine);
             }
         }
     }

@@ -16,7 +16,6 @@ export const main = {};
 // data for drawing
 main.drawFill = true;
 main.drawStroke = true;
-main.drawInitialStroke = true;
 main.markerSize = 0.1;
 main.drawMarker = false;
 main.markerColor = '#444444';
@@ -25,6 +24,10 @@ main.lineColor = '#000000';
 main.inflate = false;
 main.outlineWidth = 8;
 main.outlineColor = '#444444';
+main.drawInitialStroke = true;
+main.decoLineColor='#000000';
+main.decoLineWidth=2;
+main.drawDecoLine = true;
 
 // setting up the gui and the canvas
 const gui = new ParamGui({
@@ -137,6 +140,37 @@ main.markerSizeController.add({
     }
 });
 main.markerSizeController.addHelp('Switch markers off or on and choose their size.');
+
+// decorative lines
+main.decoLineColorController = gui.add({
+    type: 'color',
+    params: main,
+    property: 'decoLineColor',
+    labelText: 'deco-line',
+    onChange: function() {
+        main.draw();
+    }
+});
+main.decoLineSizeController = gui.add({
+    type: 'number',
+    params: main,
+    property: 'decoLineWidth',
+    min: 0.5,
+    step: 0.1,
+    labelText: 'width',
+    onChange: function() {
+        main.draw();
+    }
+});
+main.decoLineOnOffController = main.decoLineSizeController.add({
+    type: 'boolean',
+    params: main,
+    property: 'drawDecoLine',
+    labelText: '',
+    onChange: function() {
+        main.draw();
+    }
+});
 
 // outline
 main.outlineColorController = gui.add({
