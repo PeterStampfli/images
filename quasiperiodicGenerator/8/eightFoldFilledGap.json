@@ -22,6 +22,7 @@
                 [],
                 [1, 0, 1]
             ],
+            "border":[],
             "substitution": [{
                 "name": "hRhomb",
                 "origin": [0, 1, 0, 0, 0, 0, 0, -1],

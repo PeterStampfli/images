@@ -19,7 +19,8 @@ mPix=s*s/1e6;
 
 map=createIdentityMap(mPix,-r,r,-r,r);
 %cartioidMap(map, a);
-basicCartioidMap(map);
+%basicCartioidMap(map,1.2);
+fourMap(map,0.9);
 outMap = basicKaleidoscope(map,5,3,3);
 im=createStructureImage(outMap);
 imshow(im);
