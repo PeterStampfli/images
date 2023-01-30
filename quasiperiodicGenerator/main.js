@@ -90,7 +90,7 @@ gui.add({
     type: 'number',
     params: main,
     property: 'lineWidth',
-    min: 0.5,
+    min: 0.1,
     step: 0.1,
     labelText: 'width',
     onChange: function() {
@@ -155,7 +155,7 @@ main.decoLineSizeController = gui.add({
     type: 'number',
     params: main,
     property: 'decoLineWidth',
-    min: 0.5,
+    min: 0.1,
     step: 0.1,
     labelText: 'width',
     onChange: function() {
@@ -187,7 +187,7 @@ main.outlineSizeController = gui.add({
     type: 'number',
     params: main,
     property: 'outlineWidth',
-    min: 0.5,
+    min: 0.1,
     step: 0.1,
     labelText: 'width',
     onChange: function() {

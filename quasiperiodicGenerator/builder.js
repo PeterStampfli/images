@@ -256,7 +256,6 @@ builder.defineTiling = function(definition) {
     // check if there are markers, in case add controls
     let hasMarker = false;
     let hasDecoLine = false;
-    console.log('nn');
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
         const protoTile = protoTiles[tileName];
@@ -320,7 +319,6 @@ builder.defineTiling = function(definition) {
         }
         if (protoTile.line) {
             protoTile.cartesianDecoLine = cartesianVectors(protoTile.line);
-            console.log(protoTile.cartesianDecoLine);
         }
         if (protoTile.border) {
             if (protoTile.border.length === 0) {
@@ -560,10 +558,10 @@ function drawGeneration(generation) {
     const length = tilesToDraw.length;
     if (main.drawFill) {
         if (main.drawStroke) {
-            SVG.groupAttributes['stroke-width'] = Math.max(3, main.lineWidth);
+             // overprinting to join halves, only if explicit overprinting, do first
+           SVG.groupAttributes['stroke-width'] = Math.max(3, main.lineWidth);
             SVG.groupAttributes.fill = 'none';
             SVG.createGroup(SVG.groupAttributes);
-            // overprinting to join halves, only if explicit overprinting, do first
             for (let i = 0; i < length; i++) {
                 const tile = tilesToDraw[i];
                 const protoTile = protoTiles[tile.name];
@@ -649,14 +647,13 @@ function drawGeneration(generation) {
         }
     }
     if (main.drawDecoLine) {
-        console.log('drawdecos');
         SVG.groupAttributes.stroke = main.decoLineColor;
+        SVG.groupAttributes['stroke-width'] = main.decoLineWidth;
         SVG.groupAttributes.fill = 'none';
         SVG.createGroup(SVG.groupAttributes);
         for (let i = 0; i < length; i++) {
             const tile = tilesToDraw[i];
             if (tile.cartesianDecoLine) {
-                console.log('this')
                 SVG.createPolyline(tile.cartesianDecoLine);
             }
         }
