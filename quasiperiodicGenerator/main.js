@@ -28,6 +28,7 @@ main.drawInitialStroke = true;
 main.decoLineColor='#000000';
 main.decoLineWidth=2;
 main.drawDecoLine = true;
+main.drawDecoArc = true;
 
 // setting up the gui and the canvas
 const gui = new ParamGui({
@@ -146,7 +147,7 @@ main.decoLineColorController = gui.add({
     type: 'color',
     params: main,
     property: 'decoLineColor',
-    labelText: 'deco-line',
+    labelText: 'deco',
     onChange: function() {
         main.draw();
     }
@@ -166,11 +167,22 @@ main.decoLineOnOffController = main.decoLineSizeController.add({
     type: 'boolean',
     params: main,
     property: 'drawDecoLine',
-    labelText: '',
+    labelText: 'line',
     onChange: function() {
         main.draw();
     }
 });
+console.log(main.drawDecoArc)
+main.decoArcController = main.decoLineOnOffController.add({
+    type: 'boolean',
+    params: main,
+    property: 'drawDecoArc',
+    labelText: 'arc',
+    onChange: function() {
+        main.draw();
+    }
+});
+
 
 // outline
 main.outlineColorController = gui.add({

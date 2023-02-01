@@ -420,10 +420,10 @@ SVG.createEllipse = function(centerX, centerY, radiusX, radiusY, angle, attribut
  * @params float radius
  * @params float startAngle
  * @params float endAngle
- * @params boolean counterclockwise
+ * @params boolean counterclockwise, optional, default is true
  * @params Object attributes, optional,default is empty object
  */
-SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, counterclockwise, attributes = {}) {
+SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, counterclockwise = true, attributes = {}) {
     var deltaAngle, largeArc, sweep;
     if ((centerX + radius > viewBoxLeft) && (centerX - radius < viewBoxRight) && (scaleY * centerY + radius > viewBoxBottom) && (scaleY * centerY - radius < viewBoxTop)) {
         const startX = centerX + radius * Math.cos(startAngle);

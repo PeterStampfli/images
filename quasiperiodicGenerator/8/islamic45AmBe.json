@@ -1,12 +1,12 @@
 {
     "comment": "this is a comment, you can add more such fields, they have no effect",
-    "name": "iaslamic 45 ammann-beenker",
+    "name": "islamic 45 ammann-beenker",
 
     "order": 8,
     "inflation": 2.414,
     "maxGeneration": 4,
-    "drawGeneration": 3,
-    "initial": "star",
+    "drawGeneration": 0,
+    "initial": "rhomb",
 
     "range": 2,
     "fill": true,
@@ -19,6 +19,18 @@
                 [1],
                 [1, 1],
                 [0, 1]
+            ],
+            "arcs": [
+                [
+                    [],
+                    [0.5],
+                    [0, 0.5]
+                ],
+                [
+                    [1, 1],
+                    [0.5, 1],
+                    [1, 0.5]
+                ]
             ],
             "line": [
                 [0.20711, 0.20711],

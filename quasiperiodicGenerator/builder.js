@@ -101,6 +101,14 @@ function cartesianVectors(vectors) {
     return result;
 }
 
+// for an array of arrays of vectors
+function arrayOfCartesianVectors(arrayOfVectors) {
+    let result = [];
+    arrayOfVectors.forEach(vectors => result.push(cartesianVectors(vectors)));
+    return result;
+}
+
+// for arrays of vectors as coordinate pairs
 // first rotate and scale, and then translate an array of coordinate pairs
 // the rotation angle is nRot*2*pi/order,
 // the scale is a parameter
@@ -118,6 +126,13 @@ function transformedVectors(vectors, nRot, scale, translateX, translateY) {
         result[j] = cosAlpha * x - sinAlpha * y + translateX;
         result[j + 1] = sinAlpha * x + cosAlpha * y + translateY;
     }
+    return result;
+}
+
+// for an array of arrays of vector components
+function arrayOfTransformedVectors(arrayOfVectors, nRot, scale, translateX, translateY) {
+    let result = [];
+    arrayOfVectors.forEach(vectors => result.push(transformedVectors(vectors, nRot, scale, translateX, translateY)));
     return result;
 }
 
@@ -255,12 +270,12 @@ builder.defineTiling = function(definition) {
     initialTileController.addHelp('Choose the initial tile or configuration used in the substitution');
     // check if there are markers, in case add controls
     let hasMarker = false;
-    let hasDecoLine = false;
+    let hasDeco = false;
     for (let i = 0; i < tileNamesLength; i++) {
         const tileName = tileNames[i];
         const protoTile = protoTiles[tileName];
         hasMarker = hasMarker || protoTile.marker;
-        hasDecoLine = hasDecoLine || protoTile.line || protoTile.lines;
+        hasDeco = hasDeco || protoTile.line || protoTile.lines || protoTile.arcs;
     }
     if (hasMarker) {
         main.markerColorController.show();
@@ -269,7 +284,7 @@ builder.defineTiling = function(definition) {
         main.markerColorController.hide();
         main.markerSizeController.hide();
     }
-    if (hasDecoLine) {
+    if (hasDeco) {
         main.decoLineColorController.show();
         main.decoLineSizeController.show();
     } else {
@@ -306,6 +321,7 @@ builder.defineTiling = function(definition) {
     // tile.border - array of vectors
     // tile.marker - single vector
     // tile.decoLine - array of vectors
+    // tile.arcs - array of array of vectors (center, pointA,pointB going counterclockwise)
     // tile.substitution.origin - array of vectors
     // tile.composition.origin - array of vectors
     for (let i = 0; i < tileNamesLength; i++) {
@@ -319,6 +335,9 @@ builder.defineTiling = function(definition) {
         }
         if (protoTile.line) {
             protoTile.cartesianDecoLine = cartesianVectors(protoTile.line);
+        }
+        if (protoTile.arcs){
+            protoTile.cartesianArcs=arrayOfCartesianVectors(protoTile.arcs);
         }
         if (protoTile.border) {
             if (protoTile.border.length === 0) {
@@ -455,6 +474,9 @@ function addTile(tile, generation, drawIt = true) {
         if (protoTile.cartesianDecoLine) {
             tile.cartesianDecoLine = transformedVectors(protoTile.cartesianDecoLine, orientation, size, originX, originY);
         }
+        if (protoTile.cartesianArcs) {
+            tile.cartesianArcs = arrayOfTransformedVectors(protoTile.cartesianArcs, orientation, size, originX, originY);
+        }
     }
 }
 
@@ -558,8 +580,8 @@ function drawGeneration(generation) {
     const length = tilesToDraw.length;
     if (main.drawFill) {
         if (main.drawStroke) {
-             // overprinting to join halves, only if explicit overprinting, do first
-           SVG.groupAttributes['stroke-width'] = Math.max(3, main.lineWidth);
+            // overprinting to join halves, only if explicit overprinting, do first
+            SVG.groupAttributes['stroke-width'] = Math.max(3, main.lineWidth);
             SVG.groupAttributes.fill = 'none';
             SVG.createGroup(SVG.groupAttributes);
             for (let i = 0; i < length; i++) {
@@ -655,6 +677,30 @@ function drawGeneration(generation) {
             const tile = tilesToDraw[i];
             if (tile.cartesianDecoLine) {
                 SVG.createPolyline(tile.cartesianDecoLine);
+            }
+        }
+    }
+        if (main.drawDecoArc) {
+        SVG.groupAttributes.stroke = main.decoLineColor;
+        SVG.groupAttributes['stroke-width'] = main.decoLineWidth;
+        SVG.groupAttributes.fill = 'none';
+        SVG.createGroup(SVG.groupAttributes);
+        for (let i = 0; i < length; i++) {
+            const tile = tilesToDraw[i];
+            if (tile.cartesianArcs) {
+                const arcs=tile.cartesianArcs;
+                const arcsLength=arcs.length;
+                for (let j=0;j<arcsLength;j++){
+                    const arc=arcs[j];
+                    const cx=arc[0];
+                    const cy=arc[1];
+                    let dx=arc[2]-cx;
+                    let dy=arc[3]-cy;
+                    const radius=Math.sqrt(dx*dx+dy*dy);
+                    const startAngle=Math.atan2(dy,dx);
+                    const endAngle=Math.atan2(arc[5]-cy,arc[4]-cx);
+                    SVG.createArcStroke(arc[0],arc[1],radius,startAngle,endAngle);
+                }
             }
         }
     }
