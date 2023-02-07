@@ -172,7 +172,6 @@ main.decoLineOnOffController = main.decoLineSizeController.add({
         main.draw();
     }
 });
-console.log(main.drawDecoArc)
 main.decoArcController = main.decoLineOnOffController.add({
     type: 'boolean',
     params: main,

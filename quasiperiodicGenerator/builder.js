@@ -322,6 +322,7 @@ builder.defineTiling = function(definition) {
     // tile.marker - single vector
     // tile.decoLine - array of vectors
     // tile.arcs - array of array of vectors (center, pointA,pointB going counterclockwise)
+    // tile.lines - array of array of vectors (array of polylines)
     // tile.substitution.origin - array of vectors
     // tile.composition.origin - array of vectors
     for (let i = 0; i < tileNamesLength; i++) {
@@ -336,8 +337,11 @@ builder.defineTiling = function(definition) {
         if (protoTile.line) {
             protoTile.cartesianDecoLine = cartesianVectors(protoTile.line);
         }
-        if (protoTile.arcs){
-            protoTile.cartesianArcs=arrayOfCartesianVectors(protoTile.arcs);
+        if (protoTile.arcs) {
+            protoTile.cartesianArcs = arrayOfCartesianVectors(protoTile.arcs);
+        }
+        if (protoTile.lines) {
+            protoTile.cartesianLines = arrayOfCartesianVectors(protoTile.lines);
         }
         if (protoTile.border) {
             if (protoTile.border.length === 0) {
@@ -476,6 +480,9 @@ function addTile(tile, generation, drawIt = true) {
         }
         if (protoTile.cartesianArcs) {
             tile.cartesianArcs = arrayOfTransformedVectors(protoTile.cartesianArcs, orientation, size, originX, originY);
+        }
+        if (protoTile.cartesianLines) {
+            tile.cartesianLines = arrayOfTransformedVectors(protoTile.cartesianLines, orientation, size, originX, originY);
         }
     }
 }
@@ -678,9 +685,16 @@ function drawGeneration(generation) {
             if (tile.cartesianDecoLine) {
                 SVG.createPolyline(tile.cartesianDecoLine);
             }
+            if (tile.cartesianLines) {
+                const lines = tile.cartesianLines;
+                const linesLength = lines.length;
+                for (let j = 0; j < linesLength; j++) {
+                    SVG.createPolyline(lines[j]);
+                }
+            }
         }
     }
-        if (main.drawDecoArc) {
+    if (main.drawDecoArc) {
         SVG.groupAttributes.stroke = main.decoLineColor;
         SVG.groupAttributes['stroke-width'] = main.decoLineWidth;
         SVG.groupAttributes.fill = 'none';
@@ -688,18 +702,18 @@ function drawGeneration(generation) {
         for (let i = 0; i < length; i++) {
             const tile = tilesToDraw[i];
             if (tile.cartesianArcs) {
-                const arcs=tile.cartesianArcs;
-                const arcsLength=arcs.length;
-                for (let j=0;j<arcsLength;j++){
-                    const arc=arcs[j];
-                    const cx=arc[0];
-                    const cy=arc[1];
-                    let dx=arc[2]-cx;
-                    let dy=arc[3]-cy;
-                    const radius=Math.sqrt(dx*dx+dy*dy);
-                    const startAngle=Math.atan2(dy,dx);
-                    const endAngle=Math.atan2(arc[5]-cy,arc[4]-cx);
-                    SVG.createArcStroke(arc[0],arc[1],radius,startAngle,endAngle);
+                const arcs = tile.cartesianArcs;
+                const arcsLength = arcs.length;
+                for (let j = 0; j < arcsLength; j++) {
+                    const arc = arcs[j];
+                    const cx = arc[0];
+                    const cy = arc[1];
+                    let dx = arc[2] - cx;
+                    let dy = arc[3] - cy;
+                    const radius = Math.sqrt(dx * dx + dy * dy);
+                    const startAngle = Math.atan2(dy, dx);
+                    const endAngle = Math.atan2(arc[5] - cy, arc[4] - cx);
+                    SVG.createArcStroke(arc[0], arc[1], radius, startAngle, endAngle);
                 }
             }
         }
