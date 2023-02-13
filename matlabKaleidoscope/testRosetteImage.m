@@ -8,7 +8,7 @@ mPix=s*s/1e6;
 range=2;
 map=createIdentityMap(mPix,-range,range,-range,range);
 a=45;
-a=deg2rad(a)
+a=deg2rad(a);
 rosette(map,20,a,0,0);
 %basicKaleidoscope(map,5,3,2);
 
