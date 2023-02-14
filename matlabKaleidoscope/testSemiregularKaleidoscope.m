@@ -19,12 +19,12 @@ mPix=s*s/1e6;
 r=1;
 map=createIdentityMap(mPix,-r,r,-r,r);
 
-outMap = semiregularKaleidoscope(map,5,3,0);
+outMap = semiregularKaleidoscope(map,5,4,1);
 im=createStructureImage(outMap);
 
-%inputImage = imread("dionisos.jpeg");
+%inputImage = imread("tier.jpg");
 
-%outputImage = createOutputImage(map,inputImage);
+%im = createOutputImage(outMap,inputImage);
 
 imshow(im);
 end

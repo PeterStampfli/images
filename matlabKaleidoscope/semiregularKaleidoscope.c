@@ -239,11 +239,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
             c2y = - d * sinf(gamma);
             c2r2 = d * d + 1;
             break;
-        case euklidic:
-            /* euklidic geometry with mirror line*/
-            /* mirror position is arbitrary, mirror line passes through (mirrorX,0)*/
-            mirrorX = 0.5f;
-            break;
     }
     /* do the map*/
     /* row first order*/
