@@ -26,11 +26,14 @@
  *     n is order of dihedral symmetry arising at x-axis and the third side of
  *     the triangle (circle or straight line), angle pi/n
  *
- *     if m is smaller than 2 then the basicKaleidoscope
+ *     if m is smaller than 2 or  n is equal to 0 or 1 then the basicKaleidoscope
  *     does a a simple dihedral group of order k (because these values do not give a triangle.)
  *
- *     if n =  1 we get a semiregular kaleidoscope. A regular polynom of m corners appears at the corners of the polygons
- *                of the regular tiling
+ *     if n =  -1 or -2 we get a semiregular kaleidoscope. 
+ *     for n= -1 a regular polynom of m corners appears at the corners of the polygons
+ *                of the regular tiling 
+ *     for n= -2 a small regular polynom of m corners appears at the corners of the polygons
+ *                of the regular tiling, the regular polynom of k corners has now twice this corners
  *
  *     if k is smaller than 1 then the basicKaleidoscope does nothing (identity map)
  *
@@ -65,7 +68,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, nXnY3, index, i;
     float inverted, x, y;
     float *inMap, *outMap;
-    bool returnsMap, success, semiregular;
+    bool returnsMap, success, semiregular1, semiregular2;
     int k, m, n, k2;
     enum geometryType {elliptic, euklidic, hyperbolic};
     enum geometryType geometry;
@@ -78,7 +81,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     float centerX, centerY, factor;
     float dx, dy, d2, d;
     float c2x, c2y, c2r2;
+    float c3x, c3y, c3r2;
     float cosGamma, sinGamma;
+    float cosGamma2, sinGamma2;
 
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
@@ -136,11 +141,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
         minIterations = 0;
     }
     /* semiregular for n=1*/
-    if (n == 1){
-        semiregular = true;
+    if (n == -1){
+        semiregular1 = true;
+        semiregular2 = false;
+        n = 2;
+    } else if (n == -2){
+        semiregular1 = false;
+        semiregular2 = true;
         n = 2;
     } else {
-        semiregular = false;
+        semiregular1 = false;
+        semiregular2 = false;
     }
     
     /* k<1  identity map*/
@@ -165,7 +176,9 @@ void mexFunction( int nlhs, mxArray *plhs[],
     iGamma2 = 0.5f / gamma;
     kPlus05 = k + 0.5f;
     cosGamma = cosf(gamma);
-    sinGamma = sinf(gamma);
+    sinGamma = sinf(gamma); 
+    cosGamma2 = cosf(gamma / 2);
+    sinGamma2 = sinf(gamma / 2);
     
     /* catch case that there is no triangle*/
     /* m<=1 or n<=1: simple dihedral group of order k*/
@@ -237,7 +250,11 @@ void mexFunction( int nlhs, mxArray *plhs[],
             d = 0.5 * (1 + d * d) / d /cosf(gamma);
             c2x = d * cosf(gamma);
             c2y = d * sinf(gamma);
-            c2r2= d * d - 1;            break;
+            c2r2= d * d - 1;
+            c3x = circleCenterX * cosGamma;
+            c3y = circleCenterX * sinGamma;
+            c3r2 = circleRadius2;
+            break;
         case elliptic:
             /* calculation of center for circle radius=1*/
             centerY = - cosf(alpha);
@@ -247,11 +264,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
             circleCenterX = factor * centerX;
             circleCenterY = factor * centerY;
             circleRadius2 = factor * factor;
-             d = circleCenterX + factor;
+            d = circleCenterX + factor;
             d = 0.5 * (1 - d * d) / d / cosf(gamma);
             c2x = - d * cosf(gamma);
             c2y = - d * sinf(gamma);
             c2r2 = d * d + 1;
+            c3x = circleCenterX * cosGamma;
+            c3y = circleCenterX * sinGamma;
+            c3r2 = circleRadius2;
             break;
         case euklidic:
             /* euklidic geometry with mirror line*/
@@ -387,7 +407,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 outMap[index + nXnY2] = INVALID;
             } else {
                 /* success - eventually modify tiling*/
-                if (semiregular){    
+                if (semiregular1){    
                     switch (geometry){
                         case hyperbolic:
                             dx = x - c2x;
@@ -423,9 +443,53 @@ void mexFunction( int nlhs, mxArray *plhs[],
                             break;
                     }
                 }
+                if (semiregular2){
+                    switch (geometry){
+                        case hyperbolic:
+                            dx = x - c3x;
+                            dy = y - c3y;
+                            d2 = dx * dx + dy * dy;
+                            if (d2 < c3r2){
+                                inverted = 1 - inverted;
+                                factor = c3r2 / d2;
+                                x = c3x + factor * dx;
+                                y = c3y + factor * dy;
+                            }                           
+                            break;
+                        case elliptic:
+                            dx = x - c3x;
+                            dy = y - c3y;
+                            d2 = dx * dx + dy * dy;
+                            if (d2 > c3r2){
+                                inverted = 1 - inverted;
+                                factor = c3r2 / d2;
+                                x = c3x + factor * dx;
+                                y = c3y + factor * dy;
+                            }                           
+                            break;
+                        case euklidic:
+                            d = x * cosGamma + y * sinGamma - 0.5;
+                            if (d > 0){
+                                inverted = 1 - inverted;
+                                d = d + d;
+                                x = x - d * cosGamma;
+                                y = y - d * sinGamma;
+                            }
+                            break;
+                    }                    
+                    /* mirror at half-diagonal*/
+                    d = y * cosGamma2 - x * sinGamma2;
+                    if (d > 0){
+                        inverted = 1 - inverted;
+                        d = d + d;
+                        x = x + d * cosGamma2;
+                        y = y - d * sinGamma2;
+                    }
+                }
                 outMap[index] = x;
                 outMap[index + nXnY] = y;
-                outMap[index + nXnY2] = inverted;            }
+                outMap[index + nXnY2] = inverted;   
+            }
         } else {
             outMap[index] = INVALID;
             outMap[index + nXnY] = INVALID;
