@@ -19,7 +19,7 @@ mPix=s*s/1e6;
 r=1;
 map=createIdentityMap(mPix,-r,r,-r,r);
 
-outMap = semiRegularKaleidoscope(map,5,4,-2);
+outMap = semiRegularKaleidoscope(map,5,4,4);
 im=createStructureImage(outMap);
 
 %inputImage = imread("tier.jpg");
