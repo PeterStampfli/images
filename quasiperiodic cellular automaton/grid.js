@@ -17,75 +17,6 @@ grid.parallelLines = [];
 
 grid.linepositions = [];
 
-function equal(generation, position) {
-    if (generation > 0) {
-        equal(generation - 1, 2 * position);
-        equal(generation - 1, 2 * position + 1);
-    } else {
-        grid.linepositions.push(position);
-    }
-}
-
-// make equally spaced linepositions
-grid.equalSpacedLines = function() {
-    grid.linepositions.length = 0;
-    equal(main.generations, 0);
-};
-
-function A(generation, position) {
-    if (generation > 0) {
-        C(generation - 1, 2.247 * position);
-    } else {
-        grid.linepositions.push(position);
-    }
-}
-
-function B(generation, position) {
-    if (generation > 0) {
-        B(generation - 1, 2.247 * position);
-        C(generation - 1, 2.247 * position + 1.802);
-    } else {
-        grid.linepositions.push(position);
-    }
-}
-
-function C(generation, position) {
-    if (generation > 0) {
-        A(generation - 1, 2.247 * position);
-        B(generation - 1, 2.247 * position + 1);
-        C(generation - 1, 2.247 * position + 2.802);
-    } else {
-        grid.linepositions.push(position);
-    }
-}
-
-grid.trisection = function() {
-    grid.linepositions.length = 0;
-    C(main.generations, 0);
-};
-
-function one(generation, position) {
-    if (generation > 0) {
-        phi(generation - 1, 1.618 * position);
-    } else {
-        grid.linepositions.push(position);
-    }
-}
-
-function phi(generation, position) {
-    if (generation > 0) {
-        one(generation - 1, 1.618 * position);
-        phi(generation - 1, 1.618 * position + 1);
-    } else {
-        grid.linepositions.push(position);
-    }
-}
-
-grid.goldenSection = function() {
-    grid.linepositions.length = 0;
-    phi(main.generations, 0);
-};
-
 // a basic grid for n-fold symmetry, given offset from symmetric case
 // distance between lines equal to one
 
@@ -169,7 +100,6 @@ grid.center = function() {
 // make the tiling from an existing grid
 grid.makeTiling = function() {
     grid.makeIntersections();
-    if (main.tile) {
         grid.sortIntersections();
         // start with the first line of the first bundle
         const line = grid.parallelLines[0].lines[0];
@@ -182,5 +112,4 @@ grid.makeTiling = function() {
             grid.parallelLines[i].adjust();
         }
         grid.center();
-    }
 };

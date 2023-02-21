@@ -6,8 +6,7 @@ import {
 
 import {
     main,
-    color,
-    lineColor
+    color
 } from "./gridmethod.js";
 
 import {
@@ -49,11 +48,10 @@ export const Intersection = function(line1, line2) {
 };
 
 Intersection.prototype.draw = function() {
-    let size = 0.5 * main.rhombusSize;
-    const dx1 = -size * this.line1.sinAlpha;
-    const dy1 = size * this.line1.cosAlpha;
-    const dx2 = -size * this.line2.sinAlpha;
-    const dy2 = size * this.line2.cosAlpha;
+    const dx1 = -0.5 * this.line1.sinAlpha;
+    const dy1 = 0.5 * this.line1.cosAlpha;
+    const dx2 = -0.5 * this.line2.sinAlpha;
+    const dy2 = 0.5 * this.line2.cosAlpha;
     const scale = main.scale;
     const corners = [scale * (this.x + dx1 + dx2), scale * (this.y + dy1 + dy2)];
     corners.push(scale * (this.x + dx1 - dx2), scale * (this.y + dy1 - dy2));
@@ -76,8 +74,8 @@ Intersection.prototype.otherLine = function(line) {
 // returns vector as two-component array
 Intersection.prototype.getRhombusSide = function(line) {
     const otherLine = this.otherLine(line);
-    let dx = -main.rhombusSize * otherLine.sinAlpha;
-    let dy = main.rhombusSize * otherLine.cosAlpha;
+    let dx = -otherLine.sinAlpha;
+    let dy =  otherLine.cosAlpha;
     if (line.forward(dx, dy)) {
         return [dx, dy];
     } else {

@@ -9,8 +9,7 @@ import {
 } from "./intersection.js";
 
 import {
-    main,
-    lineColor
+    main
 } from "./gridmethod.js";
 
 const epsilon = 0.0001;

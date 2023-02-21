@@ -24,39 +24,31 @@ import {
 
 export const main = {};
 export const color = [];
-export const lineColor = [];
 
-main.scale = 600;
+main.scale = 200;
 main.overprint = 4;
 
 main.nLines = 15;
 main.offset = 0.0;
 main.nFold = 5;
+main.nStates = 1;
 
-main.tile = true;
-main.lineColor = '#000000';
-main.lineWidth = 8;
-
-main.rhombusSize = 0.3; // side length of rhombus
-main.rhombusColor = '#008800';
-main.rhombusLineWidth = 8;
+main.tileLineColor = '#008800';
+main.tileLineWidth = 8;
 main.drawTiles = true;
-main.fill = false;
-main.generations = 1;
-main.spacing = grid.equalSpacedLines;
-main.double = true;
+main.cellLineColor = '#0000bb';
+main.cellLineWidth = 8;
+main.drawCellLines = true;
 
 color.push('#000000');
-color.push('#ff0000');
-color.push('#00bb00');
-color.push('#cccc00');
+color.push('#00aaaa');
 color.push('#4444ff');
 color.push('#ff00ff');
-color.push('#ffffff');
+color.push('#ff4444');
+color.push('#ff8800');
+color.push('#ffff00');
+color.push('#88ff88');
 main.colorControllers = [];
-
-lineColor.push('#0000dd');
-lineColor.push('#880000');
 
 main.setup = function() {
     // gui and svg
@@ -121,7 +113,7 @@ main.setup = function() {
     gui.add({
         type: 'number',
         params: main,
-        property: 'rhombusLineWidth',
+        property: 'tileLineWidth',
         labelText: 'tile line width',
         min: 0,
         onChange: draw
@@ -129,27 +121,62 @@ main.setup = function() {
         type: 'boolean',
         params: main,
         property: 'drawTiles',
-        labelText: 'tile lines',
+        labelText: '',
         onChange: draw
     });
 
     gui.add({
         type: 'color',
         params: main,
-        property: 'rhombusColor',
+        property: 'tileLineColor',
         labelText: '',
         onChange: draw
     }).addHelp('Choose the color for the line at the border of tiles');
 
-    gui.addParagraph("colors for rhombus tiles");
-    main.colorControllers.push(0);
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'cellLineWidth',
+        labelText: 'cell line width',
+        min: 0,
+        onChange: draw
+    }).add({
+        type: 'boolean',
+        params: main,
+        property: 'drawCellLines',
+        labelText: '',
+        onChange: draw
+    });
 
-    for (let i = 1; i < color.length; i++) {
+    gui.add({
+        type: 'color',
+        params: main,
+        property: 'cellLineColor',
+        labelText: '',
+        onChange: draw
+    }).addHelp('Choose the color for the line at the border of tiles');
+
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'nStates',
+        labelText: 'states',
+        step: 1,
+        min: 1,
+        max: color.length - 1,
+        onChange: function() {
+            create();
+            draw();
+        }
+    });
+
+    gui.addParagraph("colors for states");
+
+    for (let i = 0; i < color.length; i++) {
         main.colorControllers.push(gui.add({
             type: 'color',
             params: color,
             property: i,
-            labelText: '',
             onChange: draw
         }));
     }
@@ -160,6 +187,13 @@ main.setup = function() {
 };
 
 function create() {
+    const length = main.colorControllers.length;
+    for (let i = 1; i < length; i++) {
+        main.colorControllers[i].hide();
+    }
+    for (let i = 1; i < main.nStates; i++) {
+        main.colorControllers[i].show();
+    }
     grid.spacing();
     // double grid for even order
     // for correct alternating colors of lines
@@ -174,15 +208,6 @@ function create() {
     grid.makeTiling();
 }
 
-/*
-    const length = main.colorControllers.length;
-    for (let i = 1; i < length; i++) {
-        main.colorControllers[i].hide();
-    }
-    for (let i = 1; i <= grid.nRhombi; i++) {
-        main.colorControllers[i].show();
-    }
-*/
 
 function draw() {
     SVG.begin();
@@ -196,8 +221,8 @@ function draw() {
     SVG.groupAttributes.fill = 'none';
     SVG.groupAttributes.stroke = 'none';
     if (main.drawTiles) {
-        SVG.groupAttributes.stroke = main.rhombusColor;
-        SVG.groupAttributes['stroke-width'] = main.rhombusLineWidth;
+        SVG.groupAttributes.stroke = main.tileLineColor;
+        SVG.groupAttributes['stroke-width'] = main.tileLineWidth;
         SVG.createGroup(SVG.groupAttributes);
         grid.drawTiles();
     }
