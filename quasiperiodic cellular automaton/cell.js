@@ -1,13 +1,18 @@
 /* jshint esversion: 6 */
 
+import {
+    SVG
+} from "../libgui/modules.js";
+
 // cells for a cellular automaton, in particular quasiperiodic
-
-
 
 export const Cell = function(x, y) {
     this.centerX = x; // center position, coordinate x
     this.centerY = y;
-    this.corners = []; // each corner is array [x,y,angle with respect to center]
+    // each corner is an array [x,y as absolute coordinates, the angle with respect to center of cell]
+    this.corners = [];
+    //  straight array of coordinates of ordered corners, for drawing
+    this.cornerCoordinates = [];
     this.neighbors = []; //  cells
 };
 
@@ -19,17 +24,18 @@ Cell.prototype.isAt = function(x, y) {
     return result;
 };
 
-// add a corner, one for each tile that has cell at one of its corners
-// no check of dublicates
+// add a corner, one for each tile that has the cell at one of its corners
+// no check of dublicates, angle is relative to center of the cell
 
 Cell.prototype.addCorner = function(x, y) {
     const angle = Math.atan2(y - this.centerY, x - this.centerX);
     this.corners.push([x, y, angle]);
 };
 
-// sort corners according to angle, do before drawing
-Cell.prototype.sortCorners = function() {
+// sort corners according to angle, create array of coordinates, do before drawing
+Cell.prototype.prepareDrawing = function() {
     this.corners.sort((a, b) => a[2] - b[2]);
+    this.corners.forEach(corner => this.cornerCoordinates.push(corner[0], corner[1]));
 };
 
 // add a neighbor to another cell, if not already there
