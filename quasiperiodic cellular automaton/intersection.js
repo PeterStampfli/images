@@ -13,6 +13,10 @@ import {
     grid
 } from "./grid.js";
 
+import {
+    automaton
+} from "./automaton.js";
+
 const epsilon = 0.0001;
 
 /**
@@ -58,6 +62,18 @@ Intersection.prototype.draw = function() {
     corners.push(scale * (this.x - dx1 - dx2), scale * (this.y - dy1 - dy2));
     corners.push(scale * (this.x - dx1 + dx2), scale * (this.y - dy1 + dy2));
     SVG.createPolygon(corners);
+};
+
+Intersection.prototype.setupAutomaton = function() {
+    const dx1 = -0.5 * this.line1.sinAlpha;
+    const dy1 = 0.5 * this.line1.cosAlpha;
+    const dx2 = -0.5 * this.line2.sinAlpha;
+    const dy2 = 0.5 * this.line2.cosAlpha;
+    const corners = [this.x + dx1 + dx2, this.y + dy1 + dy2];
+    corners.push(this.x + dx1 - dx2, this.y + dy1 - dy2);
+    corners.push(this.x - dx1 - dx2, this.y - dy1 - dy2);
+    corners.push(this.x - dx1 + dx2, this.y - dy1 + dy2);
+    automaton.addTile(corners);
 };
 
 // dualization

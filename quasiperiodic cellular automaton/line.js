@@ -43,6 +43,10 @@ Line.prototype.drawTiles = function() {
     this.intersections.forEach(intersection => intersection.draw());
 };
 
+Line.prototype.setupAutomaton = function() {
+    this.intersections.forEach(intersection => intersection.setupAutomaton());
+};
+
 // check if a given distance (vector) goes forward along the line
 // depends on its direction!!
 Line.prototype.forward = function(dx, dy) {

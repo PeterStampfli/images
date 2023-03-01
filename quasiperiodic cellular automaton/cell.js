@@ -4,6 +4,11 @@ import {
     SVG
 } from "../libgui/modules.js";
 
+import {
+    main,
+    color
+} from "./gridmethod.js";
+
 // cells for a cellular automaton, in particular quasiperiodic
 
 export const Cell = function(x, y) {
@@ -41,7 +46,6 @@ Cell.prototype.prepareDrawing = function() {
 // add a neighbor to another cell, if not already there
 Cell.prototype.addNeighbor = function(otherCell) {
     const index = this.neighbors.findIndex(neighbor => neighbor === otherCell);
-    console.log(index);
     if (index < 0) {
         this.neighbors.push(otherCell);
     }

@@ -10,6 +10,10 @@ export const automaton = {};
 
 automaton.cells = [];
 
+automaton.clear = function() {
+    automaton.cells.length = 0;
+};
+
 automaton.setLimit = function(r) {
     automaton.r = r;
     automaton.r2 = r * r;
@@ -47,9 +51,7 @@ automaton.addTile = function(cornerCoordinates) {
     }
     centerX *= 2 / coordinatesLength;
     centerY *= 2 / coordinatesLength;
-    console.log('center', centerX, centerY);
     if (centerX * centerX + centerY * centerY > automaton.r2) {
-        console.log('out');
         return;
     }
     // each corner of the tile is the center of a cell of the automaton
@@ -65,11 +67,9 @@ automaton.addTile = function(cornerCoordinates) {
     const cellsLength = cellsAtCorners.length;
     let lastCell = cellsAtCorners[cellsLength - 1];
     for (let i = 0; i < cellsLength; i++) {
-        console.log(i);
         let currentCell = cellsAtCorners[i];
         currentCell.addNeighbor(lastCell);
         lastCell.addNeighbor(currentCell);
         lastCell = currentCell;
     }
-    console.log(cellsAtCorners);
 };

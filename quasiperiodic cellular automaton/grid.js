@@ -8,6 +8,10 @@ import {
     main
 } from "./gridmethod.js";
 
+import {
+    automaton
+} from "./automaton.js";
+
 /**
  * a grid made of bundles of gridlines
  */
@@ -50,6 +54,13 @@ grid.create = function() {
 
 grid.drawTiles = function() {
     grid.parallelLines.forEach(lines => lines.drawTiles());
+};
+
+grid.setupAutomaton = function() {
+    automaton.clear();
+    automaton.setLimit(main.automatonLimit);
+    grid.parallelLines.forEach(lines => lines.setupAutomaton());
+    console.log(automaton.cells);
 };
 
 grid.makeIntersections = function() {
@@ -100,16 +111,16 @@ grid.center = function() {
 // make the tiling from an existing grid
 grid.makeTiling = function() {
     grid.makeIntersections();
-        grid.sortIntersections();
-        // start with the first line of the first bundle
-        const line = grid.parallelLines[0].lines[0];
-        // define position of a first rhombus of the tiling
-        line.intersections[0].set(0, 0);
-        // do the first line
-        line.adjust();
-        const length = grid.parallelLines.length;
-        for (let i = 1; i < length; i++) {
-            grid.parallelLines[i].adjust();
-        }
-        grid.center();
+    grid.sortIntersections();
+    // start with the first line of the first bundle
+    const line = grid.parallelLines[0].lines[0];
+    // define position of a first rhombus of the tiling
+    line.intersections[0].set(0, 0);
+    // do the first line
+    line.adjust();
+    const length = grid.parallelLines.length;
+    for (let i = 1; i < length; i++) {
+        grid.parallelLines[i].adjust();
+    }
+    grid.center();
 };

@@ -22,6 +22,10 @@ import {
     Intersection
 } from "./intersection.js";
 
+import {
+    automaton
+} from "./automaton.js";
+
 export const main = {};
 export const color = [];
 
@@ -32,6 +36,7 @@ main.nLines = 15;
 main.offset = 0.0;
 main.nFold = 5;
 main.nStates = 1;
+main.automatonLimit = 10;
 
 main.tileLineColor = '#008800';
 main.tileLineWidth = 8;
@@ -40,14 +45,14 @@ main.cellLineColor = '#0000bb';
 main.cellLineWidth = 8;
 main.drawCellLines = true;
 
-color.push('#000000');
-color.push('#00aaaa');
-color.push('#4444ff');
-color.push('#ff00ff');
-color.push('#ff4444');
-color.push('#ff8800');
-color.push('#ffff00');
+color.push('#ffffff');
 color.push('#88ff88');
+color.push('#ffff00');
+color.push('#ff8800');
+color.push('#ff4444');
+color.push('#ff00ff');
+color.push('#4444ff');
+color.push('#00aaaa');
 main.colorControllers = [];
 
 main.setup = function() {
@@ -77,16 +82,26 @@ main.setup = function() {
     gui.add({
         type: 'number',
         params: main,
-        property: 'nFold',
-        labelText: 'symmetry',
-        step: 1,
-        min: 3,
-        max: 14,
+        property: 'scale',
+        min: 0,
         onChange: function() {
             create();
             draw();
         }
-    }).addHelp('Determine the order of the rotational symmetry of the quasiperiodic tiling.');
+    });
+
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'automatonLimit',
+        labelText: 'limit',
+        step: 1,
+        min: 0,
+        onChange: function() {
+            create();
+            draw();
+        }
+    });
 
     gui.add({
         type: 'number',
@@ -206,8 +221,8 @@ function create() {
     }
     grid.create();
     grid.makeTiling();
+    grid.setupAutomaton();
 }
-
 
 function draw() {
     SVG.begin();
@@ -226,6 +241,15 @@ function draw() {
         SVG.createGroup(SVG.groupAttributes);
         grid.drawTiles();
     }
+    if (main.drawCellLines) {
+        SVG.groupAttributes.stroke = main.cellLineColor;
+        SVG.groupAttributes['stroke-width'] = main.cellLineWidth;
+    } else {
+        SVG.groupAttributes.stroke = 'none';
+    }
+
+    SVG.createGroup(SVG.groupAttributes);
+
 
 
 

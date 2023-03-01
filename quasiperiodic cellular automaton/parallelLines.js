@@ -20,6 +20,10 @@ ParallelLines.prototype.drawTiles = function() {
     this.lines.forEach(line => line.drawTiles());
 };
 
+ParallelLines.prototype.setupAutomaton = function() {
+    this.lines.forEach(line => line.setupAutomaton());
+};
+
 // basic set of lines, unit distance
 ParallelLines.createBasicBundle = function(alpha, offset, n) {
     const lines = new ParallelLines();
