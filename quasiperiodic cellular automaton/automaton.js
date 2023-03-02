@@ -14,6 +14,27 @@ automaton.clear = function() {
     automaton.cells.length = 0;
 };
 
+automaton.findCenterCell = function() {
+    let minr2 = 1e10;
+    let result = automaton.cells[0];
+    const length = automaton.cells.length;
+    for (let i = 0; i < length; i++) {
+        const cell = automaton.cells[i];
+        const r2 = cell.centerX * cell.centerX + cell.centerY * cell.centerY;
+        if (r2 < minr2) {
+            minr2 = r2;
+            result = cell;
+        }
+    }
+    return result;
+};
+
+automaton.reset = function(centerState) {
+    automaton.cells.forEach(cell => cell.state = 0);
+    const centerCell = automaton.findCenterCell();
+    centerCell.state = centerState;
+};
+
 automaton.setLimit = function(r) {
     automaton.r = r;
     automaton.r2 = r * r;

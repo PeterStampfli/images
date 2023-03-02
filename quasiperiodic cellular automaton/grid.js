@@ -60,7 +60,6 @@ grid.setupAutomaton = function() {
     automaton.clear();
     automaton.setLimit(main.automatonLimit);
     grid.parallelLines.forEach(lines => lines.setupAutomaton());
-    console.log(automaton.cells);
 };
 
 grid.makeIntersections = function() {

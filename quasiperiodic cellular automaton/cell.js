@@ -19,6 +19,25 @@ export const Cell = function(x, y) {
     //  straight array of coordinates of ordered corners, for drawing
     this.cornerCoordinates = [];
     this.neighbors = []; //  cells
+    this.state = 0;
+};
+
+// draw scaled polygon, fill color depending on state
+Cell.prototype.draw = function() {
+    const scale = main.scale;
+    const length = this.cornerCoordinates.length;
+    const scaledCoordinates = [];
+    scaledCoordinates.length = length;
+    for (let i = 0; i < length; i++) {
+        scaledCoordinates[i] = scale * this.cornerCoordinates[i];
+    }
+    if (main.cellFill) {
+        SVG.createPolygon(scaledCoordinates, {
+            fill: color[this.state]
+        });
+    } else {
+        SVG.createPolygon(scaledCoordinates);
+    }
 };
 
 // check if (x,y) is at same place

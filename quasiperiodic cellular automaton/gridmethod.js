@@ -35,7 +35,7 @@ main.overprint = 4;
 main.nLines = 15;
 main.offset = 0.0;
 main.nFold = 5;
-main.nStates = 1;
+main.nStates = 2;
 main.automatonLimit = 10;
 
 main.tileLineColor = '#008800';
@@ -44,6 +44,7 @@ main.drawTiles = true;
 main.cellLineColor = '#0000bb';
 main.cellLineWidth = 8;
 main.drawCellLines = true;
+main.cellFill = true;
 
 color.push('#ffffff');
 color.push('#88ff88');
@@ -67,17 +68,6 @@ main.setup = function() {
     SVG.makeGui(gui);
     SVG.init();
     BooleanButton.greenRedBackground();
-    // no background color, no transparency
-    gui.add({
-        type: 'number',
-        params: main,
-        property: 'scale',
-        min: 0,
-        onChange: function() {
-            create();
-            draw();
-        }
-    });
 
     gui.add({
         type: 'number',
@@ -97,6 +87,20 @@ main.setup = function() {
         labelText: 'limit',
         step: 1,
         min: 0,
+        onChange: function() {
+            create();
+            draw();
+        }
+    });
+
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'nFold',
+        labelText: 'symmetry',
+        step: 1,
+        min: 3,
+        max: 14,
         onChange: function() {
             create();
             draw();
@@ -161,6 +165,12 @@ main.setup = function() {
         property: 'drawCellLines',
         labelText: '',
         onChange: draw
+    }).add({
+        type: 'boolean',
+        params: main,
+        property: 'cellFill',
+        labelText: 'fill',
+        onChange: draw
     });
 
     gui.add({
@@ -222,6 +232,9 @@ function create() {
     grid.create();
     grid.makeTiling();
     grid.setupAutomaton();
+    automaton.prepareDrawing();
+
+    automaton.reset(1);
 }
 
 function draw() {
@@ -235,7 +248,7 @@ function draw() {
 
     SVG.groupAttributes.fill = 'none';
     SVG.groupAttributes.stroke = 'none';
-    if (main.drawTiles) {
+    if (main.drawTiles&&!main.cellFill) {
         SVG.groupAttributes.stroke = main.tileLineColor;
         SVG.groupAttributes['stroke-width'] = main.tileLineWidth;
         SVG.createGroup(SVG.groupAttributes);
@@ -247,8 +260,9 @@ function draw() {
     } else {
         SVG.groupAttributes.stroke = 'none';
     }
-
+    SVG.groupAttributes.fill = 'none';
     SVG.createGroup(SVG.groupAttributes);
+    automaton.draw();
 
 
 
