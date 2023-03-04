@@ -29,12 +29,6 @@ automaton.findCenterCell = function() {
     return result;
 };
 
-automaton.reset = function(centerState) {
-    automaton.cells.forEach(cell => cell.state = 0);
-    const centerCell = automaton.findCenterCell();
-    centerCell.state = centerState;
-};
-
 automaton.setLimit = function(r) {
     automaton.r = r;
     automaton.r2 = r * r;
@@ -93,4 +87,21 @@ automaton.addTile = function(cornerCoordinates) {
         lastCell.addNeighbor(currentCell);
         lastCell = currentCell;
     }
+};
+
+// running the automaton
+
+automaton.reset = function(centerState) {
+    automaton.cells.forEach(cell => cell.setState(0));
+    const centerCell = automaton.findCenterCell();
+    centerCell.setState( centerState);
+};
+
+automaton.advance = function() {
+
+
+    automaton.cells.forEach(cell => cell.sumNeighborStates());
+
+
+    automaton.cells.forEach(cell => cell.transition());
 };

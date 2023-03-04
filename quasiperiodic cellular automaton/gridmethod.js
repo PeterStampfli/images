@@ -36,7 +36,7 @@ main.nLines = 15;
 main.offset = 0.0;
 main.nFold = 5;
 main.nStates = 2;
-main.automatonLimit = 10;
+main.automatonLimit = 2;
 
 main.tileLineColor = '#008800';
 main.tileLineWidth = 8;
@@ -86,7 +86,7 @@ main.setup = function() {
         property: 'automatonLimit',
         labelText: 'limit',
         step: 1,
-        min: 0,
+        min: 2,
         onChange: function() {
             create();
             draw();
@@ -190,7 +190,22 @@ main.setup = function() {
         min: 1,
         max: color.length - 1,
         onChange: function() {
-            create();
+            draw();
+        }
+    });
+
+    gui.add({
+        type: 'button',
+        buttonText: 'reset',
+        onChange: function() {
+            automaton.reset(1);
+            draw();
+        }
+    }).add({
+        type: 'button',
+        buttonText: 'step',
+        onChange: function() {
+            automaton.advance();
             draw();
         }
     });
@@ -248,7 +263,7 @@ function draw() {
 
     SVG.groupAttributes.fill = 'none';
     SVG.groupAttributes.stroke = 'none';
-    if (main.drawTiles&&!main.cellFill) {
+    if (main.drawTiles && !main.cellFill) {
         SVG.groupAttributes.stroke = main.tileLineColor;
         SVG.groupAttributes['stroke-width'] = main.tileLineWidth;
         SVG.createGroup(SVG.groupAttributes);
@@ -263,7 +278,6 @@ function draw() {
     SVG.groupAttributes.fill = 'none';
     SVG.createGroup(SVG.groupAttributes);
     automaton.draw();
-
 
 
 

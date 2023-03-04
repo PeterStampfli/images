@@ -19,6 +19,7 @@ export const Cell = function(x, y) {
     //  straight array of coordinates of ordered corners, for drawing
     this.cornerCoordinates = [];
     this.neighbors = []; //  cells
+    this.neighborsum = 0;
     this.state = 0;
 };
 
@@ -62,10 +63,29 @@ Cell.prototype.prepareDrawing = function() {
     this.corners.forEach(corner => this.cornerCoordinates.push(corner[0], corner[1]));
 };
 
-// add a neighbor to another cell, if not already there
+// add a (nearest) neighbor to another cell, if not already there
 Cell.prototype.addNeighbor = function(otherCell) {
     const index = this.neighbors.findIndex(neighbor => neighbor === otherCell);
     if (index < 0) {
         this.neighbors.push(otherCell);
     }
+};
+
+// running the automaton
+
+// for the initial state
+Cell.prototype.setState = function(state) {
+    this.state = state;
+};
+
+// advancing: calculate sums and make transition
+Cell.prototype.sumNeighborStates = function() {
+    let sum = 0;
+    this.neighbors.forEach(neighbor => sum += neighbor.state);
+    this.neighborsum = sum;
+};
+
+
+Cell.prototype.transition = function() {
+this.state=(this.neighborsum+this.state)%main.nStates;
 };
