@@ -25,6 +25,8 @@ export const Cell = function(x, y) {
     this.cornerCoordinates = [];
     this.neighbors = []; //  cells
     this.neighborsum = 0;
+    this.neighbors2 = []; //  cells
+    this.neighbor2sum = 0;
     this.state = 0;
     // mark cells that get nonzero initial state
     this.initial = false;
@@ -73,12 +75,50 @@ Cell.prototype.sortCorners = function() {
     this.corners.forEach(corner => this.cornerCoordinates.push(corner[0], corner[1]));
 };
 
+// check if a cell is in neighbor list
+Cell.prototype.isNeighbor = function(otherCell) {
+    const index = this.neighbors.findIndex(cell => cell === otherCell);
+    return index >= 0;
+};
+
+// check if a cell is in second neighbor list
+Cell.prototype.isNeighbor2 = function(otherCell) {
+    const index = this.neighbors2.findIndex(cell => cell === otherCell);
+    return index >= 0;
+};
+
 // add a (nearest) neighbor to another cell, if not already there
 Cell.prototype.addNeighbor = function(otherCell) {
-    const index = this.neighbors.findIndex(neighbor => neighbor === otherCell);
-    if (index < 0) {
+    if (!this.isNeighbor(otherCell)) {
         this.neighbors.push(otherCell);
     }
+};
+
+// find second nearest neighbors
+Cell.prototype.findNeighbors2 = function() {
+    const nLength = this.neighbors.length;
+    for (n = 0; n < nLength; n++) {
+        const neighbor = this.neighbors[n];
+        const n2Length = neighbor.neighbors.length;
+        for (n = 0; n < n2Length; n2++) {
+            // all possible 2nd neighbors
+            neighbor2 = neighbor.neighbors[n2];
+            // check if we have gone back
+            if (neighbor2 === this) {
+                continue;
+            }
+            // check if it is a nearest neighbor
+            if (this.isNeighbor(neighbor2)) {
+                continue;
+            }
+            // check if it is already a second neraest neighbor
+            if (this.isNeighbor2(neighbor2)) {
+                continue;
+            }
+            this.neighbors2.push(neighbor2);
+        }
+    }
+
 };
 
 // draw scaled polygon, fill color depending on state
@@ -96,6 +136,22 @@ Cell.prototype.draw = function() {
         });
     } else {
         SVG.createPolygon(scaledCoordinates);
+    }
+};
+
+// draw lines to neigbhbors
+Cell.prototype.drawNeighborLines = function() {
+    const scale = main.scale;
+    const scaledCoordinates = [];
+    scaledCoordinates.length = 4;
+    scaledCoordinates[0] = scale * this.centerX;
+    scaledCoordinates[1] = scale * this.centerY;
+    const length = this.neighbors.length;
+    for (let i = 0; i < length; i++) {
+        const neighbor = this.neighbors[i];
+        scaledCoordinates[2] = scale * neighbor.centerX;
+        scaledCoordinates[3] = scale * neighbor.centerY;
+        SVG.createPolyline(scaledCoordinates);
     }
 };
 

@@ -57,4 +57,5 @@ squareLattice.createDualCells = function() {
         }
     }
     automaton.sortCorners();
+    automaton.findNeighbors2();
 };

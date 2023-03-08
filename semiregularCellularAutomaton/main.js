@@ -81,11 +81,9 @@ main.setup = function() {
 
 function create() {
 squareLattice.createDualCells();
-console.log(automaton.cells);
 }
 
 function draw() {
-    console.log('drawnd')
     SVG.begin();
     SVG.groupAttributes = {
         transform: 'scale(1 -1)',

@@ -139,7 +139,7 @@ automaton.sortCorners = function() {
     automaton.cells.forEach(cell => cell.sortCorners());
 };
 
-// drawing the cells of the automaton
+// drawing the cells of the automaton, and neighbor lines
 automaton.draw = function() {
     if (automaton.drawCellLines) {
         SVG.groupAttributes.stroke = automaton.cellLineColor;
@@ -150,6 +150,15 @@ automaton.draw = function() {
     SVG.groupAttributes.fill = 'none';
     SVG.createGroup(SVG.groupAttributes);
     automaton.cells.forEach(cell => cell.draw());
+    if (automaton.drawNeighborLines) {
+        SVG.groupAttributes.stroke = automaton.neighborLineColor;
+        SVG.groupAttributes.fill = 'none';
+        SVG.createGroup(SVG.groupAttributes);
+    automaton.cells.forEach(cell => cell.drawNeighborLines());
+
+
+    }
+
 };
 
 // add a cell at given place if not already there, return the cell
@@ -199,5 +208,12 @@ automaton.addDualCell = function(cornerCoordinates) {
         currentCell.addNeighbor(lastCell);
         lastCell.addNeighbor(currentCell);
         lastCell = currentCell;
+    }
+
+    // find second nearest neighbors
+
+    automaton.findNeighbors2=function(){
+        console.log('nbs2')
+        automaton.cells.forEach(cell=>cell.findNeighbors2());
     }
 };
