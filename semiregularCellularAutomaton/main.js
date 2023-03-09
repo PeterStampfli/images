@@ -11,6 +11,10 @@ import {
 } from "./squareLattice.js";
 
 import {
+    triangleLattice
+} from "./triangleLattice.js";
+
+import {
     automaton
 } from "./automaton.js";
 
@@ -75,12 +79,13 @@ main.setup = function() {
 
     create();
     SVG.draw = draw;
-    main.draw=draw;
+    main.draw = draw;
     draw();
 };
 
 function create() {
-squareLattice.createDualCells();
+    //squareLattice.createDualCells();
+  //  squareLattice.createCells();
 }
 
 function draw() {
@@ -91,13 +96,10 @@ function draw() {
         'stroke-linejoin': 'round',
         'stroke-width': main.lineWidth
     };
+ //   automaton.draw();
     if (main.drawTileLines) {
-
-        squareLattice.draw();
+        triangleLattice.draw();
+     //   squareLattice.draw();
     }
-
-    automaton.draw();
-
     SVG.terminate();
-
 }

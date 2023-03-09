@@ -95,14 +95,14 @@ Cell.prototype.addNeighbor = function(otherCell) {
 };
 
 // find second nearest neighbors
-Cell.prototype.findNeighbors2 = function() {
+Cell.prototype.findNeighbors2 = function(cutoff2) {
     const nLength = this.neighbors.length;
-    for (n = 0; n < nLength; n++) {
+    for (let n = 0; n < nLength; n++) {
         const neighbor = this.neighbors[n];
         const n2Length = neighbor.neighbors.length;
-        for (n = 0; n < n2Length; n2++) {
+        for (let n2 = 0; n2 < n2Length; n2++) {
             // all possible 2nd neighbors
-            neighbor2 = neighbor.neighbors[n2];
+            const neighbor2 = neighbor.neighbors[n2];
             // check if we have gone back
             if (neighbor2 === this) {
                 continue;
@@ -115,14 +115,19 @@ Cell.prototype.findNeighbors2 = function() {
             if (this.isNeighbor2(neighbor2)) {
                 continue;
             }
+            // checck if too far away
+            const dx=this.centerX- neighbor2.centerX;
+            const dy=this.centerY- neighbor2.centerY;
+            if (dx*dx+dy*dy>cutoff2){
+                continue;
+            }
             this.neighbors2.push(neighbor2);
         }
     }
-
 };
 
 // draw scaled polygon, fill color depending on state
-Cell.prototype.draw = function() {
+Cell.prototype.drawFill = function() {
     const scale = main.scale;
     const length = this.cornerCoordinates.length;
     const scaledCoordinates = [];
@@ -130,30 +135,49 @@ Cell.prototype.draw = function() {
     for (let i = 0; i < length; i++) {
         scaledCoordinates[i] = scale * this.cornerCoordinates[i];
     }
-    if (automaton.cellFill) {
         SVG.createPolygon(scaledCoordinates, {
             fill: automaton.color[this.state]
         });
-    } else {
-        SVG.createPolygon(scaledCoordinates);
-    }
 };
 
-// draw lines to neigbhbors
-Cell.prototype.drawNeighborLines = function() {
+// draw scaled polygon, fill color depending on state
+Cell.prototype.drawLine = function() {
+    const scale = main.scale;
+    const length = this.cornerCoordinates.length;
+    const scaledCoordinates = [];
+    scaledCoordinates.length = length;
+    for (let i = 0; i < length; i++) {
+        scaledCoordinates[i] = scale * this.cornerCoordinates[i];
+    }
+        SVG.createPolygon(scaledCoordinates);
+};
+
+// draw lines from center of this cell to center of target cells
+Cell.prototype.drawLines = function(targets) {
     const scale = main.scale;
     const scaledCoordinates = [];
     scaledCoordinates.length = 4;
     scaledCoordinates[0] = scale * this.centerX;
     scaledCoordinates[1] = scale * this.centerY;
-    const length = this.neighbors.length;
+    const length = targets.length;
     for (let i = 0; i < length; i++) {
-        const neighbor = this.neighbors[i];
-        scaledCoordinates[2] = scale * neighbor.centerX;
-        scaledCoordinates[3] = scale * neighbor.centerY;
+        const target = targets[i];
+        scaledCoordinates[2] = scale * target.centerX;
+        scaledCoordinates[3] = scale * target.centerY;
         SVG.createPolyline(scaledCoordinates);
     }
 };
+
+// draw lines to nearest neigbhbors
+Cell.prototype.drawNeighborLines = function() {
+    this.drawLines(this.neighbors);
+};
+
+// draw lines to second nearest neigbhbors
+Cell.prototype.drawNeighbor2Lines = function() {
+    this.drawLines(this.neighbors2);
+};
+
 
 // running the automaton
 

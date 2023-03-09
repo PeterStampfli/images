@@ -34,7 +34,7 @@ automaton.drawNeighbor2Lines = true;
 automaton.color = [];
 const color = automaton.color;
 const colorControllers = [];
-color.push('#ffffff');
+color.push('#eeeeff');
 color.push('#88ff88');
 color.push('#ffff00');
 color.push('#ff8800');
@@ -141,24 +141,30 @@ automaton.sortCorners = function() {
 
 // drawing the cells of the automaton, and neighbor lines
 automaton.draw = function() {
-    if (automaton.drawCellLines) {
-        SVG.groupAttributes.stroke = automaton.cellLineColor;
-    } else {
-        SVG.groupAttributes.stroke = 'none';
-    }
     // if there is fill, it will be defined drawing each cell
     SVG.groupAttributes.fill = 'none';
-    SVG.createGroup(SVG.groupAttributes);
-    automaton.cells.forEach(cell => cell.draw());
+    SVG.groupAttributes.stroke = 'none';
+    if (automaton.cellFill) {
+        SVG.createGroup(SVG.groupAttributes);
+        automaton.cells.forEach(cell => cell.drawFill());
+    }
+    if (automaton.drawCellLines) {
+        SVG.groupAttributes.stroke = automaton.cellLineColor;
+        SVG.createGroup(SVG.groupAttributes);
+        automaton.cells.forEach(cell => cell.drawLine());
+    }
     if (automaton.drawNeighborLines) {
         SVG.groupAttributes.stroke = automaton.neighborLineColor;
         SVG.groupAttributes.fill = 'none';
         SVG.createGroup(SVG.groupAttributes);
-    automaton.cells.forEach(cell => cell.drawNeighborLines());
-
-
+        automaton.cells.forEach(cell => cell.drawNeighborLines());
     }
-
+    if (automaton.drawNeighbor2Lines) {
+        SVG.groupAttributes.stroke = automaton.neighbor2LineColor;
+        SVG.groupAttributes.fill = 'none';
+        SVG.createGroup(SVG.groupAttributes);
+        automaton.cells.forEach(cell => cell.drawNeighbor2Lines());
+    }
 };
 
 // add a cell at given place if not already there, return the cell
@@ -178,8 +184,40 @@ automaton.newCellAt = function(x, y) {
     return cell;
 };
 
+// add a cell: given by an array of corner coordinates, as for drawing the polygon
+automaton.addCell = function(cornerCoordinates, neighborCutoff) {
+    // determine center of the tile
+    let centerX = 0;
+    let centerY = 0;
+    let coordinatesLength = cornerCoordinates.length;
+    for (let i = 0; i < coordinatesLength; i += 2) {
+        centerX += cornerCoordinates[i];
+        centerY += cornerCoordinates[i + 1];
+    }
+    centerX *= 2 / coordinatesLength;
+    centerY *= 2 / coordinatesLength;
+    // create the cell, we know that there are no dublicates
+    const cell = automaton.newCellAt(centerX, centerY);
+    cell.cornerCoordinates = cornerCoordinates;
+    // create nearest neighbors, all cells near this cell
+    neighborCutoff *= neighborCutoff;
+    // excluding this cell, it is the last one
+    const length = automaton.cells.length - 1;
+    for (let i = 0; i < length; i++) {
+        const neighbor = automaton.cells[i];
+        // check close enough, should work for all semiregular tilings
+        const dx = cell.centerX - neighbor.centerX;
+        const dy = cell.centerY - neighbor.centerY;
+        if (dx * dx + dy * dy < neighborCutoff) {
+            // it has to be a new neighbor connection because this cell is new
+            cell.neighbors.push(neighbor);
+            neighbor.neighbors.push(cell);
+        }
+    }
+};
+
 // add a cell dual to a tile: given by an array of corner coordinates, as for drawing the polygon
-automaton.addDualCell = function(cornerCoordinates) {
+automaton.addDualCell = function(cornerCoordinates, neighborCutoff) {
     // determine center of the tile
     let centerX = 0;
     let centerY = 0;
@@ -200,7 +238,7 @@ automaton.addDualCell = function(cornerCoordinates) {
         cellsAtCorners.push(newCell);
     }
     // add connections, each corner cell is connected to neighbors
-    // by edges of the tile
+    // by edges of the tile (connecting centers of cells)
     const cellsLength = cellsAtCorners.length;
     let lastCell = cellsAtCorners[cellsLength - 1];
     for (let i = 0; i < cellsLength; i++) {
@@ -209,11 +247,10 @@ automaton.addDualCell = function(cornerCoordinates) {
         lastCell.addNeighbor(currentCell);
         lastCell = currentCell;
     }
+};
 
-    // find second nearest neighbors
-
-    automaton.findNeighbors2=function(){
-        console.log('nbs2')
-        automaton.cells.forEach(cell=>cell.findNeighbors2());
-    }
+// find second nearest neighbors
+automaton.findNeighbors2 = function(cutoff) {
+    const cutoff2 = cutoff * cutoff;
+    automaton.cells.forEach(cell => cell.findNeighbors2(cutoff2));
 };
