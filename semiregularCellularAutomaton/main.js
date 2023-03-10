@@ -15,6 +15,34 @@ import {
 } from "./triangleLattice.js";
 
 import {
+    octagonSquareLattice
+} from "./octagonSquareLattice.js";
+
+import {
+    hexagonTriangleLattice
+} from "./hexagonTriangleLattice.js";
+
+import {
+    dodecagonTriangleLattice
+} from "./dodecagonTriangleLattice.js";
+
+import {
+    dodecagonTriangleSquareLattice
+} from "./dodecagonTriangleSquareLattice.js";
+
+import {
+    hexagonTriangleSquareLattice
+} from "./hexagonTriangleSquareLattice.js";
+
+import {
+    triangleSquareLattice
+} from "./triangleSquareLattice.js";
+
+import {
+    hexagonLattice
+} from "./hexagonLattice.js";
+
+import {
     automaton
 } from "./automaton.js";
 
@@ -98,8 +126,15 @@ function draw() {
     };
  //   automaton.draw();
     if (main.drawTileLines) {
-        triangleLattice.draw();
+      //  hexagonTriangleLattice.draw();
+      //  octagonSquareLattice.draw();
+       // triangleLattice.draw();
      //   squareLattice.draw();
+  //   hexagonLattice.draw();
+  //   dodecagonTriangleLattice.draw();
+     hexagonTriangleSquareLattice.draw();
+ //    dodecagonTriangleSquareLattice.draw();
+   //  triangleSquareLattice.draw();
     }
     SVG.terminate();
 }
