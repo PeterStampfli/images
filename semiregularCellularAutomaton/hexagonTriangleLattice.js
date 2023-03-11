@@ -21,9 +21,11 @@ hexagonTriangleLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
 hexagonTriangleLattice.shiftX = 0;
 hexagonTriangleLattice.shiftY = 0;
+// other shift for 3fold symmetry
+// hexagonTriangleLattice.shiftY = 2/Math.sqrt(3);
 // cutoff for 2nd nearest neighbors
-hexagonTriangleLattice.neighbor2Cutoff = 1.5;
-hexagonTriangleLattice.neighborCutoff = 1.1;
+hexagonTriangleLattice.neighbor2Cutoff = 2.01;
+hexagonTriangleLattice.neighborCutoff = 2/Math.sqrt(3)+0.01;
 
 const rt32 = Math.sqrt(3) / 2;
 

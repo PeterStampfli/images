@@ -94,9 +94,11 @@ Cell.prototype.addNeighbor = function(otherCell) {
     }
 };
 
-// find second nearest neighbors
-Cell.prototype.findNeighbors2 = function(cutoff2) {
+// find second nearest neighbors, each cell finds the nearest second neighbors
+Cell.prototype.findNeighbors2 = function() {
     const nLength = this.neighbors.length;
+    let mindis2 = 1e10;
+    // find the shortest 2nd neighbor distance
     for (let n = 0; n < nLength; n++) {
         const neighbor = this.neighbors[n];
         const n2Length = neighbor.neighbors.length;
@@ -111,14 +113,37 @@ Cell.prototype.findNeighbors2 = function(cutoff2) {
             if (this.isNeighbor(neighbor2)) {
                 continue;
             }
-            // check if it is already a second neraest neighbor
-            if (this.isNeighbor2(neighbor2)) {
+            // check distance
+            const dx = this.centerX - neighbor2.centerX;
+            const dy = this.centerY - neighbor2.centerY;
+
+            mindis2 = Math.min(dx * dx + dy * dy, mindis2);
+        }
+    }
+    mindis2 += 0.01;
+    // do only neighbors with this distance
+    for (let n = 0; n < nLength; n++) {
+        const neighbor = this.neighbors[n];
+        const n2Length = neighbor.neighbors.length;
+        for (let n2 = 0; n2 < n2Length; n2++) {
+            // all possible 2nd neighbors
+            const neighbor2 = neighbor.neighbors[n2];
+            // check if we have gone back
+            if (neighbor2 === this) {
                 continue;
             }
-            // checck if too far away
-            const dx=this.centerX- neighbor2.centerX;
-            const dy=this.centerY- neighbor2.centerY;
-            if (dx*dx+dy*dy>cutoff2){
+            // check if it is a nearest neighbor
+            if (this.isNeighbor(neighbor2)) {
+                continue;
+            }
+            // check if too far away
+            const dx = this.centerX - neighbor2.centerX;
+            const dy = this.centerY - neighbor2.centerY;
+            if (dx * dx + dy * dy > mindis2) {
+                continue;
+            }
+            // check if it is already a second neraest neighbor
+            if (this.isNeighbor2(neighbor2)) {
                 continue;
             }
             this.neighbors2.push(neighbor2);
@@ -135,9 +160,9 @@ Cell.prototype.drawFill = function() {
     for (let i = 0; i < length; i++) {
         scaledCoordinates[i] = scale * this.cornerCoordinates[i];
     }
-        SVG.createPolygon(scaledCoordinates, {
-            fill: automaton.color[this.state]
-        });
+    SVG.createPolygon(scaledCoordinates, {
+        fill: automaton.color[this.state]
+    });
 };
 
 // draw scaled polygon, fill color depending on state
@@ -149,7 +174,7 @@ Cell.prototype.drawLine = function() {
     for (let i = 0; i < length; i++) {
         scaledCoordinates[i] = scale * this.cornerCoordinates[i];
     }
-        SVG.createPolygon(scaledCoordinates);
+    SVG.createPolygon(scaledCoordinates);
 };
 
 // draw lines from center of this cell to center of target cells
@@ -184,6 +209,7 @@ Cell.prototype.drawNeighbor2Lines = function() {
 // set initial(state) for cells inside a critical radius around origin
 Cell.prototype.setInitial = function(radius2) {
     this.initial = ((this.centerX * this.centerX + this.centerY * this.centerY) < radius2);
+    console.log(this.centerX, this.centerY, radius2, this.initial);
 };
 
 // for the initial state, cells at center get special initial value, others are zero
@@ -201,7 +227,6 @@ Cell.prototype.sumNeighborStates = function() {
     this.neighbors.forEach(neighbor => sum += neighbor.state);
     this.neighborsum = sum;
 };
-
 
 Cell.prototype.transition = function() {
     this.state = (this.neighborsum + this.state) % automaton.nStates;

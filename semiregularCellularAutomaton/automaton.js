@@ -110,6 +110,22 @@ automaton.createGui = function(gui) {
         }
     });
 
+    gui.add({
+        type: 'button',
+        buttonText: 'reset',
+        onChange: function() {
+            automaton.reset(1);
+            draw();
+        }
+    }).add({
+        type: 'button',
+        buttonText: 'step',
+        onChange: function() {
+            automaton.advance();
+            draw();
+        }
+    });
+
     gui.addParagraph("colors for states");
     for (let i = 0; i < color.length; i++) {
         colorControllers.push(gui.add({
@@ -126,6 +142,16 @@ automaton.createGui = function(gui) {
 // destroy all cells
 automaton.clear = function() {
     automaton.cells.length = 0;
+};
+
+automaton.updateColorControllers=function(){
+ const length = colorControllers.length;
+    for (let i = 1; i < length; i++) {
+        colorControllers[i].hide();
+    }
+    for (let i = 1; i < automaton.nStates; i++) {
+        colorControllers[i].show();
+    }
 };
 
 // set initial cells, inside critical radius
@@ -216,41 +242,15 @@ automaton.addCell = function(cornerCoordinates, neighborCutoff) {
     }
 };
 
-// add a cell dual to a tile: given by an array of corner coordinates, as for drawing the polygon
-automaton.addDualCell = function(cornerCoordinates, neighborCutoff) {
-    // determine center of the tile
-    let centerX = 0;
-    let centerY = 0;
-    let coordinatesLength = cornerCoordinates.length;
-    for (let i = 0; i < coordinatesLength; i += 2) {
-        centerX += cornerCoordinates[i];
-        centerY += cornerCoordinates[i + 1];
-    }
-    centerX *= 2 / coordinatesLength;
-    centerY *= 2 / coordinatesLength;
-    // each corner of the tile is the center of a cell of the automaton
-    // get/create these cells, 
-    // each of these cells has the center of the tile as a corner
-    const cellsAtCorners = [];
-    for (let i = 0; i < coordinatesLength; i += 2) {
-        const newCell = automaton.getCellAt(cornerCoordinates[i], cornerCoordinates[i + 1]);
-        newCell.addCorner(centerX, centerY);
-        cellsAtCorners.push(newCell);
-    }
-    // add connections, each corner cell is connected to neighbors
-    // by edges of the tile (connecting centers of cells)
-    const cellsLength = cellsAtCorners.length;
-    let lastCell = cellsAtCorners[cellsLength - 1];
-    for (let i = 0; i < cellsLength; i++) {
-        let currentCell = cellsAtCorners[i];
-        currentCell.addNeighbor(lastCell);
-        lastCell.addNeighbor(currentCell);
-        lastCell = currentCell;
-    }
-};
-
 // find second nearest neighbors
 automaton.findNeighbors2 = function(cutoff) {
     const cutoff2 = cutoff * cutoff;
     automaton.cells.forEach(cell => cell.findNeighbors2(cutoff2));
+};
+
+// running the automaton
+
+// set value of cells equal to zero except selected cells, getting initialValue
+automaton.initialize=function(initialValue){
+    automaton.cells.forEach(cell => cell.initialize(initialValue));
 };

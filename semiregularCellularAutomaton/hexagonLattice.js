@@ -22,8 +22,8 @@ hexagonLattice.centerRadius = 0.1;
 hexagonLattice.shiftX = 0;
 hexagonLattice.shiftY = 0;
 // cutoff for 2nd nearest neighbors
-hexagonLattice.neighbor2Cutoff = 1.5;
-hexagonLattice.neighborCutoff = 1.1;
+hexagonLattice.neighbor2Cutoff = 3.01;
+hexagonLattice.neighborCutoff = Math.sqrt(3)+0.01;
 
 const rt32 = Math.sqrt(3) / 2;
 
@@ -53,4 +53,19 @@ hexagonLattice.draw = function() {
     SVG.groupAttributes.stroke = main.tileLineColor;
     SVG.createGroup(SVG.groupAttributes);
     makeLattice(createPolygon);
+};
+
+
+function createCell(corners) {
+    automaton.addCell(corners, hexagonLattice.neighborCutoff);
+}
+
+// create the tiles of the automaton as duals to the tiles of this lattice
+// determine initial tile
+hexagonLattice.createCells = function() {
+    const n = Math.floor(hexagonLattice.nTiles / 2);
+    automaton.clear();
+    makeLattice(createCell);
+    automaton.findNeighbors2(hexagonLattice.neighbor2Cutoff);
+    automaton.setInitial(0.01);
 };

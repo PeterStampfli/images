@@ -21,20 +21,19 @@ squareLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
 squareLattice.shiftX = 0.5;
 squareLattice.shiftY = 0.5;
-// cutoff for 2nd nearest neighbors
-squareLattice.neighbor2Cutoff=1.5;
-squareLattice.neighborCutoff=1.1;
+// cutoff for neighbors
+squareLattice.neighborCutoff = 1.1;
 
 
-function createPolygon(corners){
-    const scaledCorners=[];
-     const scale = main.scale;
-   corners.forEach(corner=> scaledCorners.push(scale*corner));
-  SVG.createPolygon(scaledCorners);   
+function drawPolygon(corners) {
+    const scaledCorners = [];
+    const scale = main.scale;
+    corners.forEach(corner => scaledCorners.push(scale * corner));
+    SVG.createPolygon(scaledCorners);
 }
 
-function makeLattice(action){
-       const n = Math.floor(squareLattice.nTiles / 2);
+function makeLattice(action) {
+    const n = Math.floor(squareLattice.nTiles / 2);
     for (let i = -n; i <= n; i++) {
         const x = i - squareLattice.shiftX;
         for (let j = -n; j <= n; j++) {
@@ -51,42 +50,18 @@ squareLattice.draw = function() {
     SVG.groupAttributes.fill = 'none';
     SVG.groupAttributes.stroke = main.tileLineColor;
     SVG.createGroup(SVG.groupAttributes);
- makeLattice(createPolygon);
+    makeLattice(drawPolygon);
 };
 
-// create the tiles of the automaton as duals to the tiles of this lattice
-// svg scale is not used, use in drawing cells
-squareLattice.createDualCells = function() {
-    const n = Math.floor(squareLattice.nTiles / 2);
-    automaton.clear();
-    for (let i = -n; i <= n; i++) {
-        const x = i - squareLattice.shiftX;
-        for (let j = -n; j <= n; j++) {
-            // lower left corner
-            const y = j - squareLattice.shiftY;
-            const corners = [x, y, x + 1, y, x + 1, y + 1, x, y + 1];
-            automaton.addDualCell(corners);
-        }
-    }
-    automaton.sortCorners();
-    automaton.findNeighbors2(squareLattice.neighbor2Cutoff);
-};
+function createCell(corners) {
+    automaton.addCell(corners, squareLattice.neighborCutoff);
+}
 
 // create the tiles of the automaton as duals to the tiles of this lattice
-// svg scale is not used, use in drawing cells
+// determine initial tile
 squareLattice.createCells = function() {
-    const n = Math.floor(squareLattice.nTiles / 2);
     automaton.clear();
-    for (let i = -n; i <= n; i++) {
-        const x = i - squareLattice.shiftX;
-        for (let j = -n; j <= n; j++) {
-            // lower left corner
-            const y = j - squareLattice.shiftY;
-            const corners = [x, y, x + 1, y, x + 1, y + 1, x, y + 1];
-            // cutoff may depend on cell for semiregular tilings
-            automaton.addCell(corners,squareLattice.neighborCutoff);
-        }
-    }
-    automaton.sortCorners();
-    automaton.findNeighbors2(squareLattice.neighbor2Cutoff);
+    makeLattice(createCell);
+    automaton.findNeighbors2();
+    automaton.setInitial(0.01);
 };

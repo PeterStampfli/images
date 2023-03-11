@@ -23,6 +23,10 @@ import {
 } from "./hexagonTriangleLattice.js";
 
 import {
+    manyHexagonsTriangleLattice
+} from "./manyHexagonsTriangleLattice.js";
+
+import {
     dodecagonTriangleLattice
 } from "./dodecagonTriangleLattice.js";
 
@@ -48,7 +52,7 @@ import {
 
 export const main = {};
 
-main.scale = 500;
+main.scale = 200;
 main.lineWidth = 8;
 main.tileLineColor = '#0000FF';
 main.drawTileLines = true;
@@ -111,10 +115,19 @@ main.setup = function() {
     draw();
 };
 
+var lattice;
+
 function create() {
-    //squareLattice.createDualCells();
-  //  squareLattice.createCells();
+    lattice = triangleLattice;
+    lattice.createCells();
+    reset();
 }
+
+function reset() {
+    automaton.updateColorControllers();
+    automaton.initialize(1);
+}
+main.reset = reset;
 
 function draw() {
     SVG.begin();
@@ -124,17 +137,9 @@ function draw() {
         'stroke-linejoin': 'round',
         'stroke-width': main.lineWidth
     };
- //   automaton.draw();
+    automaton.draw();
     if (main.drawTileLines) {
-      //  hexagonTriangleLattice.draw();
-      //  octagonSquareLattice.draw();
-       // triangleLattice.draw();
-     //   squareLattice.draw();
-  //   hexagonLattice.draw();
-  //   dodecagonTriangleLattice.draw();
-     hexagonTriangleSquareLattice.draw();
- //    dodecagonTriangleSquareLattice.draw();
-   //  triangleSquareLattice.draw();
+        lattice.draw();
     }
     SVG.terminate();
 }
