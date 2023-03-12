@@ -22,8 +22,7 @@ octagonSquareLattice.centerRadius = 0.1;
 octagonSquareLattice.shiftX = 0.5;
 octagonSquareLattice.shiftY = 0.5;
 // cutoff for 2nd nearest neighbors
-octagonSquareLattice.neighbor2Cutoff=1.5;
-octagonSquareLattice.neighborCutoff=1.1;
+octagonSquareLattice.neighborCutoff=2.1;
 
 const s=1/(1+Math.sqrt(2));
 const s2=s/Math.sqrt(2);
@@ -55,4 +54,17 @@ octagonSquareLattice.draw = function() {
     SVG.groupAttributes.stroke = main.tileLineColor;
     SVG.createGroup(SVG.groupAttributes);
     makeLattice(createPolygon);
+};
+
+function createCell(corners) {
+    automaton.addCell(corners, octagonSquareLattice.neighborCutoff);
+}
+
+// create the tiles of the automaton as duals to the tiles of this lattice
+// determine initial tile
+octagonSquareLattice.createCells = function() {
+    automaton.clear();
+    makeLattice(createCell);
+    automaton.findNeighbors2();
+    automaton.setInitial(0.01);
 };

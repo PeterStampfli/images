@@ -60,3 +60,16 @@ hexagonTriangleLattice.draw = function() {
     SVG.createGroup(SVG.groupAttributes);
     makeLattice(createPolygon);
 };
+
+function createCell(corners) {
+    automaton.addCell(corners, hexagonTriangleLattice.neighborCutoff);
+}
+
+// create the tiles of the automaton as duals to the tiles of this lattice
+// determine initial tile
+hexagonTriangleLattice.createCells = function() {
+    automaton.clear();
+    makeLattice(createCell);
+    automaton.findNeighbors2();
+    automaton.setInitial(0.01);
+};

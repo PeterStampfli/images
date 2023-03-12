@@ -11,6 +11,10 @@ import {
 } from "./squareLattice.js";
 
 import {
+    rhombusLattice
+} from "./rhombusLattice.js";
+
+import {
     triangleLattice
 } from "./triangleLattice.js";
 
@@ -31,8 +35,8 @@ import {
 } from "./dodecagonTriangleLattice.js";
 
 import {
-    dodecagonTriangleSquareLattice
-} from "./dodecagonTriangleSquareLattice.js";
+    dodecagonHexagonSquareLattice
+} from "./dodecagonHexagonSquareLattice.js";
 
 import {
     hexagonTriangleSquareLattice
@@ -118,7 +122,7 @@ main.setup = function() {
 var lattice;
 
 function create() {
-    lattice = triangleLattice;
+    lattice = rhombusLattice;
     lattice.createCells();
     reset();
 }

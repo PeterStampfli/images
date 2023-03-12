@@ -22,8 +22,7 @@ dodecagonTriangleLattice.centerRadius = 0.1;
 dodecagonTriangleLattice.shiftX = 0;
 dodecagonTriangleLattice.shiftY = 0;
 // cutoff for 2nd nearest neighbors
-dodecagonTriangleLattice.neighbor2Cutoff = 1.5;
-dodecagonTriangleLattice.neighborCutoff = 1.1;
+dodecagonTriangleLattice.neighborCutoff = 2.01+Math.sqrt(3);
 
 const rt32 = Math.sqrt(3) / 2;
 const rt3=Math.sqrt(3);
@@ -58,4 +57,17 @@ dodecagonTriangleLattice.draw = function() {
     SVG.groupAttributes.stroke = main.tileLineColor;
     SVG.createGroup(SVG.groupAttributes);
     makeLattice(createPolygon);
+};
+
+function createCell(corners) {
+    automaton.addCell(corners, dodecagonTriangleLattice.neighborCutoff);
+}
+
+// create the tiles of the automaton as duals to the tiles of this lattice
+// determine initial tile
+dodecagonTriangleLattice.createCells = function() {
+    automaton.clear();
+    makeLattice(createCell);
+    automaton.findNeighbors2();
+    automaton.setInitial(0.01);
 };

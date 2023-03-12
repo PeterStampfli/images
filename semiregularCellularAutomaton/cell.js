@@ -18,9 +18,6 @@ export const Cell = function(x, y) {
     // center position
     this.centerX = x;
     this.centerY = y;
-    // intermediate, for calculation
-    // each corner is an array [x,y as absolute coordinates, the angle with respect to center of cell]
-    this.corners = [];
     //  final,straight array of coordinates of ordered corners, for drawing
     this.cornerCoordinates = [];
     this.neighbors = []; //  cells
@@ -32,25 +29,6 @@ export const Cell = function(x, y) {
     this.initial = false;
 };
 
-// draw scaled polygon, fill color depending on state
-// uses array of coordinate pairs
-Cell.prototype.draw = function() {
-    const scale = main.scale;
-    const length = this.cornerCoordinates.length;
-    const scaledCoordinates = [];
-    scaledCoordinates.length = length;
-    for (let i = 0; i < length; i++) {
-        scaledCoordinates[i] = scale * this.cornerCoordinates[i];
-    }
-    if (main.cellFill) {
-        SVG.createPolygon(scaledCoordinates, {
-            fill: color[this.state]
-        });
-    } else {
-        SVG.createPolygon(scaledCoordinates);
-    }
-};
-
 // check if point (x,y) is at center of cell
 const eps = 0.01;
 
@@ -59,20 +37,33 @@ Cell.prototype.centerIsAt = function(x, y) {
     return result;
 };
 
-// creation from dual tiling
-// add a corner to the cell, one for each tile that has the center of the cell at one of its corners
-// no check of dublicates, the cello corner is the center of the tile
-// angle is relative to center of the cell
-
-Cell.prototype.addCorner = function(x, y) {
-    const angle = Math.atan2(y - this.centerY, x - this.centerX);
-    this.corners.push([x, y, angle]);
+// check if a point is a corner, using the coordinates array, return 1 if yes, return 0 if not
+Cell.prototype.isCorner = function(x, y) {
+    const length = this.cornerCoordinates.length;
+    const coordinates = this.cornerCoordinates;
+    for (let i = 0; i < length; i += 2) {
+        if ((Math.abs(x - coordinates[i]) < eps) && (Math.abs(y - coordinates[i + 1])<eps)) {
+            return true;
+        }
+    }
+    return false;
 };
 
-// sort corners according to angle, create array of coordinates, do before drawing
-Cell.prototype.sortCorners = function() {
-    this.corners.sort((a, b) => a[2] - b[2]);
-    this.corners.forEach(corner => this.cornerCoordinates.push(corner[0], corner[1]));
+// check if another cell is a nearest neighbor.
+// true if they have two common corners
+Cell.prototype.hasCommonCorners=function(otherCell) {
+    const length = this.cornerCoordinates.length;
+    const coordinates = this.cornerCoordinates;
+    let commonCorners = 0;
+    for (let i = 0; i < length; i += 2) {
+        if (otherCell.isCorner(coordinates[i], coordinates[i + 1])) {
+            commonCorners += 1;
+            if (commonCorners === 2) {
+                return true;
+            }
+        } 
+    }
+    return false;
 };
 
 // check if a cell is in neighbor list
@@ -209,7 +200,6 @@ Cell.prototype.drawNeighbor2Lines = function() {
 // set initial(state) for cells inside a critical radius around origin
 Cell.prototype.setInitial = function(radius2) {
     this.initial = ((this.centerX * this.centerX + this.centerY * this.centerY) < radius2);
-    console.log(this.centerX, this.centerY, radius2, this.initial);
 };
 
 // for the initial state, cells at center get special initial value, others are zero

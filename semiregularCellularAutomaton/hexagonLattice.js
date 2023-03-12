@@ -55,7 +55,6 @@ hexagonLattice.draw = function() {
     makeLattice(createPolygon);
 };
 
-
 function createCell(corners) {
     automaton.addCell(corners, hexagonLattice.neighborCutoff);
 }

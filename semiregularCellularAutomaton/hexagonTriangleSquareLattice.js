@@ -22,8 +22,7 @@ hexagonTriangleSquareLattice.centerRadius = 0.1;
 hexagonTriangleSquareLattice.shiftX = 0;
 hexagonTriangleSquareLattice.shiftY = 0;
 // cutoff for 2nd nearest neighbors
-hexagonTriangleSquareLattice.neighbor2Cutoff = 1.5;
-hexagonTriangleSquareLattice.neighborCutoff = 1.1;
+hexagonTriangleSquareLattice.neighborCutoff = 1.1+1/Math.sqrt(3);
 
 const rt32 = Math.sqrt(3) / 2;
 const rt3 = Math.sqrt(3);
@@ -61,8 +60,20 @@ function makeLattice(action) {
 
 hexagonTriangleSquareLattice.draw = function() {
     SVG.groupAttributes.fill = 'none';
-    SVG.groupAttributes.fill = '#aaaaaa';
     SVG.groupAttributes.stroke = main.tileLineColor;
     SVG.createGroup(SVG.groupAttributes);
     makeLattice(createPolygon);
+};
+
+function createCell(corners) {
+    automaton.addCell(corners, hexagonTriangleSquareLattice.neighborCutoff);
+}
+
+// create the tiles of the automaton as duals to the tiles of this lattice
+// determine initial tile
+hexagonTriangleSquareLattice.createCells = function() {
+    automaton.clear();
+    makeLattice(createCell);
+    automaton.findNeighbors2();
+    automaton.setInitial(0.01);
 };

@@ -144,8 +144,8 @@ automaton.clear = function() {
     automaton.cells.length = 0;
 };
 
-automaton.updateColorControllers=function(){
- const length = colorControllers.length;
+automaton.updateColorControllers = function() {
+    const length = colorControllers.length;
     for (let i = 1; i < length; i++) {
         colorControllers[i].hide();
     }
@@ -235,9 +235,12 @@ automaton.addCell = function(cornerCoordinates, neighborCutoff) {
         const dx = cell.centerX - neighbor.centerX;
         const dy = cell.centerY - neighbor.centerY;
         if (dx * dx + dy * dy < neighborCutoff) {
-            // it has to be a new neighbor connection because this cell is new
-            cell.neighbors.push(neighbor);
-            neighbor.neighbors.push(cell);
+            // check if the cell and its neighbor have two common corners
+            if (cell.hasCommonCorners(neighbor)) {
+                // it has to be a new neighbor connection because this cell is new
+                cell.neighbors.push(neighbor);
+                neighbor.neighbors.push(cell);
+            }
         }
     }
 };
@@ -251,6 +254,6 @@ automaton.findNeighbors2 = function(cutoff) {
 // running the automaton
 
 // set value of cells equal to zero except selected cells, getting initialValue
-automaton.initialize=function(initialValue){
+automaton.initialize = function(initialValue) {
     automaton.cells.forEach(cell => cell.initialize(initialValue));
 };
