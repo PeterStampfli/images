@@ -203,9 +203,9 @@ Cell.prototype.setInitial = function(radius2) {
 };
 
 // for the initial state, cells at center get special initial value, others are zero
-Cell.prototype.initialize = function(initialValue) {
+Cell.prototype.initialize = function() {
     if (this.initial) {
-        this.state = initialValue;
+        this.state = automaton.initial;
     } else {
         this.state = 0;
     }

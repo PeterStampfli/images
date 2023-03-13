@@ -15,6 +15,7 @@ import {
 export const squareLattice = {};
 
 // length of side of squares is equal to 1, same as periodicity
+squareLattice.scale=200;
 // number of tiles in each direction, radius for determining center cells(s)
 squareLattice.nTiles = 3;
 squareLattice.centerRadius = 0.1;

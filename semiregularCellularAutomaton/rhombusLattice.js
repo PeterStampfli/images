@@ -18,6 +18,7 @@ const rt32 = Math.sqrt(3) / 2;
 const rt3 = Math.sqrt(3) ;
 
 // length of side of triangles is equal to 1
+rhombusLattice.scale=200;
 // number of tiles in each direction, radius for determining center cells(s)
 rhombusLattice.nTiles = 3;
 rhombusLattice.centerRadius = 0.1;

@@ -15,6 +15,7 @@ import {
 export const dodecagonTriangleLattice = {};
 
 // length of side of triangles is equal to 1
+dodecagonTriangleLattice.scale=150;
 // number of tiles in each direction, radius for determining center cells(s)
 dodecagonTriangleLattice.nTiles = 3;
 dodecagonTriangleLattice.centerRadius = 0.1;

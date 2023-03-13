@@ -17,6 +17,7 @@ export const triangleLattice = {};
 const rt32 = Math.sqrt(3) / 2;
 
 // length of side of triangles is equal to 1
+triangleLattice.scale=220;
 // number of tiles in each direction, radius for determining center cells(s)
 triangleLattice.nTiles = 3;
 triangleLattice.centerRadius = 0.1;

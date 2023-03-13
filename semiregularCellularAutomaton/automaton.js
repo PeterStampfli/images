@@ -17,7 +17,7 @@ export const automaton = {};
 // the mechanics
 automaton.cells = [];
 automaton.nStates = 2;
-
+automaton.initial=1;
 
 // about drawing
 
@@ -33,7 +33,7 @@ automaton.drawNeighbor2Lines = true;
 
 automaton.color = [];
 const color = automaton.color;
-const colorControllers = [];
+ automaton.colorControllers = [];
 color.push('#eeeeff');
 color.push('#88ff88');
 color.push('#ffff00');
@@ -43,100 +43,6 @@ color.push('#ff00ff');
 color.push('#4444ff');
 color.push('#00aaaa');
 
-function draw() {
-    main.draw();
-}
-
-automaton.createGui = function(gui) {
-    gui.add({
-        type: 'color',
-        params: automaton,
-        property: 'neighborLineColor',
-        labelText: 'neighbor line',
-        onChange: draw
-    }).add({
-        type: 'boolean',
-        params: automaton,
-        property: 'drawNeighborLines',
-        labelText: '',
-        onChange: draw
-    });
-
-    gui.add({
-        type: 'color',
-        params: automaton,
-        property: 'neighbor2LineColor',
-        labelText: '2nd nbr line',
-        onChange: draw
-    }).add({
-        type: 'boolean',
-        params: automaton,
-        property: 'drawNeighbor2Lines',
-        labelText: '',
-        onChange: draw
-    });
-
-    gui.add({
-        type: 'color',
-        params: automaton,
-        property: 'cellLineColor',
-        labelText: 'cell line',
-        onChange: draw
-    }).add({
-        type: 'boolean',
-        params: automaton,
-        property: 'drawCellLines',
-        labelText: '',
-        onChange: draw
-    });
-
-    gui.add({
-        type: 'boolean',
-        params: automaton,
-        property: 'cellFill',
-        labelText: 'cell fill',
-        onChange: draw
-    });
-
-    gui.add({
-        type: 'number',
-        params: automaton,
-        property: 'nStates',
-        min: 2,
-        step: 1,
-        onChange: function() {
-            create();
-            draw();
-        }
-    });
-
-    gui.add({
-        type: 'button',
-        buttonText: 'reset',
-        onChange: function() {
-            automaton.reset(1);
-            draw();
-        }
-    }).add({
-        type: 'button',
-        buttonText: 'step',
-        onChange: function() {
-            automaton.advance();
-            draw();
-        }
-    });
-
-    gui.addParagraph("colors for states");
-    for (let i = 0; i < color.length; i++) {
-        colorControllers.push(gui.add({
-            type: 'color',
-            params: color,
-            property: i,
-            onChange: draw
-        }));
-    }
-};
-
 // setting up the automaton
 
 // destroy all cells
@@ -145,12 +51,12 @@ automaton.clear = function() {
 };
 
 automaton.updateColorControllers = function() {
-    const length = colorControllers.length;
+    const length = automaton.colorControllers.length;
     for (let i = 1; i < length; i++) {
-        colorControllers[i].hide();
+        automaton.colorControllers[i].hide();
     }
     for (let i = 1; i < automaton.nStates; i++) {
-        colorControllers[i].show();
+        automaton.colorControllers[i].show();
     }
 };
 
@@ -254,6 +160,6 @@ automaton.findNeighbors2 = function(cutoff) {
 // running the automaton
 
 // set value of cells equal to zero except selected cells, getting initialValue
-automaton.initialize = function(initialValue) {
-    automaton.cells.forEach(cell => cell.initialize(initialValue));
+automaton.initialize = function() {
+    automaton.cells.forEach(cell => cell.initialize());
 };

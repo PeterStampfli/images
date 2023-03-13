@@ -59,7 +59,8 @@ export const main = {};
 main.scale = 200;
 main.lineWidth = 8;
 main.tileLineColor = '#0000FF';
-main.drawTileLines = true;
+main.drawTileLines = false;
+main.lattice = squareLattice;
 
 const svgSize = 2000;
 
@@ -76,17 +77,6 @@ main.setup = function() {
     SVG.init();
     SVG.setMinViewWidthHeight(svgSize, svgSize);
     BooleanButton.greenRedBackground();
-
-    gui.add({
-        type: 'number',
-        params: main,
-        property: 'scale',
-        min: 0,
-        onChange: function() {
-            create();
-            draw();
-        }
-    });
 
     gui.add({
         type: 'number',
@@ -111,25 +101,149 @@ main.setup = function() {
         onChange: draw
     });
 
-    automaton.createGui(gui);
+    gui.add({
+        type: 'color',
+        params: automaton,
+        property: 'neighborLineColor',
+        labelText: 'neighbor line',
+        onChange: draw
+    }).add({
+        type: 'boolean',
+        params: automaton,
+        property: 'drawNeighborLines',
+        labelText: '',
+        onChange: draw
+    });
+
+    gui.add({
+        type: 'color',
+        params: automaton,
+        property: 'neighbor2LineColor',
+        labelText: '2nd nbr line',
+        onChange: draw
+    }).add({
+        type: 'boolean',
+        params: automaton,
+        property: 'drawNeighbor2Lines',
+        labelText: '',
+        onChange: draw
+    });
+
+    gui.add({
+        type: 'color',
+        params: automaton,
+        property: 'cellLineColor',
+        labelText: 'cell line',
+        onChange: draw
+    }).add({
+        type: 'boolean',
+        params: automaton,
+        property: 'drawCellLines',
+        labelText: '',
+        onChange: draw
+    });
+
+    gui.add({
+        type: 'boolean',
+        params: automaton,
+        property: 'cellFill',
+        labelText: 'cell fill',
+        onChange: draw
+    });
+
+    gui.add({
+        type: 'selection',
+        params: main,
+        property: 'lattice',
+        options: {
+            square: squareLattice,
+            hexagon: hexagonLattice,
+            triangle: triangleLattice,
+            octagonSquare: octagonSquareLattice,
+            hexagonTriangle: hexagonTriangleLattice,
+            dodecagonTriangle: dodecagonTriangleLattice,
+            hexagonTriangleSquare: hexagonTriangleSquareLattice,
+            dodecagonHexagonSquareLattice: dodecagonHexagonSquareLattice,
+            manyHexagonsTriangle: manyHexagonsTriangleLattice,
+            triangleSquare: triangleSquareLattice,
+            rhombus: rhombusLattice
+        },
+        onChange: function() {
+            create();
+            draw();
+        }
+    })
+
+    const nStatesController = gui.add({
+        type: 'number',
+        params: automaton,
+        property: 'nStates',
+        min: 2,
+        step: 1,
+        onChange: function() {
+            create();
+            draw();
+        }
+    })
+    const initialController = nStatesController.add({
+        type: 'number',
+        params: automaton,
+        property: 'initial',
+        min: 1,
+        step: 1,
+        onChange: function() {
+            if (automaton.initial >= automaton.nStates) {
+                initialController.setValueOnly(automaton.nStates - 1);
+            }
+            create();
+            draw();
+        }
+    });
+
+    gui.add({
+        type: 'button',
+        buttonText: 'reset',
+        onChange: function() {
+            automaton.reset(1);
+            draw();
+        }
+    }).add({
+        type: 'button',
+        buttonText: 'step',
+        onChange: function() {
+            automaton.advance();
+            draw();
+        }
+    });
+
+    gui.addParagraph("colors for states");
+    const color = automaton.color;
+    for (let i = 0; i < color.length; i++) {
+        automaton.colorControllers.push(gui.add({
+            type: 'color',
+            params: color,
+            property: i,
+            onChange: draw
+        }));
+    }
 
     create();
     SVG.draw = draw;
-    main.draw = draw;
     draw();
 };
 
 var lattice;
 
 function create() {
-    lattice = rhombusLattice;
-    lattice.createCells();
+    main.scale = main.lattice.scale;
+    console.log(main.scale);
+    main.lattice.createCells();
     reset();
 }
 
 function reset() {
     automaton.updateColorControllers();
-    automaton.initialize(1);
+    automaton.initialize();
 }
 main.reset = reset;
 

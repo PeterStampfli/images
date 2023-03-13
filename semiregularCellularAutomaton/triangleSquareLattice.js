@@ -15,6 +15,7 @@ import {
 export const triangleSquareLattice = {};
 
 // length of side of triangles is equal to 1
+triangleSquareLattice.scale=200;
 // number of tiles in each direction, radius for determining center cells(s)
 triangleSquareLattice.nTiles = 3;
 triangleSquareLattice.centerRadius = 0.1;
