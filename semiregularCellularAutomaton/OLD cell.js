@@ -18,7 +18,7 @@ export const Cell = function(x, y) {
     //  straight array of coordinates of ordered corners, for drawing
     this.cornerCoordinates = [];
     this.neighbors = []; //  cells
-    this.neighborsum = 0;
+    this.sum = 0;
     this.state = 0;
 };
 

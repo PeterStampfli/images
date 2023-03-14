@@ -21,9 +21,8 @@ export const Cell = function(x, y) {
     //  final,straight array of coordinates of ordered corners, for drawing
     this.cornerCoordinates = [];
     this.neighbors = []; //  cells
-    this.neighborsum = 0;
+    this.sum = 0;
     this.neighbors2 = []; //  cells
-    this.neighbor2sum = 0;
     this.state = 0;
     // mark cells that get nonzero initial state
     this.initial = false;
@@ -202,6 +201,11 @@ Cell.prototype.setInitial = function(radius2) {
     this.initial = ((this.centerX * this.centerX + this.centerY * this.centerY) < radius2);
 };
 
+// set initial(state) for cells at given position
+Cell.prototype.setInitialAt = function(x,y) {
+    this.initial = this.centerIsAt(x,y);
+};
+
 // for the initial state, cells at center get special initial value, others are zero
 Cell.prototype.initialize = function() {
     if (this.initial) {
@@ -212,12 +216,12 @@ Cell.prototype.initialize = function() {
 };
 
 // advancing: calculate sums and make transition
-Cell.prototype.sumNeighborStates = function() {
+Cell.prototype.makeSum = function() {
     let sum = 0;
     this.neighbors.forEach(neighbor => sum += neighbor.state);
-    this.neighborsum = sum;
+    this.sum = sum;
 };
 
 Cell.prototype.transition = function() {
-    this.state = (this.neighborsum + this.state) % automaton.nStates;
+    this.state = this.sum % automaton.nStates;
 };

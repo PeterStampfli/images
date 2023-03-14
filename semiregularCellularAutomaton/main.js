@@ -11,6 +11,10 @@ import {
 } from "./squareLattice.js";
 
 import {
+    pascalTriangle
+} from "./pascalTriangle.js";
+
+import {
     rhombusLattice
 } from "./rhombusLattice.js";
 
@@ -60,7 +64,7 @@ main.scale = 200;
 main.lineWidth = 8;
 main.tileLineColor = '#0000FF';
 main.drawTileLines = false;
-main.lattice = squareLattice;
+main.lattice = pascalTriangle;
 
 const svgSize = 2000;
 
@@ -166,7 +170,8 @@ main.setup = function() {
             dodecagonHexagonSquareLattice: dodecagonHexagonSquareLattice,
             manyHexagonsTriangle: manyHexagonsTriangleLattice,
             triangleSquare: triangleSquareLattice,
-            rhombus: rhombusLattice
+            rhombus: rhombusLattice,
+            pascalTriangle:pascalTriangle
         },
         onChange: function() {
             create();
@@ -185,6 +190,7 @@ main.setup = function() {
             draw();
         }
     })
+
     const initialController = nStatesController.add({
         type: 'number',
         params: automaton,
@@ -195,7 +201,7 @@ main.setup = function() {
             if (automaton.initial >= automaton.nStates) {
                 initialController.setValueOnly(automaton.nStates - 1);
             }
-            create();
+            reset();
             draw();
         }
     });
@@ -204,7 +210,7 @@ main.setup = function() {
         type: 'button',
         buttonText: 'reset',
         onChange: function() {
-            automaton.reset(1);
+            reset();
             draw();
         }
     }).add({

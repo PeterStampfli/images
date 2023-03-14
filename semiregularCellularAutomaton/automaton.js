@@ -17,7 +17,7 @@ export const automaton = {};
 // the mechanics
 automaton.cells = [];
 automaton.nStates = 2;
-automaton.initial=1;
+automaton.initial = 1;
 
 // about drawing
 
@@ -33,7 +33,7 @@ automaton.drawNeighbor2Lines = true;
 
 automaton.color = [];
 const color = automaton.color;
- automaton.colorControllers = [];
+automaton.colorControllers = [];
 color.push('#eeeeff');
 color.push('#88ff88');
 color.push('#ffff00');
@@ -64,6 +64,11 @@ automaton.updateColorControllers = function() {
 automaton.setInitial = function(radius) {
     const radius2 = radius * radius;
     automaton.cells.forEach(cell => cell.setInitial(radius2));
+};
+
+// set initial cells, at given position
+automaton.setInitialAt = function(x, y) {
+    automaton.cells.forEach(cell => cell.setInitialAt(x, y));
 };
 
 // sort corners resulting from dual tiling and create array of coordinate pairs
@@ -151,6 +156,47 @@ automaton.addCell = function(cornerCoordinates, neighborCutoff) {
     }
 };
 
+// add a cell: given by an array of corner coordinates, as for drawing the polygon
+// next neighbor only above, interaction going down
+// special for hexagon lattice as pascal triangle
+automaton.addCellPascalTriangle = function(cornerCoordinates, neighborCutoff) {
+    // determine center of the tile
+    let centerX = 0;
+    let centerY = 0;
+    let coordinatesLength = cornerCoordinates.length;
+    for (let i = 0; i < coordinatesLength; i += 2) {
+        centerX += cornerCoordinates[i];
+        centerY += cornerCoordinates[i + 1];
+    }
+    centerX *= 2 / coordinatesLength;
+    centerY *= 2 / coordinatesLength;
+    // create the cell, we know that there are no dublicates
+    const cell = automaton.newCellAt(centerX, centerY);
+    cell.cornerCoordinates = cornerCoordinates;
+    // create nearest neighbors, all cells near this cell
+    neighborCutoff *= neighborCutoff;
+    // excluding this cell, it is the last one
+    const length = automaton.cells.length - 1;
+    for (let i = 0; i < length; i++) {
+        const neighbor = automaton.cells[i];
+        // check close enough, should work for all semiregular tilings
+        const dx = cell.centerX - neighbor.centerX;
+        const dy = cell.centerY - neighbor.centerY;
+        if (dx * dx + dy * dy < neighborCutoff) {
+            // check if the cell and its neighbor have two common corners
+            if (cell.hasCommonCorners(neighbor)) {
+                // it has to be a new neighbor connection because this cell is new
+                // only nearest neighbors above
+                if (neighbor.centerY - cell.centerY > 0.1) {
+                    cell.neighbors.push(neighbor);
+                } else if (cell.centerY - neighbor.centerY > 0.1) {
+                    neighbor.neighbors.push(cell);
+                }
+            }
+        }
+    }
+};
+
 // find second nearest neighbors
 automaton.findNeighbors2 = function(cutoff) {
     const cutoff2 = cutoff * cutoff;
@@ -163,3 +209,15 @@ automaton.findNeighbors2 = function(cutoff) {
 automaton.initialize = function() {
     automaton.cells.forEach(cell => cell.initialize());
 };
+
+// provisorisch
+
+automaton.advance = function() {
+
+
+    automaton.cells.forEach(cell => cell.makeSum());
+
+
+    automaton.cells.forEach(cell => cell.transition());
+};
+
