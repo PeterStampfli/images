@@ -18,6 +18,14 @@ export const automaton = {};
 automaton.cells = [];
 automaton.nStates = 2;
 automaton.initial = 1;
+automaton.time=0;
+automaton.timerValue=0;
+automaton.stepsToDo=2;
+
+automaton.prevWeight=0;
+automaton.centerWeight=1;
+automaton.neighborWeight=1;
+automaton.neighbor2Weight=0;
 
 // about drawing
 
@@ -26,10 +34,10 @@ automaton.drawCellLines = true;
 automaton.cellFill = true;
 
 automaton.neighborLineColor = '#ff0000';
-automaton.drawNeighborLines = true;
+automaton.drawNeighborLines = false;
 
 automaton.neighbor2LineColor = '#ff9900';
-automaton.drawNeighbor2Lines = true;
+automaton.drawNeighbor2Lines = false;
 
 automaton.color = [];
 const color = automaton.color;
@@ -207,12 +215,15 @@ automaton.findNeighbors2 = function(cutoff) {
 
 // set value of cells equal to zero except selected cells, getting initialValue
 automaton.initialize = function() {
+automaton.time=0;
     automaton.cells.forEach(cell => cell.initialize());
 };
 
 // provisorisch
 
 automaton.advance = function() {
+automaton.time+=1;
+automaton.timer.setValueOnly(automaton.time);
 
 
     automaton.cells.forEach(cell => cell.makeSum());

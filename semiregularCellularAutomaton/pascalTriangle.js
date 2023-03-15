@@ -17,7 +17,6 @@ export const pascalTriangle = {};
 // length of side of triangles is equal to 1
 pascalTriangle.scale=100;
 // number of tiles in each direction, radius for determining center cells(s)
-pascalTriangle.nTiles = 3;
 pascalTriangle.centerRadius = 0.1;
 // shift, with respect to unit cell
 pascalTriangle.shiftX = 0;
@@ -37,7 +36,7 @@ function createPolygon(corners) {
 
 var top;
 function makeLattice(action) {
-    const n = 2*Math.floor(pascalTriangle.nTiles / 2);
+    const n = 2*Math.floor(main.size / 2);
     top = 1.5 * n - pascalTriangle.shiftY;
     for (let j = -n; j <= n; j++) {
         const y = 1.5 * j - pascalTriangle.shiftY;

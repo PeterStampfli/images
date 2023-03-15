@@ -17,7 +17,6 @@ export const dodecagonTriangleLattice = {};
 // length of side of triangles is equal to 1
 dodecagonTriangleLattice.scale=150;
 // number of tiles in each direction, radius for determining center cells(s)
-dodecagonTriangleLattice.nTiles = 3;
 dodecagonTriangleLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
 dodecagonTriangleLattice.shiftX = 0;
@@ -36,7 +35,7 @@ function createPolygon(corners) {
 }
 
 function makeLattice(action) {
-    const n = Math.floor(dodecagonTriangleLattice.nTiles / 2);
+    const n = Math.floor(main.size / 2);
     for (let j = -n; j <= n; j++) {
         const y = (1.5+rt3) * j - dodecagonTriangleLattice.shiftY;
         const jMod2 = (1+rt32)*(j - 2 * Math.floor(j / 2));

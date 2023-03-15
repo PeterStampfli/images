@@ -19,7 +19,6 @@ const rt32 = Math.sqrt(3) / 2;
 // length of side of triangles is equal to 1
 triangleLattice.scale=220;
 // number of tiles in each direction, radius for determining center cells(s)
-triangleLattice.nTiles = 3;
 triangleLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
 triangleLattice.shiftX = 0;
@@ -36,7 +35,7 @@ function createPolygon(corners){
 
 // drawing for debugging, creating the automaton tiles is similar
 function makeLattice(action) {
-    const n = Math.floor(triangleLattice.nTiles / 2);
+    const n = Math.floor(main.size / 2);
     for (let j = -n; j <= n; j++) {
         const y = rt32 * j - triangleLattice.shiftY;
         const jMod2 = j / 2 - Math.floor(j / 2);

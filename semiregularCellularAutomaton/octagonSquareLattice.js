@@ -17,7 +17,6 @@ export const octagonSquareLattice = {};
 // length of side of squares is equal to 1, same as periodicity
 octagonSquareLattice.scale=180;
 // number of tiles in each direction, radius for determining center cells(s)
-octagonSquareLattice.nTiles = 3;
 octagonSquareLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
 octagonSquareLattice.shiftX = 0.5;
@@ -36,7 +35,7 @@ function createPolygon(corners){
 }
 
 function makeLattice(action) {
-    const n = Math.floor(octagonSquareLattice.nTiles / 2);
+    const n = Math.floor(main.size / 2);
     for (let i = -n; i <= n; i++) {
         const x = i - octagonSquareLattice.shiftX;
         for (let j = -n; j <= n; j++) {

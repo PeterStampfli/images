@@ -24,6 +24,7 @@ export const Cell = function(x, y) {
     this.sum = 0;
     this.neighbors2 = []; //  cells
     this.state = 0;
+    this.prevState = 0;
     // mark cells that get nonzero initial state
     this.initial = false;
 };
@@ -41,7 +42,7 @@ Cell.prototype.isCorner = function(x, y) {
     const length = this.cornerCoordinates.length;
     const coordinates = this.cornerCoordinates;
     for (let i = 0; i < length; i += 2) {
-        if ((Math.abs(x - coordinates[i]) < eps) && (Math.abs(y - coordinates[i + 1])<eps)) {
+        if ((Math.abs(x - coordinates[i]) < eps) && (Math.abs(y - coordinates[i + 1]) < eps)) {
             return true;
         }
     }
@@ -50,7 +51,7 @@ Cell.prototype.isCorner = function(x, y) {
 
 // check if another cell is a nearest neighbor.
 // true if they have two common corners
-Cell.prototype.hasCommonCorners=function(otherCell) {
+Cell.prototype.hasCommonCorners = function(otherCell) {
     const length = this.cornerCoordinates.length;
     const coordinates = this.cornerCoordinates;
     let commonCorners = 0;
@@ -60,7 +61,7 @@ Cell.prototype.hasCommonCorners=function(otherCell) {
             if (commonCorners === 2) {
                 return true;
             }
-        } 
+        }
     }
     return false;
 };
@@ -202,8 +203,8 @@ Cell.prototype.setInitial = function(radius2) {
 };
 
 // set initial(state) for cells at given position
-Cell.prototype.setInitialAt = function(x,y) {
-    this.initial = this.centerIsAt(x,y);
+Cell.prototype.setInitialAt = function(x, y) {
+    this.initial = this.centerIsAt(x, y);
 };
 
 // for the initial state, cells at center get special initial value, others are zero
@@ -213,15 +214,24 @@ Cell.prototype.initialize = function() {
     } else {
         this.state = 0;
     }
+    this.prevState=0;
 };
 
 // advancing: calculate sums and make transition
 Cell.prototype.makeSum = function() {
-    let sum = 0;
-    this.neighbors.forEach(neighbor => sum += neighbor.state);
+    let sum = automaton.prevWeight * this.prevState + automaton.centerWeight*this.state;
+    let neighborSum = 0;
+    this.neighbors.forEach(neighbor => neighborSum += neighbor.state);
+    sum += automaton.neighborWeight * neighborSum;
+    if (automaton.neighbor2Weight !== 0) {
+        neighborSum = 0;
+        this.neighbors2.forEach(neighbor => neighborSum += neighbor.state);
+        sum += automaton.neighbor2Weight * neighborSum;
+    }
     this.sum = sum;
 };
 
 Cell.prototype.transition = function() {
+    this.prevState = this.state;
     this.state = this.sum % automaton.nStates;
 };

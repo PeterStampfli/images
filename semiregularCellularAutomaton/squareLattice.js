@@ -16,8 +16,7 @@ export const squareLattice = {};
 
 // length of side of squares is equal to 1, same as periodicity
 squareLattice.scale=200;
-// number of tiles in each direction, radius for determining center cells(s)
-squareLattice.nTiles = 3;
+// radius for determining center cells(s)
 squareLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
 squareLattice.shiftX = 0.5;
@@ -34,7 +33,7 @@ function drawPolygon(corners) {
 }
 
 function makeLattice(action) {
-    const n = Math.floor(squareLattice.nTiles / 2);
+    const n = Math.floor(main.size / 2);
     for (let i = -n; i <= n; i++) {
         const x = i - squareLattice.shiftX;
         for (let j = -n; j <= n; j++) {

@@ -64,7 +64,8 @@ main.scale = 200;
 main.lineWidth = 8;
 main.tileLineColor = '#0000FF';
 main.drawTileLines = false;
-main.lattice = pascalTriangle;
+main.lattice = squareLattice;
+main.size=20;
 
 const svgSize = 2000;
 
@@ -171,13 +172,25 @@ main.setup = function() {
             manyHexagonsTriangle: manyHexagonsTriangleLattice,
             triangleSquare: triangleSquareLattice,
             rhombus: rhombusLattice,
-            pascalTriangle:pascalTriangle
+            pascalTriangle: pascalTriangle
         },
         onChange: function() {
             create();
             draw();
         }
-    })
+    });
+
+    gui.add({
+        type: 'number',
+        params: main,
+        property: 'size',
+        min: 3,
+        step: 1,
+        onChange: function() {
+            create();
+            draw();
+        }
+    });
 
     const nStatesController = gui.add({
         type: 'number',
@@ -189,7 +202,7 @@ main.setup = function() {
             create();
             draw();
         }
-    })
+    });
 
     const initialController = nStatesController.add({
         type: 'number',
@@ -201,6 +214,49 @@ main.setup = function() {
             if (automaton.initial >= automaton.nStates) {
                 initialController.setValueOnly(automaton.nStates - 1);
             }
+            reset();
+            draw();
+        }
+    });
+
+    gui.add({
+        type: 'number',
+        params: automaton,
+        property: 'prevWeight',
+        labelText: 'weights prev',
+        step: 1,
+        onChange: function() {
+            reset();
+            draw();
+        }
+    }).add({
+        type: 'number',
+        params: automaton,
+        property: 'centerWeight',
+        labelText: 'center',
+        step: 1,
+        onChange: function() {
+            reset();
+            draw();
+        }
+    });
+    gui.add({
+        type: 'number',
+        params: automaton,
+        property: 'neighborWeight',
+        labelText: '1st neighbor',
+        step: 1,
+        onChange: function() {
+            reset();
+            draw();
+        }
+    }).add({
+        type: 'number',
+        params: automaton,
+        property: 'neighbor2Weight',
+        labelText: '2nd',
+        step: 1,
+        onChange: function() {
             reset();
             draw();
         }
@@ -219,6 +275,34 @@ main.setup = function() {
         onChange: function() {
             automaton.advance();
             draw();
+        }
+    }).add({
+        type: "number",
+        params: automaton,
+        property: "stepsToDo",
+        labelText: 'steps',
+        onChange: function() {
+            console.log(automaton.stepsToDo);
+        }
+    }).add({
+        type: 'button',
+        buttonText: 'run',
+        onChange: function() {
+            console.log(automaton.stepsToDo);
+            for (let i = 0; i < automaton.stepsToDo; i++) {
+                automaton.advance();
+            }
+            draw();
+        }
+    });
+
+    automaton.timer = gui.add({
+        type: "number",
+        params: automaton,
+        property: "timerValue",
+        labelText: 'time',
+        onChange: function() {
+            automaton.timer.setValueOnly(automaton.time);
         }
     });
 
@@ -242,7 +326,6 @@ var lattice;
 
 function create() {
     main.scale = main.lattice.scale;
-    console.log(main.scale);
     main.lattice.createCells();
     reset();
 }
