@@ -15,7 +15,7 @@ import {
 export const hexagonLattice = {};
 
 // length of side of triangles is equal to 1
-hexagonLattice.scale=100;
+hexagonLattice.scale=129;
 // number of tiles in each direction, radius for determining center cells(s)
 hexagonLattice.centerRadius = 0.1;
 // shift, with respect to unit cell

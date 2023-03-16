@@ -15,7 +15,7 @@ import {
 export const hexagonTriangleSquareLattice = {};
 
 // length of side of triangles is equal to 1
-hexagonTriangleSquareLattice.scale=150;
+hexagonTriangleSquareLattice.scale=170;
 // number of tiles in each direction, radius for determining center cells(s)
 hexagonTriangleSquareLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
@@ -35,7 +35,7 @@ function createPolygon(corners) {
 }
 
 function makeLattice(action) {
-    const n = Math.floor(main.size / 2);
+    const n = Math.floor(main.size / 4);
     for (let j = -n; j <= n; j++) {
         const y = (1.5 + rt32) * j - hexagonTriangleSquareLattice.shiftY;
         const jMod2 = (0.5 + rt32) * (j - 2 * Math.floor(j / 2));

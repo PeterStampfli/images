@@ -15,7 +15,7 @@ import {
 export const octagonSquareLattice = {};
 
 // length of side of squares is equal to 1, same as periodicity
-octagonSquareLattice.scale=180;
+octagonSquareLattice.scale=192;
 // number of tiles in each direction, radius for determining center cells(s)
 octagonSquareLattice.centerRadius = 0.1;
 // shift, with respect to unit cell

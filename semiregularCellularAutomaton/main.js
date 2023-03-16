@@ -65,9 +65,9 @@ main.lineWidth = 8;
 main.tileLineColor = '#0000FF';
 main.drawTileLines = false;
 main.lattice = squareLattice;
-main.size=20;
+main.size = 40;
 
-const svgSize = 2000;
+const svgSize = 8000;
 
 main.setup = function() {
     // gui and svg
@@ -225,6 +225,7 @@ main.setup = function() {
         property: 'prevWeight',
         labelText: 'weights prev',
         step: 1,
+        min: 0,
         onChange: function() {
             reset();
             draw();
@@ -235,6 +236,7 @@ main.setup = function() {
         property: 'centerWeight',
         labelText: 'center',
         step: 1,
+        min: 0,
         onChange: function() {
             reset();
             draw();
@@ -246,6 +248,7 @@ main.setup = function() {
         property: 'neighborWeight',
         labelText: '1st neighbor',
         step: 1,
+        min: 0,
         onChange: function() {
             reset();
             draw();
@@ -256,6 +259,7 @@ main.setup = function() {
         property: 'neighbor2Weight',
         labelText: '2nd',
         step: 1,
+        min: 0,
         onChange: function() {
             reset();
             draw();

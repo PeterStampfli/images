@@ -73,7 +73,7 @@ Intersection.prototype.setupAutomaton = function() {
     corners.push(this.x + dx1 - dx2, this.y + dy1 - dy2);
     corners.push(this.x - dx1 - dx2, this.y - dy1 - dy2);
     corners.push(this.x - dx1 + dx2, this.y - dy1 + dy2);
-    automaton.addTile(corners);
+    automaton.addDualCell(corners);
 };
 
 // dualization
