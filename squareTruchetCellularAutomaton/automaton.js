@@ -32,6 +32,8 @@ automaton.neighbor2Weight=0;
 automaton.cellLineColor = '#00bb00';
 automaton.drawCellLines = true;
 automaton.cellFill = true;
+automaton.truchetLineColor='#ff0000';
+automaton.drawTruchetLines=true;
 
 automaton.neighborLineColor = '#ff0000';
 automaton.drawNeighborLines = false;
@@ -110,6 +112,12 @@ automaton.draw = function() {
         SVG.createGroup(SVG.groupAttributes);
         automaton.cells.forEach(cell => cell.drawNeighbor2Lines());
     }
+    if (automaton.drawTruchetLines){
+        SVG.groupAttributes.stroke = automaton.truchetLineColor;
+        SVG.groupAttributes.fill = 'none';
+        SVG.createGroup(SVG.groupAttributes);
+        automaton.cells.forEach(cell => cell.drawTruchetLines());
+    }
 };
 
 // add a cell at given place if not already there, return the cell
@@ -130,6 +138,7 @@ automaton.newCellAt = function(x, y) {
 };
 
 // add a cell: given by an array of corner coordinates, as for drawing the polygon
+// returns the cell
 automaton.addCell = function(cornerCoordinates, neighborCutoff) {
     // determine center of the tile
     let centerX = 0;
@@ -162,6 +171,7 @@ automaton.addCell = function(cornerCoordinates, neighborCutoff) {
             }
         }
     }
+    return cell;
 };
 
 // add a cell: given by an array of corner coordinates, as for drawing the polygon

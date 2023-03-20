@@ -65,7 +65,7 @@ main.lineWidth = 8;
 main.tileLineColor = '#0000FF';
 main.drawTileLines = false;
 main.lattice = squareLattice;
-main.size = 40;
+main.size = 4;
 
 const svgSize = 8000;
 
