@@ -21,6 +21,7 @@ automaton.initial = 1;
 automaton.time=0;
 automaton.timerValue=0;
 automaton.stepsToDo=2;
+automaton.overprint=40;
 
 automaton.prevWeight=0;
 automaton.centerWeight=1;
@@ -30,10 +31,11 @@ automaton.neighbor2Weight=0;
 // about drawing
 
 automaton.cellLineColor = '#00bb00';
-automaton.drawCellLines = true;
+automaton.drawCellLines = false;
 automaton.cellFill = true;
 automaton.truchetLineColor='#ff0000';
-automaton.drawTruchetLines=true;
+automaton.drawTruchetLines=false;
+automaton.truchetFill=true;
 
 automaton.neighborLineColor = '#ff0000';
 automaton.drawNeighborLines = false;
@@ -44,8 +46,8 @@ automaton.drawNeighbor2Lines = false;
 automaton.color = [];
 const color = automaton.color;
 automaton.colorControllers = [];
-color.push('#ffffff');
-color.push('#000000');
+color.push('#ff0000');
+color.push('#8888ff');
 color.push('#dddddd');
 color.push('#777777');
 color.push('#ff4444');
@@ -88,35 +90,45 @@ automaton.sortCorners = function() {
 
 // drawing the cells of the automaton, and neighbor lines
 automaton.draw = function() {
-    // if there is fill, it will be defined drawing each cell
-    SVG.groupAttributes.fill = 'none';
-    SVG.groupAttributes.stroke = 'none';
-    if (automaton.cellFill) {
+        automaton.cells.forEach(cell => cell.scaleCoordinates());
+    if (automaton.cellFill||automaton.truchetFill) {
+        SVG.groupAttributes['stroke-width']= automaton.overprint;
         SVG.createGroup(SVG.groupAttributes);
         automaton.cells.forEach(cell => cell.drawFill());
     }
+    if (automaton.truchetFill){
+        SVG.groupAttributes['stroke-width']= automaton.overprint;
+        SVG.groupAttributes['stroke-width']= main.lineWidth;
+        SVG.createGroup(SVG.groupAttributes);
+        automaton.cells.forEach(cell => cell.truchetFill());
+    }
+    if (automaton.drawTruchetLines){
+        SVG.groupAttributes.stroke = automaton.truchetLineColor;
+        SVG.groupAttributes.fill = 'none';
+         SVG.groupAttributes['stroke-width']= main.lineWidth;
+       SVG.createGroup(SVG.groupAttributes);
+        automaton.cells.forEach(cell => cell.drawTruchetLines());
+    }
+
     if (automaton.drawCellLines) {
         SVG.groupAttributes.stroke = automaton.cellLineColor;
+        SVG.groupAttributes['stroke-width']= main.lineWidth;
         SVG.createGroup(SVG.groupAttributes);
         automaton.cells.forEach(cell => cell.drawLine());
     }
     if (automaton.drawNeighborLines) {
         SVG.groupAttributes.stroke = automaton.neighborLineColor;
         SVG.groupAttributes.fill = 'none';
-        SVG.createGroup(SVG.groupAttributes);
+         SVG.groupAttributes['stroke-width']= main.lineWidth;
+       SVG.createGroup(SVG.groupAttributes);
         automaton.cells.forEach(cell => cell.drawNeighborLines());
     }
     if (automaton.drawNeighbor2Lines) {
         SVG.groupAttributes.stroke = automaton.neighbor2LineColor;
         SVG.groupAttributes.fill = 'none';
+        SVG.groupAttributes['stroke-width']= main.lineWidth;
         SVG.createGroup(SVG.groupAttributes);
         automaton.cells.forEach(cell => cell.drawNeighbor2Lines());
-    }
-    if (automaton.drawTruchetLines){
-        SVG.groupAttributes.stroke = automaton.truchetLineColor;
-        SVG.groupAttributes.fill = 'none';
-        SVG.createGroup(SVG.groupAttributes);
-        automaton.cells.forEach(cell => cell.drawTruchetLines());
     }
 };
 
@@ -153,6 +165,8 @@ automaton.addCell = function(cornerCoordinates, neighborCutoff) {
     // create the cell, we know that there are no dublicates
     const cell = automaton.newCellAt(centerX, centerY);
     cell.cornerCoordinates = cornerCoordinates;
+    cell.scaledCoordinates=[];
+    cell.scaledCoordinates.length=coordinatesLength;
     // create nearest neighbors, all cells near this cell
     neighborCutoff *= neighborCutoff;
     // excluding this cell, it is the last one

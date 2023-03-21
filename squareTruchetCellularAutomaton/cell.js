@@ -142,30 +142,24 @@ Cell.prototype.findNeighbors2 = function() {
     }
 };
 
+// calculate scaled coordintes
+Cell.prototype.scaleCoordinates = function() {
+    const scale = main.scale;
+    this.cornerCoordinates.forEach((value, index) => this.scaledCoordinates[index] = scale * value);
+};
+
 // draw scaled polygon, fill color depending on state
 Cell.prototype.drawFill = function() {
-    const scale = main.scale;
-    const length = this.cornerCoordinates.length;
-    const scaledCoordinates = [];
-    scaledCoordinates.length = length;
-    for (let i = 0; i < length; i++) {
-        scaledCoordinates[i] = scale * this.cornerCoordinates[i];
-    }
-    SVG.createPolygon(scaledCoordinates, {
-        fill: automaton.color[this.state]
+    const fillColor=automaton.color[this.state];
+    SVG.createPolygon(this.scaledCoordinates, {
+        fill: fillColor,
+        stroke: fillColor
     });
 };
 
 // draw scaled polygon, fill color depending on state
 Cell.prototype.drawLine = function() {
-    const scale = main.scale;
-    const length = this.cornerCoordinates.length;
-    const scaledCoordinates = [];
-    scaledCoordinates.length = length;
-    for (let i = 0; i < length; i++) {
-        scaledCoordinates[i] = scale * this.cornerCoordinates[i];
-    }
-    SVG.createPolygon(scaledCoordinates);
+    SVG.createPolygon(this.scaledCoordinates);
 };
 
 // draw lines from center of this cell to center of target cells
@@ -194,20 +188,35 @@ Cell.prototype.drawNeighbor2Lines = function() {
     this.drawLines(this.neighbors2);
 };
 
-// draw the trucchet lines
-Cell.prototype.drawTruchetLines = function() {
-    const scale = main.scale;
-    const length = this.cornerCoordinates.length;
-    const scaledCoordinates = [];
-    scaledCoordinates.length = length;
-    for (let i = 0; i < length; i++) {
-        scaledCoordinates[i] = scale * this.cornerCoordinates[i];
+// draw the truchet fill, that means the quarter circles
+Cell.prototype.truchetFill = function() {
+    const radius = 0.5 * main.scale;
+    const totalParity = this.positionParity + this.state;
+    const cornerColor=automaton.color[1 - this.state % 2];
+    const cornerFill = {
+        fill: cornerColor,
+        stroke: cornerColor
+    };
+    if (totalParity % 2 === 0) {
+        SVG.createArcFill(this.scaledCoordinates[0], this.scaledCoordinates[1], radius, 0, 0.5 * Math.PI, true, cornerFill);
+        SVG.createArcFill(this.scaledCoordinates[4], this.scaledCoordinates[5], radius, Math.PI, 1.5 * Math.PI, true, cornerFill);
+    } else {
+        SVG.createArcFill(this.scaledCoordinates[2], this.scaledCoordinates[3], radius, 0.5 * Math.PI, Math.PI, true, cornerFill);
+        SVG.createArcFill(this.scaledCoordinates[6], this.scaledCoordinates[7], radius, 1.5 * Math.PI, 0, true, cornerFill);
     }
-    const totalParity=thisPositionParity;
+};
 
-//SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, counterclockwise = true, attributes = {}) {
-
-
+// draw the truchet lines
+Cell.prototype.drawTruchetLines = function() {
+    const radius = 0.5 * main.scale;
+    const totalParity = this.positionParity + this.state;
+    if (totalParity % 2 === 0) {
+        SVG.createArcStroke(this.scaledCoordinates[0], this.scaledCoordinates[1], radius, 0, 0.5 * Math.PI);
+        SVG.createArcStroke(this.scaledCoordinates[4], this.scaledCoordinates[5], radius, Math.PI, 1.5 * Math.PI);
+    } else {
+        SVG.createArcStroke(this.scaledCoordinates[2], this.scaledCoordinates[3], radius, 0.5 * Math.PI, Math.PI);
+        SVG.createArcStroke(this.scaledCoordinates[6], this.scaledCoordinates[7], radius, 1.5 * Math.PI, 0);
+    }
 };
 
 
@@ -231,12 +240,12 @@ Cell.prototype.initialize = function() {
     } else {
         this.state = 0;
     }
-    this.prevState=0;
+    this.prevState = 0;
 };
 
 // advancing: calculate sums and make transition
 Cell.prototype.makeSum = function() {
-    let sum = automaton.prevWeight * this.prevState + automaton.centerWeight*this.state;
+    let sum = automaton.prevWeight * this.prevState + automaton.centerWeight * this.state;
     let neighborSum = 0;
     this.neighbors.forEach(neighbor => neighborSum += neighbor.state);
     sum += automaton.neighborWeight * neighborSum;

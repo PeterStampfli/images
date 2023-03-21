@@ -459,8 +459,9 @@ SVG.createArcStroke = function(centerX, centerY, radius, startAngle, endAngle, c
 };
 
 /**
- * create an arc, only the fill, 
- * sets stroke: 'none' !!!!
+ * create an arc, for the fill, 
+ * adds lines from center to begin and end of arc
+ * if necessary use stroke:'none' in attributes
  * @method SVG.createArcFill
  * @params float centerX
  * @params float centerY
@@ -501,7 +502,6 @@ SVG.createArcFill = function(centerX, centerY, radius, startAngle, endAngle, cou
         d += ' ' + largeArc + ' ' + sweep;
         d += ' ' + stringOf(endX) + ' ' + stringOf(endY) + ' Z';
         attributes.d = d;
-        attributes.stroke = 'none';
         SVG.create('path', attributes);
     }
 };
