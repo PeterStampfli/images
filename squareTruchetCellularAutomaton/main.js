@@ -61,13 +61,13 @@ import {
 export const main = {};
 
 main.scale = 200;
-main.lineWidth = 8;
+main.lineWidth = 50;
 main.tileLineColor = '#0000FF';
 main.drawTileLines = false;
 main.lattice = squareLattice;
 main.size = 4;
 
-const svgSize = 8000;
+main.svgSize = 8000;
 
 main.setup = function() {
     // gui and svg
@@ -80,7 +80,7 @@ main.setup = function() {
 
     SVG.makeGui(gui);
     SVG.init();
-    SVG.setMinViewWidthHeight(svgSize, svgSize);
+    SVG.setMinViewWidthHeight(main.svgSize, main.svgSize);
     BooleanButton.greenRedBackground();
 
     gui.add({
@@ -88,6 +88,19 @@ main.setup = function() {
         params: main,
         property: 'lineWidth',
         labelText: 'line width',
+        min: 0,
+        onChange: draw
+    }).add({
+        type: 'number',
+        params: automaton,
+        property: 'overprint',
+        min: 0,
+        onChange: draw
+    }).add({
+        type: 'number',
+        params: automaton,
+        property: 'overprint2',
+        labelText:'',
         min: 0,
         onChange: draw
     });
@@ -154,6 +167,11 @@ main.setup = function() {
         property: 'cellFill',
         labelText: 'cell fill',
         onChange: draw
+    }).add({
+        type: 'boolean',
+        params: automaton,
+        property: 'truchet',
+        onChange: draw
     });
 
     gui.add({
@@ -218,6 +236,20 @@ main.setup = function() {
             draw();
         }
     });
+
+    initialController.add({
+        type: 'number',
+        params: automaton,
+        property: 'initialCell',
+        labelText:'cell',
+        min: 0,
+        step: 1,
+        onChange: function() {
+            reset();
+            draw();
+        }
+    });
+
 
     gui.add({
         type: 'number',
@@ -329,7 +361,6 @@ main.setup = function() {
 var lattice;
 
 function create() {
-    main.scale = main.lattice.scale;
     main.lattice.createCells();
     reset();
 }

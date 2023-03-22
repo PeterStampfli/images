@@ -14,8 +14,6 @@ import {
 
 export const hexagonLattice = {};
 
-// length of side of triangles is equal to 1
-hexagonLattice.scale=129;
 // number of tiles in each direction, radius for determining center cells(s)
 hexagonLattice.centerRadius = 0.1;
 // shift, with respect to unit cell
@@ -36,6 +34,8 @@ function createPolygon(corners) {
 
 function makeLattice(action) {
     const n = Math.floor(main.size / 2);
+    main.scale=0.99*main.svgSize/(2*n+1)/1.5;
+    console.log(main.scale);
     for (let j = -n; j <= n; j++) {
         const y = 1.5 * j - hexagonLattice.shiftY;
         const jMod2 = rt32*(j - 2 * Math.floor(j / 2));

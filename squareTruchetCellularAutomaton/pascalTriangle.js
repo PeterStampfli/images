@@ -14,8 +14,6 @@ import {
 
 export const pascalTriangle = {};
 
-// length of side of triangles is equal to 1
-pascalTriangle.scale=100;
 // number of tiles in each direction, radius for determining center cells(s)
 pascalTriangle.centerRadius = 0.1;
 // shift, with respect to unit cell
@@ -38,6 +36,7 @@ var top;
 function makeLattice(action) {
     const n = 2*Math.floor(main.size / 3);
     top = 1.5 * n - pascalTriangle.shiftY;
+    main.scale=0.99*main.svgSize/(2*n+1)/1.5;
     for (let j = -n; j <= n; j++) {
         const y = 1.5 * j - pascalTriangle.shiftY;
         const jMod2 = rt32*(j - 2 * Math.floor(j / 2));

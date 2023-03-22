@@ -14,8 +14,6 @@ import {
 
 export const squareLattice = {};
 
-// length of side of squares is equal to 1, same as periodicity
-squareLattice.scale=200;
 // radius for determining center cells(s)
 squareLattice.centerRadius = 0.8;
 // shift, with respect to unit cell
@@ -34,9 +32,22 @@ function drawPolygon(corners) {
 }
 
 function makeLattice(action) {
+    /*const n = Math.floor(main.size / 2);
+    main.scale=0.99*main.svgSize/(2*n+1);
+    for (let i = -n; i <= n; i++) {
+        const x = i - squareLattice.shiftX;
+        for (let j = -n; j <= n; j++) {
+            // lower left corner
+            const y = j - squareLattice.shiftY;
+            const corners = [x, y, x + 1, y, x + 1, y + 1, x, y + 1];
+            action(corners,i+j);
+        }
+    }
+    */
+
     const n = 2*main.size;
     const size=main.size;
-    main.scale=7900/n;
+    main.scale=0.99*main.svgSize/n;
     for (let i = 0; i < n; i++) {
         const x = i - size
         for (let j = 0; j < n; j++) {

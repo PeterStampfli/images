@@ -149,12 +149,10 @@ Cell.prototype.scaleCoordinates = function() {
 };
 
 // draw scaled polygon, fill color depending on state
-Cell.prototype.drawFill = function() {
-    const fillColor=automaton.color[this.state];
-    SVG.createPolygon(this.scaledCoordinates, {
-        fill: fillColor,
-        stroke: fillColor
-    });
+Cell.prototype.drawFill = function(state) {
+    if (this.state === state) {
+        SVG.createPolygon(this.scaledCoordinates);
+    }
 };
 
 // draw scaled polygon, fill color depending on state
@@ -189,25 +187,26 @@ Cell.prototype.drawNeighbor2Lines = function() {
 };
 
 // draw the truchet fill, that means the quarter circles
-Cell.prototype.truchetFill = function() {
-    const radius = 0.5 * main.scale;
-    const totalParity = this.positionParity + this.state;
-    const cornerColor=automaton.color[1 - this.state % 2];
-    const cornerFill = {
-        fill: cornerColor,
-        stroke: cornerColor
-    };
-    if (totalParity % 2 === 0) {
-        SVG.createArcFill(this.scaledCoordinates[0], this.scaledCoordinates[1], radius, 0, 0.5 * Math.PI, true, cornerFill);
-        SVG.createArcFill(this.scaledCoordinates[4], this.scaledCoordinates[5], radius, Math.PI, 1.5 * Math.PI, true, cornerFill);
-    } else {
-        SVG.createArcFill(this.scaledCoordinates[2], this.scaledCoordinates[3], radius, 0.5 * Math.PI, Math.PI, true, cornerFill);
-        SVG.createArcFill(this.scaledCoordinates[6], this.scaledCoordinates[7], radius, 1.5 * Math.PI, 0, true, cornerFill);
+Cell.prototype.fillTruchet = function(state) {
+    if (this.state === state) {
+        if (this.scaledCoordinates.length === 8) {
+            console.log(this.scaledCoordinates.length)
+            const radius = 0.5 * main.scale;
+            const totalParity = this.positionParity + this.state;
+            if (totalParity % 2 === 0) {
+                SVG.createArcFill(this.scaledCoordinates[0], this.scaledCoordinates[1], radius, 0, 0.5 * Math.PI);
+                SVG.createArcFill(this.scaledCoordinates[4], this.scaledCoordinates[5], radius, Math.PI, 1.5 * Math.PI);
+            } else {
+                SVG.createArcFill(this.scaledCoordinates[2], this.scaledCoordinates[3], radius, 0.5 * Math.PI, Math.PI);
+                SVG.createArcFill(this.scaledCoordinates[6], this.scaledCoordinates[7], radius, 1.5 * Math.PI, 0);
+            }
+        }
     }
 };
 
 // draw the truchet lines
 Cell.prototype.drawTruchetLines = function() {
+    if (this.scaledCoordinates.length===8){
     const radius = 0.5 * main.scale;
     const totalParity = this.positionParity + this.state;
     if (totalParity % 2 === 0) {
@@ -217,9 +216,10 @@ Cell.prototype.drawTruchetLines = function() {
         SVG.createArcStroke(this.scaledCoordinates[2], this.scaledCoordinates[3], radius, 0.5 * Math.PI, Math.PI);
         SVG.createArcStroke(this.scaledCoordinates[6], this.scaledCoordinates[7], radius, 1.5 * Math.PI, 0);
     }
+} else {
+       SVG.createPolygon(this.scaledCoordinates); 
+}
 };
-
-
 
 // running the automaton
 
