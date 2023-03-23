@@ -21,7 +21,7 @@ hexagonLattice.shiftX = 0;
 hexagonLattice.shiftY = 0;
 // cutoff for 2nd nearest neighbors
 hexagonLattice.neighbor2Cutoff = 3.01;
-hexagonLattice.neighborCutoff = Math.sqrt(3)+0.01;
+hexagonLattice.neighborCutoff = Math.sqrt(3) + 0.01;
 
 const rt32 = Math.sqrt(3) / 2;
 
@@ -34,15 +34,14 @@ function createPolygon(corners) {
 
 function makeLattice(action) {
     const n = Math.floor(main.size / 2);
-    main.scale=0.99*main.svgSize/(2*n+1)/1.5;
-    console.log(main.scale);
+    main.scale = 0.99 * main.svgSize / (2 * n + 1) / 1.5;
     for (let j = -n; j <= n; j++) {
         const y = 1.5 * j - hexagonLattice.shiftY;
-        const jMod2 = rt32*(j - 2 * Math.floor(j / 2));
+        const jMod2 = rt32 * (j - 2 * Math.floor(j / 2));
         for (let i = -n; i <= n; i++) {
             // lower left corner
-            const x = 2 * rt32*i + jMod2 - hexagonLattice.shiftX;
-            let corners = [x,y-1,x+rt32,y-0.5,x+rt32,y+0.5,x,y+1,x-rt32,y+0.5,x-rt32,y-0.5];
+            const x = 2 * rt32 * i + jMod2 - hexagonLattice.shiftX;
+            let corners = [x, y - 1, x + rt32, y - 0.5, x + rt32, y + 0.5, x, y + 1, x - rt32, y + 0.5, x - rt32, y - 0.5];
             action(corners);
         }
     }
@@ -66,5 +65,8 @@ hexagonLattice.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
     automaton.findNeighbors2(hexagonLattice.neighbor2Cutoff);
+};
+
+hexagonLattice.newInitialCell = function() {
     automaton.setInitial(0.01);
 };

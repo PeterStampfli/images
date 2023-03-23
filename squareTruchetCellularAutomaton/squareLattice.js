@@ -45,16 +45,16 @@ function makeLattice(action) {
     }
     */
 
-    const n = 2*main.size;
-    const size=main.size;
-    main.scale=0.99*main.svgSize/n;
+    const n = 2 * main.size;
+    const size = main.size;
+    main.scale = 0.99 * main.svgSize / n;
     for (let i = 0; i < n; i++) {
-        const x = i - size
+        const x = i - size;
         for (let j = 0; j < n; j++) {
             // lower left corner
             const y = j - size;
             const corners = [x, y, x + 1, y, x + 1, y + 1, x, y + 1];
-            action(corners,i+j);
+            action(corners, i + j);
         }
     }
 }
@@ -67,9 +67,9 @@ squareLattice.draw = function() {
     makeLattice(drawPolygon);
 };
 
-function createCell(corners,iPlusJ) {
-   const cell= automaton.addCell(corners, squareLattice.neighborCutoff);
-    cell.positionParity=iPlusJ%2;
+function createCell(corners, iPlusJ) {
+    const cell = automaton.addCell(corners, squareLattice.neighborCutoff);
+    cell.positionParity = iPlusJ % 2;
 }
 
 // create the tiles of the automaton as duals to the tiles of this lattice
@@ -78,5 +78,12 @@ squareLattice.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
     automaton.findNeighbors2();
-    automaton.setInitial(0.8);
+};
+
+squareLattice.newInitialCell = function() {
+    if (automaton.initialCell === 1) {
+        automaton.setInitial(0.8);
+    } else {
+        automaton.setInitialAt(0.5, 0.5);
+    }
 };

@@ -23,7 +23,7 @@ hexagonTriangleLattice.shiftY = 0;
 // hexagonTriangleLattice.shiftY = 2/Math.sqrt(3);
 // cutoff for 2nd nearest neighbors
 hexagonTriangleLattice.neighbor2Cutoff = 2.01;
-hexagonTriangleLattice.neighborCutoff = 2/Math.sqrt(3)+0.01;
+hexagonTriangleLattice.neighborCutoff = 2 / Math.sqrt(3) + 0.01;
 
 const rt32 = Math.sqrt(3) / 2;
 
@@ -36,7 +36,7 @@ function createPolygon(corners) {
 
 function makeLattice(action) {
     const n = Math.floor(main.size / 2);
-    main.scale=0.99*main.svgSize/(2*n+1)/2/rt32;
+    main.scale = 0.99 * main.svgSize / (2 * n + 1) / 2 / rt32;
     for (let j = -n; j <= n; j++) {
         const y = 2 * rt32 * j - hexagonTriangleLattice.shiftY;
         const jMod2 = j - 2 * Math.floor(j / 2);
@@ -70,5 +70,13 @@ hexagonTriangleLattice.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
     automaton.findNeighbors2();
-    automaton.setInitial(0.01);
+};
+
+
+hexagonTriangleLattice.newInitialCell = function() {
+    if (automaton.initialCell === 0) {
+        automaton.setInitial(0.01);
+    } else {
+        automaton.setInitialAt(1, 1 / Math.sqrt(3));
+    }
 };

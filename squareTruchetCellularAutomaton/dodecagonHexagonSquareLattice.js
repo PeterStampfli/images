@@ -75,5 +75,8 @@ dodecagonHexagonSquareLattice.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
     automaton.findNeighbors2();
+};
+
+dodecagonHexagonSquareLattice.newInitialCell = function() {
     automaton.setInitial(0.01);
 };

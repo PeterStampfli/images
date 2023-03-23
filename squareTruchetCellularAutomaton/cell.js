@@ -150,7 +150,7 @@ Cell.prototype.scaleCoordinates = function() {
 
 // draw scaled polygon, fill color depending on state
 Cell.prototype.drawFill = function(state) {
-    if (this.state === state) {
+    if ((this.state%automaton.nStates) === state) {
         SVG.createPolygon(this.scaledCoordinates);
     }
 };
@@ -190,7 +190,6 @@ Cell.prototype.drawNeighbor2Lines = function() {
 Cell.prototype.fillTruchet = function(state) {
     if (this.state === state) {
         if (this.scaledCoordinates.length === 8) {
-            console.log(this.scaledCoordinates.length)
             const radius = 0.5 * main.scale;
             const totalParity = this.positionParity + this.state;
             if (totalParity % 2 === 0) {
@@ -259,5 +258,5 @@ Cell.prototype.makeSum = function() {
 
 Cell.prototype.transition = function() {
     this.prevState = this.state;
-    this.state = this.sum % automaton.nStates;
+    this.state = this.sum % automaton.bigNum;
 };

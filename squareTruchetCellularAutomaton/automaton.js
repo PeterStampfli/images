@@ -17,6 +17,9 @@ export const automaton = {};
 // the mechanics
 automaton.cells = [];
 automaton.nStates = 2;
+// least common product of all possible nStates
+// 60 for nStates=2,3,4,5,6
+automaton.bigNum=60;
 automaton.initial = 1;
 automaton.initialCell = 0;
 automaton.time = 0;

@@ -216,8 +216,8 @@ main.setup = function() {
         property: 'nStates',
         min: 2,
         step: 1,
+        max:6,
         onChange: function() {
-            reset();
             draw();
         }
     });
@@ -245,6 +245,7 @@ main.setup = function() {
         min: 0,
         step: 1,
         onChange: function() {
+            newInitialCell();
             reset();
             draw();
         }
@@ -362,16 +363,21 @@ var lattice;
 
 function create() {
     main.lattice.createCells();
+    newInitialCell();
     reset();
 }
 
+function newInitialCell(){
+    main.lattice.newInitialCell();
+}
+
 function reset() {
-    automaton.updateColorControllers();
     automaton.initialize();
 }
 main.reset = reset;
 
 function draw() {
+    automaton.updateColorControllers();
     SVG.begin();
     SVG.groupAttributes = {
         transform: 'scale(1 -1)',

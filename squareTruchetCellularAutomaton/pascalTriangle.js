@@ -65,8 +65,11 @@ function createCell(corners) {
 pascalTriangle.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
-    automaton.setInitialAt(pascalTriangle.shiftX,top);
     const origin=automaton.getCellAt(pascalTriangle.shiftX,top);
     // make that the origin cell retains its value
     origin.neighbors.push(origin);
 };
+
+pascalTriangle.newInitialCell=function(){
+        automaton.setInitialAt(pascalTriangle.shiftX,top);
+}

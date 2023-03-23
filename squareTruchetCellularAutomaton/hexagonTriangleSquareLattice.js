@@ -76,3 +76,7 @@ hexagonTriangleSquareLattice.createCells = function() {
     automaton.findNeighbors2();
     automaton.setInitial(0.01);
 };
+
+hexagonTriangleSquareLattice.newInitialCell = function() {
+    automaton.setInitial(0.01);
+};

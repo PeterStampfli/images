@@ -68,5 +68,12 @@ dodecagonTriangleLattice.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
     automaton.findNeighbors2();
-    automaton.setInitial(0.01);
+};
+
+dodecagonTriangleLattice.newInitialCell = function() {
+    if (automaton.initialCell === 0) {
+        automaton.setInitial(0.01);
+    } else {
+        automaton.setInitialAt(0, 1+1/rt32);
+    }
 };

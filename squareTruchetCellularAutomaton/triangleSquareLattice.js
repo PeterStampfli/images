@@ -74,5 +74,8 @@ triangleSquareLattice.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
     automaton.findNeighbors2();
+};
+
+triangleSquareLattice.newInitialCell = function() {
     automaton.setInitial(0.01);
 };

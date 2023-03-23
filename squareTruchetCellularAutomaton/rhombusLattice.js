@@ -35,7 +35,7 @@ function createPolygon(corners) {
 // drawing for debugging, creating the automaton tiles is similar
 function makeLattice(action) {
     const n = Math.floor(main.size / 2);
-    main.scale=0.99*main.svgSize/(2*n+1)/1.5;
+    main.scale = 0.99 * main.svgSize / (2 * n + 1) / 1.5;
     for (let j = -n; j <= n; j++) {
         const y = 1.5 * j - rhombusLattice.shiftY;
         const jMod2 = rt3 * (j / 2 - Math.floor(j / 2));
@@ -69,5 +69,8 @@ rhombusLattice.createCells = function() {
     automaton.clear();
     makeLattice(createCell);
     automaton.findNeighbors2();
+};
+
+rhombusLattice.newInitialCell = function() {
     automaton.setInitial(rt32 + 0.01);
 };
