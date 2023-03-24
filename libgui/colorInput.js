@@ -340,7 +340,7 @@ ColorInput.stringFromObject = function(obj) {
  * if no "aa" values then alpha=255
  * @method ColorInput.setObject
  * @param {object} obj
- * @ param {String} color
+ * @param {String} color
  */
 ColorInput.setObject = function(obj, color) {
     obj.red = parseInt(color.substring(1, 3), 16);
