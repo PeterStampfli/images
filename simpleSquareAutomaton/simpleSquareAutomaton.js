@@ -17,70 +17,151 @@ const nextStates = [];
 automaton.nStates = 2;
 const maxNStates = 6;
 // least common multiplicator
-const bigNumber = 60;
+const bigNumber = 840;
 
 automaton.prevWeight = 0;
 automaton.centerWeight = 1;
 automaton.neighborWeight = 1;
 automaton.neighbor2Weight = 0;
 
-automaton.stepsToDo=10;
-automaton.timer=0;
-automaton.timerValue=0;
+automaton.stepsToDo = 10;
+automaton.timer = 0;
+automaton.timerValue = 0;
 
 const colors = [];
-colors.length = 6;
-colors[0] = '#ffffff';
+const colorControllers = [];
+colors.length = 8;
+colors[0] = '#bbbbff';
 colors[1] = '#000000';
 colors[2] = '#6666ff';
 colors[3] = '#aa0000';
 colors[4] = '#88ffff';
 colors[5] = '#ffff88';
+colors[6] = '#ff00ff';
+colors[7] = '#ff8844';
 
 function create() {
     size = output.canvas.width;
+    console.log(size);
     const size2 = size * size;
     prevStates.length = size2;
     states.length = size2;
     nextStates.length = size2;
 }
 
-function reset(){
-    automaton.time=0;
+function reset() {
+    automaton.time = 0;
     automaton.timer.setValueOnly(0);
-        prevStates.fill(0);
+    prevStates.fill(0);
     states.fill(0);
     nextStates.fill(0);
     const half = Math.floor(size / 2);
-    states[half + half * size] = 1;
+    //  states[half + half * size] = 1;
+    // top line
+    states[half] = 1;
 }
 
-function advance() {
-   automaton.time += 1;
+// copy all states
+function copy() {
+    automaton.time += 1;
     automaton.timer.setValueOnly(automaton.time);
-        const prevWeight = automaton.prevWeight;
+    const sizeMsize = size * (size - 1);
+    for (var index = size; index < sizeMsize; index++) {
+        prevStates[index] = states[index];
+        states[index] = nextStates[index];
+    }
+}
+
+// hexagonal lattice
+function advanceHex() {
+    const prevWeight = automaton.prevWeight;
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j += 2) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + sizeM] + states[index - sizeP]);
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+        index = j * size + sizeP;
+        for (let i = 1; i < sizeM; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + sizeP] + states[index - sizeM]);
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+    }
+    copy();
+}
+
+
+// square lattice
+function advanceSquare() {
+    const prevWeight = automaton.prevWeight;
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
     const sizeM = size - 1;
     const sizeP = size + 1;
     for (var j = 1; j < sizeM; j++) {
-        let index = j * size+1;
+        let index = j * size + 1;
         for (let i = 1; i < sizeM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size]);
             sum += neighbor2Weight * (states[index - sizeM] + states[index - sizeP] + states[index + sizeM] + states[index + sizeP]);
-            nextStates[index]=sum%bigNumber;
+            nextStates[index] = sum % bigNumber;
             index += 1;
         }
     }
-    const sizeMsize=size*sizeM;
-    for (var index=size;index<sizeMsize;index++){
-        prevStates[index]=states[index];
-        states[index]=nextStates[index];
-    }
+    copy();
 }
 
+// square lattice, advance line
+function squareAdvanceLine() {
+    automaton.time += 1;
+    automaton.timer.setValueOnly(automaton.time);
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const neighbor2Weight = automaton.neighbor2Weight;
+    const sizeM = size - 2;
+    const sizeP = size + 1;
+    let index = automaton.time * size + 2;
+    for (let i = 2; i < sizeM; i++) {
+
+        let sum = centerWeight * states[index - size];
+        sum += neighborWeight * (states[index - size-1] + states[index - size+1]);
+        sum += neighbor2Weight * (states[index - size + 2] + states[index - size - 2]);
+        states[index] = sum % bigNumber;
+
+        index += 1;
+    }
+
+}
+
+// hexagon lattice, advance line
+function advance() {
+    automaton.time += 1;
+    automaton.timer.setValueOnly(automaton.time);
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const neighbor2Weight = automaton.neighbor2Weight;
+    const sizeM = size - 2;
+    const sizeP = size + 1;
+    let index = automaton.time * size + 2;
+    const offset=(automaton.time%2===0)? size+1:size-1;
+    for (let i = 2; i < sizeM; i++) {
+
+        let sum = states[index - size]+states[index-offset];
+        states[index] = sum % bigNumber;
+
+        index += 1;
+    }
+
+}
 function draw() {
     output.isDrawing = true;
     output.pixels.update();
@@ -119,13 +200,13 @@ function setup() {
     output.setCanvasWidthToHeight(1);
     output.drawCanvasChanged = all;
 
-const nStatesController = gui.add({
+    const nStatesController = gui.add({
         type: 'number',
         params: automaton,
         property: 'nStates',
         min: 2,
         step: 1,
-        max:6,
+        max: colors.length,
         onChange: function() {
             draw();
         }
@@ -177,7 +258,7 @@ const nStatesController = gui.add({
             draw();
         }
     });
-    
+
 
     gui.add({
         type: 'button',
@@ -225,14 +306,14 @@ const nStatesController = gui.add({
 
     gui.addParagraph("colors for states");
     for (let i = 0; i < colors.length; i++) {
-        gui.add({
+        const colorController = gui.add({
             type: 'color',
             params: colors,
             property: i,
             onChange: draw
         });
     }
-    
+
     all();
 
 }
