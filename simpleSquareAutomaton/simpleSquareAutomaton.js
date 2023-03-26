@@ -17,8 +17,9 @@ const nextStates = [];
 automaton.nStates = 2;
 const maxNStates = 6;
 // least common multiplicator
-const bigNumber = 840;
+const bigNumber = 2520;
 
+automaton.offset = 0;
 automaton.prevWeight = 0;
 automaton.centerWeight = 1;
 automaton.neighborWeight = 1;
@@ -30,7 +31,7 @@ automaton.timerValue = 0;
 
 const colors = [];
 const colorControllers = [];
-colors.length = 8;
+colors.length = 9;
 colors[0] = '#bbbbff';
 colors[1] = '#000000';
 colors[2] = '#6666ff';
@@ -39,10 +40,55 @@ colors[4] = '#88ffff';
 colors[5] = '#ffff88';
 colors[6] = '#ff00ff';
 colors[7] = '#ff8844';
+colors[8] = '#ff00ff';
+
+colors.zeroWhiteElseBlack = function() {
+    for (let i = 1; i < colors.length; i++) {
+        colorControllers[i].setValueOnly('#000000');
+    }
+    colorControllers[0].setValueOnly('#ffffff');
+};
+
+colors.greys = function() {
+    colorControllers[0].setValueOnly('#ffffff');
+    colorControllers[1].setValueOnly('#000000');
+    colorControllers[2].setValueOnly('#bbbbbb');
+    colorControllers[3].setValueOnly('#888888');
+    colorControllers[4].setValueOnly('#dddddd');
+    colorControllers[5].setValueOnly('#666666');
+    colorControllers[6].setValueOnly('#eeeeee');
+    colorControllers[7].setValueOnly('#444444');
+    colorControllers[8].setValueOnly('#cccccc');
+};
+
+colors.rainbow = function() {
+    colorControllers[0].setValueOnly('#ffffff');
+    colorControllers[1].setValueOnly('#000000');
+    colorControllers[2].setValueOnly('#4444ff');
+    colorControllers[3].setValueOnly('#ffff00');
+    colorControllers[4].setValueOnly('#00eeee');
+    colorControllers[5].setValueOnly('#ff0000');
+    colorControllers[6].setValueOnly('#ff8800');
+    colorControllers[7].setValueOnly('#ff33ff');
+    colorControllers[8].setValueOnly('#aaaaaa');
+};
+
+colors.blues = function() {
+    colorControllers[0].setValueOnly('#000000');
+    colorControllers[1].setValueOnly('#ffffff');
+    colorControllers[2].setValueOnly('#aaf8ff');
+    colorControllers[3].setValueOnly('#44bbff');
+    colorControllers[4].setValueOnly('#6688bb');
+    colorControllers[5].setValueOnly('#440099');
+    colorControllers[6].setValueOnly('#770088');
+    colorControllers[7].setValueOnly('#888888');
+    colorControllers[8].setValueOnly('#aaaaaa');
+};
+
+colors.setup = colors.greys;
 
 function create() {
     size = output.canvas.width;
-    console.log(size);
     const size2 = size * size;
     prevStates.length = size2;
     states.length = size2;
@@ -56,9 +102,13 @@ function reset() {
     states.fill(0);
     nextStates.fill(0);
     const half = Math.floor(size / 2);
-    //  states[half + half * size] = 1;
-    // top line
-    states[half] = 1;
+    if ((automaton.advance === advanceHexagonLine) || (automaton.advance === advanceSquareLine)) {
+        // top line
+        states[half] = 1;
+    } else {
+        // center, even sum of indices
+        states[half + half * size + automaton.offset] = 1;
+    }
 }
 
 // copy all states
@@ -70,6 +120,103 @@ function copy() {
         prevStates[index] = states[index];
         states[index] = nextStates[index];
     }
+}
+
+// hexagontriangle lattice
+function advancehexagontriangle() {
+    const prevWeight = automaton.prevWeight;
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j += 2) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            switch (i % 3) {
+                case 0:
+                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size + 1] + states[index - size + 1]);
+                    break;
+                case 1:
+                    sum += neighborWeight * (states[index - 1] + states[index + size + 1] + states[index - size + 1]);
+                    break;
+                case 2:
+                    sum += neighborWeight * (states[index + 1] + states[index + size] + states[index - size]);
+                    break;
+            }
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+        index = j * size + sizeP;
+        for (let i = 1; i < sizeM; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            switch (i % 3) {
+                case 0:
+                    sum += neighborWeight * (states[index - 1] + states[index + size] + states[index - size]);
+                    break;
+                case 1:
+                    sum += neighborWeight * (states[index + 1] + states[index + size - 1] + states[index - size - 1]);
+                    break;
+                case 2:
+                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size - 1] + states[index - size - 1]);
+                    break;
+            }
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+    }
+    copy();
+}
+
+
+// dodecagon triangle lattice
+function advanceDodecagonTriangle() {
+    const prevWeight = automaton.prevWeight;
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const neighbor2Weight = automaton.neighbor2Weight;
+    const sizeM = size - 1;
+    const sizeM2 = size - 2;
+    const sizeP = size + 1;
+    for (var j = 2; j < sizeM2; j += 2) {
+        let index = j * size + 1;
+        for (let i = 2; i < sizeM2; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            switch (i % 3) {
+                case 0:
+                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size + 1] + states[index - size + 1]);
+                    sum += neighbor2Weight * (states[index + 2 * size] + states[index - 2 * size] + states[index + size + 2] + states[index - size + 2] + states[index + size - 1] + states[index - size - 1]);
+                    break;
+                case 1:
+                    sum += neighborWeight * (states[index - 1] + states[index + size + 1] + states[index - size + 1]);
+                    break;
+                case 2:
+                    sum += neighborWeight * (states[index + 1] + states[index + size] + states[index - size]);
+                    break;
+            }
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+        index = j * size + sizeP;
+        for (let i = 2; i < sizeM2; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            switch (i % 3) {
+                case 0:
+                    sum += neighborWeight * (states[index - 1] + states[index + size] + states[index - size]);
+                    break;
+                case 1:
+                    sum += neighborWeight * (states[index + 1] + states[index + size - 1] + states[index - size - 1]);
+                    break;
+                case 2:
+                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size - 1] + states[index - size - 1]);
+                    sum += neighbor2Weight * (states[index + 2 * size] + states[index - 2 * size] + states[index + size + 1] + states[index - size + 1] + states[index + size - 2] + states[index - size - 2]);
+                    break;
+            }
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+    }
+    copy();
 }
 
 // hexagonal lattice
@@ -98,7 +245,6 @@ function advanceHex() {
     copy();
 }
 
-
 // square lattice
 function advanceSquare() {
     const prevWeight = automaton.prevWeight;
@@ -120,8 +266,57 @@ function advanceSquare() {
     copy();
 }
 
+// semiregular octagon square lattice
+function advanceOctagonSquare() {
+    const prevWeight = automaton.prevWeight;
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const neighbor2Weight = automaton.neighbor2Weight;
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j++) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size]);
+            // for octagons
+            if ((i + j) % 2 === 0) {
+                sum += neighbor2Weight * (states[index - sizeM] + states[index - sizeP] + states[index + sizeM] + states[index + sizeP]);
+            }
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+    }
+    copy();
+}
+
+// triangle lattice
+function advanceTriangle() {
+    const prevWeight = automaton.prevWeight;
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j++) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
+            let sum = prevWeight * prevStates[index] + centerWeight * states[index];
+            sum += neighborWeight * (states[index - 1] + states[index + 1]);
+            // for octagons
+            if ((i + j) % 2 === 0) {
+                sum += neighborWeight * states[index - size];
+            } else {
+                sum += neighborWeight * states[index + size];
+            }
+            nextStates[index] = sum % bigNumber;
+            index += 1;
+        }
+    }
+    copy();
+}
+
 // square lattice, advance line
-function squareAdvanceLine() {
+function advanceSquareLine() {
     automaton.time += 1;
     automaton.timer.setValueOnly(automaton.time);
     const centerWeight = automaton.centerWeight;
@@ -131,19 +326,17 @@ function squareAdvanceLine() {
     const sizeP = size + 1;
     let index = automaton.time * size + 2;
     for (let i = 2; i < sizeM; i++) {
-
         let sum = centerWeight * states[index - size];
-        sum += neighborWeight * (states[index - size-1] + states[index - size+1]);
+        sum += neighborWeight * (states[index - size - 1] + states[index - size + 1]);
         sum += neighbor2Weight * (states[index - size + 2] + states[index - size - 2]);
         states[index] = sum % bigNumber;
-
         index += 1;
     }
 
 }
 
 // hexagon lattice, advance line
-function advance() {
+function advanceHexagonLine() {
     automaton.time += 1;
     automaton.timer.setValueOnly(automaton.time);
     const centerWeight = automaton.centerWeight;
@@ -152,16 +345,14 @@ function advance() {
     const sizeM = size - 2;
     const sizeP = size + 1;
     let index = automaton.time * size + 2;
-    const offset=(automaton.time%2===0)? size+1:size-1;
+    const offset = (automaton.time % 2 === 0) ? size + 1 : size - 1;
     for (let i = 2; i < sizeM; i++) {
-
-        let sum = states[index - size]+states[index-offset];
+        let sum = states[index - size] + states[index - offset];
         states[index] = sum % bigNumber;
-
         index += 1;
     }
-
 }
+
 function draw() {
     output.isDrawing = true;
     output.pixels.update();
@@ -200,6 +391,29 @@ function setup() {
     output.setCanvasWidthToHeight(1);
     output.drawCanvasChanged = all;
 
+    automaton.advance = advanceSquare;
+
+    gui.add({
+        type: 'selection',
+        params: automaton,
+        property: 'advance',
+        labelText: 'lattice',
+        options: {
+            square: advanceSquare,
+            'octagon square': advanceOctagonSquare,
+            hexagon: advanceHex,
+            triangle: advanceTriangle,
+            'hexagon triangle': advancehexagontriangle,
+            'dodecagon triangle': advanceDodecagonTriangle,
+            'Pascal triangle': advanceHexagonLine,
+            'square line': advanceSquareLine
+        },
+        onChange: function() {
+            reset();
+            draw();
+        }
+    });
+
     const nStatesController = gui.add({
         type: 'number',
         params: automaton,
@@ -208,6 +422,17 @@ function setup() {
         step: 1,
         max: colors.length,
         onChange: function() {
+            draw();
+        }
+    }).add({
+        type: 'number',
+        params: automaton,
+        property: 'offset',
+        min: -1,
+        step: 1,
+        max: 1,
+        onChange: function() {
+            reset();
             draw();
         }
     });
@@ -271,7 +496,7 @@ function setup() {
         type: 'button',
         buttonText: 'step',
         onChange: function() {
-            advance();
+            automaton.advance();
             draw();
         }
     }).add({
@@ -288,7 +513,7 @@ function setup() {
         onChange: function() {
             console.log(automaton.stepsToDo);
             for (let i = 0; i < automaton.stepsToDo; i++) {
-                advance();
+                automaton.advance();
             }
             draw();
         }
@@ -305,6 +530,23 @@ function setup() {
     });
 
     gui.addParagraph("colors for states");
+
+    gui.add({
+        type: 'selection',
+        params: colors,
+        property: 'setup',
+        options: {
+            greys: colors.greys,
+            whiteBlack: colors.zeroWhiteElseBlack,
+            rainbow: colors.rainbow,
+            blues:colors.blues
+        },
+        onChange: function() {
+            colors.setup();
+            draw();
+        }
+    });
+
     for (let i = 0; i < colors.length; i++) {
         const colorController = gui.add({
             type: 'color',
@@ -312,7 +554,10 @@ function setup() {
             property: i,
             onChange: draw
         });
+        colorControllers.push(colorController);
     }
+    colors.setup();
+
 
     all();
 
