@@ -10,12 +10,7 @@ import {
 
 const automaton = {};
 
-let width = 100;
-let widthM=width-1;
-let widthP=width+1;
-let height = 100;
-let heightM=height-1;
-let total = width * height;
+let size = 100;
 const prevStates = [];
 const states = [];
 const nextStates = [];
@@ -79,8 +74,8 @@ colors.rainbow = function() {
 };
 
 colors.blues = function() {
-    colorControllers[0].setValueOnly('#ffffff');
-    colorControllers[1].setValueOnly('#000000');
+    colorControllers[0].setValueOnly('#000000');
+    colorControllers[1].setValueOnly('#ffffff');
     colorControllers[2].setValueOnly('#aaf8ff');
     colorControllers[3].setValueOnly('#44bbff');
     colorControllers[4].setValueOnly('#6688bb');
@@ -93,15 +88,11 @@ colors.blues = function() {
 colors.setup = colors.greys;
 
 function create() {
-    width = output.canvas.width;
-   widthM = width - 1;
-    widthP = width + 1;
-     height = output.canvas.height;
-      heightM = height - 1;  
-    total = width * height;
-    prevStates.length = total;
-    states.length = total;
-    nextStates.length = total;
+    size = output.canvas.width;
+    const size2 = size * size;
+    prevStates.length = size2;
+    states.length = size2;
+    nextStates.length = size2;
 }
 
 function reset() {
@@ -110,12 +101,13 @@ function reset() {
     prevStates.fill(0);
     states.fill(0);
     nextStates.fill(0);
+    const half = Math.floor(size / 2);
     if ((automaton.advance === advanceHexagonLine) || (automaton.advance === advanceSquareLine)) {
         // top line
-        states[Math.floor(width/2)] = 1;
+        states[half] = 1;
     } else {
         // center, even sum of indices
-        states[Math.floor(width / 2) + width * Math.floor(height / 2) + automaton.offset] = 1;
+        states[half + half * size + automaton.offset] = 1;
     }
 }
 
@@ -123,7 +115,8 @@ function reset() {
 function copy() {
     automaton.time += 1;
     automaton.timer.setValueOnly(automaton.time);
-    for (var index = 0; index < total; index++) {
+    const sizeMsize = size * (size - 1);
+    for (var index = size; index < sizeMsize; index++) {
         prevStates[index] = states[index];
         states[index] = nextStates[index];
     }
@@ -134,40 +127,42 @@ function advancehexagontriangle() {
     const prevWeight = automaton.prevWeight;
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
-    for (var j = 1; j < widthM; j += 2) {
-        let index = j  + width;
-        for (let i = 1; i < heightM; i++) {
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j += 2) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
                 case 0:
-                    sum += neighborWeight * (states[index - width] + states[index + width] + states[index - 1] + states[index + 1] + states[index + width + 1] + states[index - 1 + width]);
+                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size + 1] + states[index - size + 1]);
                     break;
                 case 1:
-                    sum += neighborWeight * (states[index - width] + states[index + width + 1] + states[index - 1 + width]);
+                    sum += neighborWeight * (states[index - 1] + states[index + size + 1] + states[index - size + 1]);
                     break;
                 case 2:
-                    sum += neighborWeight * (states[index + 1] + states[index + width] + states[index - 1]);
+                    sum += neighborWeight * (states[index + 1] + states[index + size] + states[index - size]);
                     break;
             }
             nextStates[index] = sum % bigNumber;
-            index += width;
+            index += 1;
         }
-        index = j +1+width;
-        for (let i = 1; i < heightM; i++) {
+        index = j * size + sizeP;
+        for (let i = 1; i < sizeM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
                 case 0:
-                    sum += neighborWeight * (states[index - width] + states[index + 1] + states[index - 1]);
+                    sum += neighborWeight * (states[index - 1] + states[index + size] + states[index - size]);
                     break;
                 case 1:
-                    sum += neighborWeight * (states[index + width] + states[index + 1 - width] + states[index - width - 1]);
+                    sum += neighborWeight * (states[index + 1] + states[index + size - 1] + states[index - size - 1]);
                     break;
                 case 2:
-                    sum += neighborWeight * (states[index - width] + states[index + width] + states[index - 1] + states[index + 1] + states[index + 1 - width] + states[index - width - 1]);
+                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size - 1] + states[index - size - 1]);
                     break;
             }
             nextStates[index] = sum % bigNumber;
-            index += width;
+            index += 1;
         }
     }
     copy();
@@ -180,9 +175,9 @@ function advanceDodecagonTriangle() {
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
-    const widthM = width - 1;
-    const widthP = width + 1;
-    const heightM = height - 1;
+    const sizeM = size - 1;
+    const sizeM2 = size - 2;
+    const sizeP = size + 1;
     for (var j = 2; j < sizeM2; j += 2) {
         let index = j * size + 1;
         for (let i = 2; i < sizeM2; i++) {
@@ -229,9 +224,8 @@ function advanceHex() {
     const prevWeight = automaton.prevWeight;
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
-    const widthM = width - 1;
-    const widthP = width + 1;
-    const heightM = height - 1;
+    const sizeM = size - 1;
+    const sizeP = size + 1;
     for (var j = 1; j < sizeM; j += 2) {
         let index = j * size + 1;
         for (let i = 1; i < sizeM; i++) {
@@ -257,12 +251,14 @@ function advanceSquare() {
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
-    for (var j = 1; j < heightM; j++) {
-        let index = j * width + 1;
-        for (let i = 1; i < widthM; i++) {
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j++) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
-            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width]);
-            sum += neighbor2Weight * (states[index - widthM] + states[index - widthP] + states[index + widthM] + states[index + widthP]);
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size]);
+            sum += neighbor2Weight * (states[index - sizeM] + states[index - sizeP] + states[index + sizeM] + states[index + sizeP]);
             nextStates[index] = sum % bigNumber;
             index += 1;
         }
@@ -276,14 +272,16 @@ function advanceOctagonSquare() {
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
-    for (var j = 1; j < heightM; j++) {
-        let index = j * width + 1;
-        for (let i = 1; i < widthM; i++) {
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j++) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
-            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width]);
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size]);
             // for octagons
             if ((i + j) % 2 === 0) {
-                sum += neighbor2Weight * (states[index - widthM] + states[index - widthP] + states[index + widthM] + states[index + widthP]);
+                sum += neighbor2Weight * (states[index - sizeM] + states[index - sizeP] + states[index + sizeM] + states[index + sizeP]);
             }
             nextStates[index] = sum % bigNumber;
             index += 1;
@@ -297,15 +295,18 @@ function advanceTriangle() {
     const prevWeight = automaton.prevWeight;
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
-    for (var j = 1; j < heightM; j++) {
-        let index = j * width + 1;
-        for (let i = 1; i < widthM; i++) {
+    const sizeM = size - 1;
+    const sizeP = size + 1;
+    for (var j = 1; j < sizeM; j++) {
+        let index = j * size + 1;
+        for (let i = 1; i < sizeM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             sum += neighborWeight * (states[index - 1] + states[index + 1]);
+            // for octagons
             if ((i + j) % 2 === 0) {
-                sum += neighborWeight * states[index - width];
+                sum += neighborWeight * states[index - size];
             } else {
-                sum += neighborWeight * states[index + width];
+                sum += neighborWeight * states[index + size];
             }
             nextStates[index] = sum % bigNumber;
             index += 1;
@@ -321,15 +322,17 @@ function advanceSquareLine() {
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
-    const widthM = width - 1;
-    let index = automaton.time * width + 2;
-    for (let i = 2; i < widthM; i++) {
-        let sum = centerWeight * states[index - width];
-        sum += neighborWeight * (states[index - width - 1] + states[index - width + 1]);
-        sum += neighbor2Weight * (states[index - width + 2] + states[index - width - 2]);
+    const sizeM = size - 2;
+    const sizeP = size + 1;
+    let index = automaton.time * size + 2;
+    for (let i = 2; i < sizeM; i++) {
+        let sum = centerWeight * states[index - size];
+        sum += neighborWeight * (states[index - size - 1] + states[index - size + 1]);
+        sum += neighbor2Weight * (states[index - size + 2] + states[index - size - 2]);
         states[index] = sum % bigNumber;
         index += 1;
     }
+
 }
 
 // hexagon lattice, advance line
@@ -339,11 +342,12 @@ function advanceHexagonLine() {
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
-    const widthM = width - 1;
-    let index = automaton.time * width + 2;
-    const offset = (automaton.time % 2 === 0) ? width + 1 : width - 1;
-    for (let i = 2; i < widthM; i++) {
-        let sum = states[index - width] + states[index - offset];
+    const sizeM = size - 2;
+    const sizeP = size + 1;
+    let index = automaton.time * size + 2;
+    const offset = (automaton.time % 2 === 0) ? size + 1 : size - 1;
+    for (let i = 2; i < sizeM; i++) {
+        let sum = states[index - size] + states[index - offset];
         states[index] = sum % bigNumber;
         index += 1;
     }
@@ -353,6 +357,8 @@ function draw() {
     output.isDrawing = true;
     output.pixels.update();
     const pixelsArray = output.pixels.array;
+    const width = output.canvas.width;
+    const height = output.canvas.height;
     const intColors = [];
     intColors.length = colors.length;
     const colorObj = {};
@@ -361,10 +367,17 @@ function draw() {
         intColors[i] = Pixels.integerOfColor(colorObj);
     }
     const nStates = automaton.nStates;
-    for (let index = 0; index < total; index++) {
+    let size2 = size * size;
+    for (let index = 0; index < size2; index++) {
         pixelsArray[index] = intColors[states[index] % nStates];
     }
     output.pixels.show();
+}
+
+function all() {
+    create();
+    reset();
+    draw();
 }
 
 function setup() {
@@ -375,11 +388,8 @@ function setup() {
     // create an output canvas
     output.createCanvas(gui);
     output.createPixels();
-    output.drawCanvasChanged = function() {
-        create();
-        reset();
-        draw();
-    };
+    output.setCanvasWidthToHeight(1);
+    output.drawCanvasChanged = all;
 
     automaton.advance = advanceSquare;
 
@@ -529,7 +539,7 @@ function setup() {
             greys: colors.greys,
             whiteBlack: colors.zeroWhiteElseBlack,
             rainbow: colors.rainbow,
-            blues: colors.blues
+            blues:colors.blues
         },
         onChange: function() {
             colors.setup();
@@ -547,9 +557,10 @@ function setup() {
         colorControllers.push(colorController);
     }
     colors.setup();
-    create();
-    reset();
-    draw();
+
+
+    all();
+
 }
 
 setup();
