@@ -173,52 +173,48 @@ function advancehexagontriangle() {
     copy();
 }
 
-
-// dodecagon triangle lattice
+// dodecagontriangle lattice
 function advanceDodecagonTriangle() {
     const prevWeight = automaton.prevWeight;
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
-    const widthM = width - 1;
-    const widthP = width + 1;
-    const heightM = height - 1;
-    for (var j = 2; j < sizeM2; j += 2) {
-        let index = j * size + 1;
-        for (let i = 2; i < sizeM2; i++) {
+    for (var j = 1; j < widthM; j += 2) {
+        let index = j  + width;
+        for (let i = 1; i < heightM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
                 case 0:
-                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size + 1] + states[index - size + 1]);
-                    sum += neighbor2Weight * (states[index + 2 * size] + states[index - 2 * size] + states[index + size + 2] + states[index - size + 2] + states[index + size - 1] + states[index - size - 1]);
+                    sum += neighborWeight * (states[index - width] + states[index + width] + states[index - 1] + states[index + 1] + states[index + width + 1] + states[index - 1 + width]);
+                    sum += neighbor2Weight * (states[index + 2] + states[index - 2] + states[index + 1 + 2*width] + states[index - 1 + 2*width] + states[index + 1 - width] + states[index - width - 1]);
                     break;
                 case 1:
-                    sum += neighborWeight * (states[index - 1] + states[index + size + 1] + states[index - size + 1]);
+                    sum += neighborWeight * (states[index - width] + states[index + width + 1] + states[index - 1 + width]);
                     break;
                 case 2:
-                    sum += neighborWeight * (states[index + 1] + states[index + size] + states[index - size]);
+                    sum += neighborWeight * (states[index + 1] + states[index + width] + states[index - 1]);
                     break;
             }
             nextStates[index] = sum % bigNumber;
-            index += 1;
+            index += width;
         }
-        index = j * size + sizeP;
-        for (let i = 2; i < sizeM2; i++) {
+        index = j +1+width;
+        for (let i = 1; i < heightM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
                 case 0:
-                    sum += neighborWeight * (states[index - 1] + states[index + size] + states[index - size]);
+                    sum += neighborWeight * (states[index - width] + states[index + 1] + states[index - 1]);
                     break;
                 case 1:
-                    sum += neighborWeight * (states[index + 1] + states[index + size - 1] + states[index - size - 1]);
+                    sum += neighborWeight * (states[index + width] + states[index + 1 - width] + states[index - width - 1]);
                     break;
                 case 2:
-                    sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + size - 1] + states[index - size - 1]);
-                    sum += neighbor2Weight * (states[index + 2 * size] + states[index - 2 * size] + states[index + size + 1] + states[index - size + 1] + states[index + size - 2] + states[index - size - 2]);
-                    break;
+                    sum += neighborWeight * (states[index - width] + states[index + width] + states[index - 1] + states[index + 1] + states[index + 1 - width] + states[index - width - 1]);
+                     sum += neighbor2Weight * (states[index + 2 ] + states[index - 2 ] + states[index + width + 1] + states[index - 1 + width] + states[index + 1 - 2*width] + states[index - 1 - 2*width]);
+                   break;
             }
             nextStates[index] = sum % bigNumber;
-            index += 1;
+            index += width;
         }
     }
     copy();
@@ -232,18 +228,18 @@ function advanceHex() {
     const widthM = width - 1;
     const widthP = width + 1;
     const heightM = height - 1;
-    for (var j = 1; j < sizeM; j += 2) {
-        let index = j * size + 1;
-        for (let i = 1; i < sizeM; i++) {
+    for (var j = 1; j < heightM; j += 2) {
+        let index = j * width + 1;
+        for (let i = 1; i < widthM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
-            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + sizeM] + states[index - sizeP]);
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width] + states[index + width-1] + states[index - width-1]);
             nextStates[index] = sum % bigNumber;
             index += 1;
         }
-        index = j * size + sizeP;
-        for (let i = 1; i < sizeM; i++) {
+        index = j * width + width+1;
+        for (let i = 1; i < widthM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
-            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - size] + states[index + size] + states[index + sizeP] + states[index - sizeM]);
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width] + states[index + width+1] + states[index - width+1]);
             nextStates[index] = sum % bigNumber;
             index += 1;
         }
