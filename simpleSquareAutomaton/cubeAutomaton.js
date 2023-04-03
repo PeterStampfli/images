@@ -22,10 +22,10 @@ let prevStates = new Uint8Array(1);
 let states = new Uint8Array(1);
 let nextStates = new Uint8Array(1);
 automaton.nStates = 2;
-const maxNStates = 9;
+const maxNStates = 5;
 // least common multiplicator
-// 8*9*7*5=2520
-const bigNumber = 2520;
+// 3*4*5=60
+const bigNumber = 60;
 
 automaton.prevWeight = 0;
 automaton.centerWeight = 1;
@@ -45,10 +45,6 @@ colors[1] = '#000000';
 colors[2] = '#6666ff';
 colors[3] = '#aa0000';
 colors[4] = '#88ffff';
-colors[5] = '#ffff88';
-colors[6] = '#ff00ff';
-colors[7] = '#ff8844';
-colors[8] = '#ff00ff';
 
 colors.zeroWhiteElseBlack = function() {
     for (let i = 1; i < colors.length; i++) {
@@ -63,10 +59,6 @@ colors.greys = function() {
     colorControllers[2].setValueOnly('#bbbbbb');
     colorControllers[3].setValueOnly('#888888');
     colorControllers[4].setValueOnly('#dddddd');
-    colorControllers[5].setValueOnly('#666666');
-    colorControllers[6].setValueOnly('#eeeeee');
-    colorControllers[7].setValueOnly('#444444');
-    colorControllers[8].setValueOnly('#cccccc');
 };
 
 colors.rainbow = function() {
@@ -75,10 +67,6 @@ colors.rainbow = function() {
     colorControllers[2].setValueOnly('#4444ff');
     colorControllers[3].setValueOnly('#ffff00');
     colorControllers[4].setValueOnly('#00eeee');
-    colorControllers[5].setValueOnly('#ff0000');
-    colorControllers[6].setValueOnly('#ff8800');
-    colorControllers[7].setValueOnly('#ff33ff');
-    colorControllers[8].setValueOnly('#aaaaaa');
 };
 
 colors.blues = function() {
@@ -87,10 +75,6 @@ colors.blues = function() {
     colorControllers[2].setValueOnly('#aaf8ff');
     colorControllers[3].setValueOnly('#44bbff');
     colorControllers[4].setValueOnly('#6688bb');
-    colorControllers[5].setValueOnly('#440099');
-    colorControllers[6].setValueOnly('#770088');
-    colorControllers[7].setValueOnly('#888888');
-    colorControllers[8].setValueOnly('#aaaaaa');
 };
 
 colors.setup = colors.greys;
@@ -118,69 +102,129 @@ function reset() {
     states[1 + automatonSize + automatonSize2] = 1;
 }
 
-// making symmetric copy (i,j,k) to all permutations
-function symmetricCopy() {
-    for (let k = 1; k < automatonSize; k++) {
+
+
+
+function makeNewStates() {
+    const prevWeight = automaton.prevWeight;
+    const centerWeight = automaton.centerWeight;
+    const neighborWeight = automaton.neighborWeight;
+    const neighbor2Weight = automaton.neighbor2Weight;
+    const neighbor3Weight = automaton.neighbor3Weight;
+    const limit = Math.min(automaton.time + 2, automatonSize - 1);
+    for (let k = 1; k < limit; k++) {
         for (let j = 1; j <= k; j++) {
+            let index = k * automatonSize2 + j * automatonSize + 1;
+            let nextState = states[index];
+            let state = states[index - 1];
+            let sum1 = states[index - 1 + automatonSize] + states[index - 1 - automatonSize] + states[index - 1 + automatonSize2] + states[index - 1 - automatonSize2];
+            let nextSum1 = states[index + automatonSize] + states[index - automatonSize] + states[index + automatonSize2] + states[index - automatonSize2];
+            let sum2 = states[index - 1 + automatonSize + automatonSize2] + states[index - 1 + automatonSize - automatonSize2] + states[index - 1 - automatonSize + automatonSize2] + states[index - 1 - automatonSize - automatonSize2];
+            let nextSum2 = states[index + automatonSize + automatonSize2] + states[index + automatonSize - automatonSize2] + states[index - automatonSize + automatonSize2] + states[index - automatonSize - automatonSize2];
             for (let i = 1; i < j; i++) {
-                const value = states[i + j * automatonSize + k * automatonSize2];
+                const indexP = index + 1;
+                let lastState = state;
+                state = nextState;
+                nextState = states[indexP];
+                let lastSum1 = sum1;
+                sum1 = nextSum1;
+                nextSum1 = states[indexP + automatonSize] + states[indexP - automatonSize] + states[indexP + automatonSize2] + states[indexP - automatonSize2];
+                let lastSum2 = sum2;
+                sum2 = nextSum2;
+                nextSum2 = states[indexP + automatonSize + automatonSize2] + states[indexP + automatonSize - automatonSize2] + states[indexP - automatonSize + automatonSize2] + states[indexP - automatonSize - automatonSize2];
+
+                let sum=prevWeight*prevStates[index]+centerWeight*state;
 
 
-
+states[index]=sum%bigNumber;
+                index += 1;
             }
         }
     }
 }
 
-// copying the cells at center
+// copy all states, only in the symmetrically reduced region of active cells
+function copyIrreducibleSector() {
+    const limit = Math.min(automaton.time + 2, automatonSize - 1);
+    for (let k = 1; k < limit; k++) {
+        for (let j = 1; j <= k; j++) {
+            let index = k * automatonSize2 + j * automatonSize + 1;
+            for (let i = 1; i < j; i++) {
+                prevStates[index] = states[index];
+                states[index] = nextStates[index];
+                index += 1;
+            }
+        }
+    }
+}
+
+// making symmetric copy (i,j,k) to all permutations
+// filling the whole octant
+// also useful for display
+function copySectorToOctant() {
+    const limit = Math.min(automaton.time + 2, automatonSize - 1);
+    for (let k = 1; k < limit; k++) {
+        for (let j = 1; j <= k; j++) {
+            for (let i = 1; i < j; i++) {
+                const value = states[i + j * automatonSize + k * automatonSize2];
+                states[i + k * automatonSize + j * automatonSize2] = value;
+                states[j + i * automatonSize + k * automatonSize2] = value;
+                states[j + k * automatonSize + i * automatonSize2] = value;
+                states[k + i * automatonSize + j * automatonSize2] = value;
+                states[k + j * automatonSize + i * automatonSize2] = value;
+            }
+        }
+    }
+}
+
+// copying the cells at the axis planes
 // at time t cells up to index 1+t are different from zero
 function centerCopy() {
-    const timeP = automaton.time + 1;
+    const limit = Math.min(automaton.time + 2, automatonSize);
     var index;
     // optimize this?
     // copy in z-direction, (i,j,0)=(i,j,2)
     let offset = 2 * automatonSize2;
-    for (let j = 1; j <= timeP; j++) {
+    for (let j = 1; j < limit; j++) {
         index = j * automatonSize + 1;
-        for (let i = 1; i <= timeP; i++) {
+        for (let i = 1; i < limit; i++) {
             states[index] = states[index + offset];
             index += 1;
         }
     }
     // copy in x-direction, (0,j,k)=(2,j,k)
     offset = 2;
-    for (let j = 0; j <= timeP; j++) {
+    for (let j = 0; j < limit; j++) {
         index = j * automatonSize;
-        for (let k = 0; k <= timeP; k++) {
+        for (let k = 0; k < limit; k++) {
             states[index] = states[index + offset];
             index += automatonSize2;
         }
     }
     // copy in y-direction, (i,0,k)=(i,2,k)
     offset = 2 * automatonSize;
-    for (let i = 0; i <= timeP; i++) {
+    for (let i = 0; i < limit; i++) {
         index = i;
-        for (let k = 0; k <= timeP; k++) {
+        for (let k = 0; k < limit; k++) {
             states[index] = states[index + offset];
             index += automatonSize2;
         }
     }
-
 }
 
 
 function advance() {
-
-}
-
-// copy all states
-function copy() {
     automaton.time += 1;
     automaton.timer.setValueOnly(automaton.time);
-    for (var index = 0; index < total; index++) {
-        prevStates[index] = states[index];
-        states[index] = nextStates[index];
-    }
+    // first generation: now automaton.time==1
+    // before: active cells up to index==automaton.time
+    // accounting for dublicate at index 0
+    // after: advanced by one, index=automaton.time+1<automaton.time+2
+    // note last dead layer, thus index<automatonSize-1
+    makeNewStates();
+    copyIrreducibleSector();
+    copySectorToOctant();
+    centerCopy();
 }
 
 function draw() {
