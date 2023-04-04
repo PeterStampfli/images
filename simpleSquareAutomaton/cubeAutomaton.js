@@ -133,25 +133,10 @@ function makeNewStates() {
                 sum2 = nextSum2;
                 nextSum2 = states[indexP + automatonSize + automatonSize2] + states[indexP + automatonSize - automatonSize2] + states[indexP - automatonSize + automatonSize2] + states[indexP - automatonSize - automatonSize2];
 
-                let sum=prevWeight*prevStates[index]+centerWeight*state;
+                let sum = prevWeight * prevStates[index] + centerWeight * state;
 
 
-states[index]=sum%bigNumber;
-                index += 1;
-            }
-        }
-    }
-}
-
-// copy all states, only in the symmetrically reduced region of active cells
-function copyIrreducibleSector() {
-    const limit = Math.min(automaton.time + 2, automatonSize - 1);
-    for (let k = 1; k < limit; k++) {
-        for (let j = 1; j <= k; j++) {
-            let index = k * automatonSize2 + j * automatonSize + 1;
-            for (let i = 1; i < j; i++) {
-                prevStates[index] = states[index];
-                states[index] = nextStates[index];
+                states[index] = sum % bigNumber;
                 index += 1;
             }
         }
@@ -166,7 +151,8 @@ function copySectorToOctant() {
     for (let k = 1; k < limit; k++) {
         for (let j = 1; j <= k; j++) {
             for (let i = 1; i < j; i++) {
-                const value = states[i + j * automatonSize + k * automatonSize2];
+                const value = nextStates[i + j * automatonSize + k * automatonSize2];
+                states[i + j * automatonSize + k * automatonSize2] = value;
                 states[i + k * automatonSize + j * automatonSize2] = value;
                 states[j + i * automatonSize + k * automatonSize2] = value;
                 states[j + k * automatonSize + i * automatonSize2] = value;
@@ -212,7 +198,6 @@ function centerCopy() {
     }
 }
 
-
 function advance() {
     automaton.time += 1;
     automaton.timer.setValueOnly(automaton.time);
@@ -222,7 +207,6 @@ function advance() {
     // after: advanced by one, index=automaton.time+1<automaton.time+2
     // note last dead layer, thus index<automatonSize-1
     makeNewStates();
-    copyIrreducibleSector();
     copySectorToOctant();
     centerCopy();
 }
@@ -231,17 +215,33 @@ function draw() {
     output.isDrawing = true;
     output.pixels.update();
     const pixelsArray = output.pixels.array;
-    const intColors = [];
-    intColors.length = colors.length;
-    const colorObj = {};
-    for (let i = 0; i < colors.length; i++) {
-        ColorInput.setObject(colorObj, colors[i]);
-        intColors[i] = Pixels.integerOfColor(colorObj);
-    }
+
+    // size of display is 2n+1, center lies at index n
+    // find center=n
+    const center = Math.floor(displaySize / 2);
+    const centerPixel = center + center * canvasSize;
+    // automatonSize=center+2
+    // index 0 is dublicate info, center lies at 1, last is zero
+    const centerP = center + 1;
     const nStates = automaton.nStates;
-    for (let index = 0; index < total; index++) {
-        pixelsArray[index] = intColors[states[index] % nStates];
+    for (let jAuto = 1; jAuto <= centerP; jAuto++) {
+        let autoIndex = jAuto * automatonSize + 1;
+        const displayRowLowCenter = centerPixel - (jAuto - 1) * canvasSize;
+        const displayRowHighCenter = centerPixel + (jAuto - 1) * canvasSize;
+        for (let iAuto = 1; iAuto <= centerP; iAuto++) {
+            const iDisplay = iAuto - 1;
+            const color = intColors[states[index] % nStates];
+            pixelsArray[displayRowLowCenter - iDisplay] = color;
+            pixelsArray[displayRowLowCenter + iDisplay] = color;
+            pixelsArray[displayRowHighCenter - iDisplay] = color;
+            pixelsArray[displayRowHighCenter + iDisplay] = color;
+
+
+            autoIndex += 1;
+        }
+
     }
+
     output.pixels.show();
 }
 
