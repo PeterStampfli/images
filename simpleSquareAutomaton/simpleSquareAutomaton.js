@@ -11,10 +11,10 @@ import {
 const automaton = {};
 
 let width = 100;
-let widthM=width-1;
-let widthP=width+1;
+let widthM = width - 1;
+let widthP = width + 1;
 let height = 100;
-let heightM=height-1;
+let heightM = height - 1;
 let total = width * height;
 const prevStates = [];
 const states = [];
@@ -94,10 +94,10 @@ colors.setup = colors.greys;
 
 function create() {
     width = output.canvas.width;
-   widthM = width - 1;
+    widthM = width - 1;
     widthP = width + 1;
-     height = output.canvas.height;
-      heightM = height - 1;  
+    height = output.canvas.height;
+    heightM = height - 1;
     total = width * height;
     prevStates.length = total;
     states.length = total;
@@ -112,7 +112,7 @@ function reset() {
     nextStates.fill(0);
     if ((automaton.advance === advanceHexagonLine) || (automaton.advance === advanceSquareLine)) {
         // top line
-        states[Math.floor(width/2)] = 1;
+        states[Math.floor(width / 2)] = 1;
     } else {
         // center, even sum of indices
         states[Math.floor(width / 2) + width * Math.floor(height / 2) + automaton.offset] = 1;
@@ -134,8 +134,9 @@ function advancehexagontriangle() {
     const prevWeight = automaton.prevWeight;
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
-    for (var j = 1; j < widthM; j += 2) {
-        let index = j  + width;
+    const widthM2=width-2;
+    for (var j = 1; j < widthM2; j += 2) {
+        let index = j + width;
         for (let i = 1; i < heightM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
@@ -152,7 +153,7 @@ function advancehexagontriangle() {
             nextStates[index] = sum % bigNumber;
             index += width;
         }
-        index = j +1+width;
+        index = j + 1 + width;
         for (let i = 1; i < heightM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
@@ -179,14 +180,15 @@ function advanceDodecagonTriangle() {
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
     const neighbor2Weight = automaton.neighbor2Weight;
+    const heightM2=height-2
     for (var j = 1; j < widthM; j += 2) {
-        let index = j  + width;
-        for (let i = 1; i < heightM; i++) {
+        let index = j + width;
+        for (let i = 1; i < heightM2; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
                 case 0:
                     sum += neighborWeight * (states[index - width] + states[index + width] + states[index - 1] + states[index + 1] + states[index + width + 1] + states[index - 1 + width]);
-                    sum += neighbor2Weight * (states[index + 2] + states[index - 2] + states[index + 1 + 2*width] + states[index - 1 + 2*width] + states[index + 1 - width] + states[index - width - 1]);
+                    sum += neighbor2Weight * (states[index + 2] + states[index - 2] + states[index + 1 + 2 * width] + states[index - 1 + 2 * width] + states[index + 1 - width] + states[index - width - 1]);
                     break;
                 case 1:
                     sum += neighborWeight * (states[index - width] + states[index + width + 1] + states[index - 1 + width]);
@@ -198,7 +200,7 @@ function advanceDodecagonTriangle() {
             nextStates[index] = sum % bigNumber;
             index += width;
         }
-        index = j +1+width;
+        index = j + 1 + width;
         for (let i = 1; i < heightM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
             switch (i % 3) {
@@ -210,8 +212,8 @@ function advanceDodecagonTriangle() {
                     break;
                 case 2:
                     sum += neighborWeight * (states[index - width] + states[index + width] + states[index - 1] + states[index + 1] + states[index + 1 - width] + states[index - width - 1]);
-                     sum += neighbor2Weight * (states[index + 2 ] + states[index - 2 ] + states[index + width + 1] + states[index - 1 + width] + states[index + 1 - 2*width] + states[index - 1 - 2*width]);
-                   break;
+                    sum += neighbor2Weight * (states[index + 2] + states[index - 2] + states[index + width + 1] + states[index - 1 + width] + states[index + 1 - 2 * width] + states[index - 1 - 2 * width]);
+                    break;
             }
             nextStates[index] = sum % bigNumber;
             index += width;
@@ -225,21 +227,19 @@ function advanceHex() {
     const prevWeight = automaton.prevWeight;
     const centerWeight = automaton.centerWeight;
     const neighborWeight = automaton.neighborWeight;
-    const widthM = width - 1;
-    const widthP = width + 1;
-    const heightM = height - 1;
-    for (var j = 1; j < heightM; j += 2) {
+    const heightM2 = height - 2;
+    for (var j = 1; j < heightM2; j += 2) {
         let index = j * width + 1;
         for (let i = 1; i < widthM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
-            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width] + states[index + width-1] + states[index - width-1]);
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width] + states[index + width - 1] + states[index - width - 1]);
             nextStates[index] = sum % bigNumber;
             index += 1;
         }
-        index = j * width + width+1;
+        index = j * width + width + 1;
         for (let i = 1; i < widthM; i++) {
             let sum = prevWeight * prevStates[index] + centerWeight * states[index];
-            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width] + states[index + width+1] + states[index - width+1]);
+            sum += neighborWeight * (states[index - 1] + states[index + 1] + states[index - width] + states[index + width] + states[index + width + 1] + states[index - width + 1]);
             nextStates[index] = sum % bigNumber;
             index += 1;
         }
