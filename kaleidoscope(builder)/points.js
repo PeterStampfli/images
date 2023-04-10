@@ -6,6 +6,10 @@ import {
 }
 from "../libgui/modules.js";
 
+import {
+    julia
+} from "./julia.js";
+
 const drawRadius = 5;
 const selectionRadius = 6;
 const linewidth = 2;
@@ -29,6 +33,19 @@ export const Point = function Point(x, y, type) {
 Point.zero = 0;
 Point.singularity = 1;
 Point.neutral = 2;
+
+// set properties of this point equal to another point-like object
+// does not update display
+Point.prototype.set = function(point) {
+    this.x = point.x;
+    this.y = point.y;
+    this.type = point.type;
+};
+
+// return a clone of the point
+Point.prototype.clone = function() {
+    return new Point(this.x, this.y, this.type);
+};
 
 // see if point is selected by position.x, position.y
 Point.prototype.isSelected = function(position) {
@@ -75,6 +92,7 @@ points.clear = function() {
 
 points.add = function(point) {
     points.collection.push(point);
+    points.setTop(points.collection[points.collection.length - 1]);
 };
 
 // check if one of the points is selected, position or event (x,y) fields
@@ -117,6 +135,10 @@ points.draw = function() {
 // remove selected point, at top
 points.remove = function() {
     points.collection.pop();
+    const length = points.collection.length;
+    if (length > 0) {
+        points.setTop(points.collection[length - 1]);
+    }
 };
 
 // drag selected point at top
@@ -124,15 +146,13 @@ points.drag = function(event) {
     const length = points.collection.length;
     if (length > 0) {
         points.collection[length - 1].drag(event);
+        points.setTop(points.collection[length - 1]);
     }
 };
 
 // UI
 
-const top = {};
-top.x = 0;
-top.y = 0;
-top.type = Point.zero;
+const top = new Point(0, 0, Point.zero);
 
 points.setTop = function(point) {
     points.topXController.setValueOnly(point.x);
@@ -140,21 +160,41 @@ points.setTop = function(point) {
     points.topTypeController.setValueOnly(point.type);
 };
 
+// set data of last point equal to top, data changed needs redraw
+points.setLastPoint = function() {
+    const length = points.collection.length;
+    if (length > 0) {
+        points.collection[length - 1].set(top);
+        julia.drawNewStructure();
+    }
+};
+
+const config={};
+config.radius=0.4;
+config.n=5;
+config.angle=0;
+config.centerX=0;
+config.centerY=0;
+
+const randomize={};
+randomize.amount=0.2;
+
 points.setup = function(gui) {
-    gui.addParagraph('zeros and singularity');
+    // controlling the selected point, deleting and cloning
+    gui.addParagraph('selected point:');
     points.topXController = gui.add({
         type: 'number',
         params: top,
         property: 'x',
         labelText: 'position',
-        onChange: function() {}
+        onChange: points.setLastPoint
     });
     points.topYController = points.topXController.add({
         type: 'number',
         params: top,
         property: 'y',
         labelText: '',
-        onChange: function() {}
+        onChange: points.setLastPoint
     });
     points.topTypeController = gui.add({
         type: 'selection',
@@ -165,8 +205,24 @@ points.setup = function(gui) {
             singularity: Point.singularity,
             neutral: Point.neutral
         },
-        onChange: function() {}
+        onChange: points.setLastPoint
+    });
+    gui.add({
+        type: 'button',
+        buttonText: 'remove',
+        onClick: function() {
+            points.remove();
+            julia.drawNewStructure();
+        }
+    }).add({
+        type: 'button',
+        buttonText: 'clone',
+        onClick: function() {
+            points.add(top.clone());
+            julia.drawNewStructure();
+        }
     });
 
+gui.addParagraph('configurations');
 
 };
