@@ -56,9 +56,7 @@ function setup() {
         if (points.isSelected(event)) {
             points.select(event);
         }
-
         julia.drawNoChange();
-
     };
 
     // changes also image

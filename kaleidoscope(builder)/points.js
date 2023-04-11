@@ -109,7 +109,7 @@ points.isSelected = function(position) {
 // (if not at top)
 points.select = function(position) {
     const length = points.collection.length;
-    for (let i = length - 2; i >= 0; i--) {
+    for (let i = length - 1; i >= 0; i--) {
         if (points.collection[i].isSelected(position)) {
             const selectedPoint = points.collection[i];
             for (let j = i; j < length - 1; j++) {
@@ -117,6 +117,7 @@ points.select = function(position) {
             }
             points.collection[length - 1] = selectedPoint;
             points.setTop(selectedPoint);
+            return;
         }
     }
 };
@@ -169,15 +170,16 @@ points.setLastPoint = function() {
     }
 };
 
-const config={};
-config.radius=0.4;
-config.n=5;
-config.angle=0;
-config.centerX=0;
-config.centerY=0;
+const config = {};
+config.radius = 0.4;
+config.n = 5;
+config.type = Point.zero;
+config.angle = 0;
+config.centerX = 0;
+config.centerY = 0;
 
-const randomize={};
-randomize.amount=0.2;
+const randomize = {};
+randomize.amount = 0.2;
 
 points.setup = function(gui) {
     // controlling the selected point, deleting and cloning
@@ -223,6 +225,147 @@ points.setup = function(gui) {
         }
     });
 
-gui.addParagraph('configurations');
+    gui.addParagraph('configurations:');
+    gui.add({
+        type: 'button',
+        buttonText: 'randomize',
+        onClick: function() {
+            const length = points.collection.length;
+            for (let i = 0; i < length; i++) {
+                const point = points.collection[i];
+                point.x += randomize.amount * (Math.random() - 0.5);
+                point.y += randomize.amount * (Math.random() - 0.5);
+            }
+            points.setTop(points.collection[length - 1]);
+            julia.drawNoChange();
+        }
+    }).add({
+        type: 'number',
+        params: randomize,
+        property: 'amount',
+        min: 0
+    });
+    gui.add({
+        type: 'number',
+        params: config,
+        property: 'n',
+        labelText: 'n of points',
+        step: 1,
+        min: 1
+    }).add({
+        type: 'selection',
+        params: config,
+        property: 'type',
+        options: {
+            zero: Point.zero,
+            singularity: Point.singularity,
+            neutral: Point.neutral
+        }
+    });
+    gui.add({
+        type: 'number',
+        params: config,
+        property: 'radius',
+        min: 0
+    }).add({
+        type: 'number',
+        params: config,
+        property: 'angle',
+        labelText: 'angle in degrees'
+    });
+    gui.add({
+        type: 'number',
+        params: config,
+        property: 'centerX',
+        labelText: 'center'
+    }).add({
+        type: 'number',
+        params: config,
+        property: 'centerY',
+        labelText: ''
+    });
+    gui.add({
+        type: 'button',
+        buttonText: 'generate',
+        onClick: function() {
+            const angle = Math.PI / 180 * config.angle;
+            const radius = config.radius;
+            const dAngle = 2 * Math.PI / config.n;
+            for (let i = 0; i < config.n; i++) {
+                const x = config.centerX + radius * Math.cos(angle + i * dAngle);
+                const y = config.centerY + radius * Math.sin(angle + i * dAngle);
+                const point = new Point(x, y, config.type);
+                points.add(point);
+            }
+            julia.drawNoChange();
+        }
+    }).add({
+        type: 'button',
+        buttonText: 'clear',
+        onClick: function() {
+            console.log('clear');
+            points.clear();
+            julia.drawNewStructure();
+        }
+    });
+
 
 };
+
+//   guiUtils.saveTextAsFile = function(text, filename, extension = 'txt') {
+
+/*
+    examples.selectionController.add({
+        type: 'button',
+        buttonText: 'download',
+        onClick: function() {
+            const name = examples.selectionController.uiElement.getName();
+            const text = JSON.stringify(examples.selectionController.getValue(), null, 2);
+            guiUtils.saveTextAsFile(text, name, 'json');
+        }
+    })
+    */
+
+// JSON.stringify(basic.get())
+
+/*
+    // first make the button to load json code for a tiling/fractal   
+    // reading the file, parsing and adding the result
+    const fileReader = new FileReader();
+    var file;
+
+    fileReader.onload = function() {
+        let result = fileReader.result;
+        try {
+            result = JSON.parse(result);
+        } catch (err) {
+            alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
+            return;
+        }
+        let name = file.name.split('.')[0];
+        if ('name' in result) {
+            name = result.name;
+        }
+        examples.add(name, result);
+        main.newStructure();
+        main.create();
+        main.draw();
+    };
+
+    fileReader.onerror = function() {
+        alert("Failed to read file!\n\n" + reader.error);
+    };
+
+    // make the button
+    const openButton = main.gui.add({
+        type: 'button',
+        buttonText: 'open file with structure data'
+    });
+    openButton.addHelp('Open a *.json file with data for a tiling or fractal. Keyboard shortcut with the "=" - key.');
+    openButton.uiElement.asFileInput('.json');
+    openButton.uiElement.onFileInput = function(files) {
+        file = files[0];
+        fileReader.readAsText(file);
+    };
+
+    */
