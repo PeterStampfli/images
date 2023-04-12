@@ -309,28 +309,24 @@ points.setup = function(gui) {
         }
     });
 
-
-};
-
-//   guiUtils.saveTextAsFile = function(text, filename, extension = 'txt') {
-
-/*
-    examples.selectionController.add({
+    const saveButton = gui.add({
         type: 'button',
-        buttonText: 'download',
+        buttonText: 'save',
         onClick: function() {
-            const name = examples.selectionController.uiElement.getName();
-            const text = JSON.stringify(examples.selectionController.getValue(), null, 2);
-            guiUtils.saveTextAsFile(text, name, 'json');
+            const text = JSON.stringify(points.collection, null, 2);
+            console.log(text);
+            console.log(saveName.getValue());
+            guiUtils.saveTextAsFile(text, saveName.getValue(), 'json');
         }
-    })
-    */
+    });
+    const saveName = saveButton.add({
+        type: "text",
+        initialValue: "points",
+        labelText: "as",
+        textInputWidth: 150,
+        minLabelWidth: 20
+    });
 
-// JSON.stringify(basic.get())
-
-/*
-    // first make the button to load json code for a tiling/fractal   
-    // reading the file, parsing and adding the result
     const fileReader = new FileReader();
     var file;
 
@@ -342,14 +338,10 @@ points.setup = function(gui) {
             alert('JSON syntax error in: ' + file.name + '\n\ncheck with https://jsonchecker.com/');
             return;
         }
-        let name = file.name.split('.')[0];
-        if ('name' in result) {
-            name = result.name;
-        }
-        examples.add(name, result);
-        main.newStructure();
-        main.create();
-        main.draw();
+        console.log(result);
+        points.clear();
+        result.forEach(point=>points.add(new Point(point.x,point.y,point.type)));
+        julia.drawNewStructure();
     };
 
     fileReader.onerror = function() {
@@ -357,15 +349,15 @@ points.setup = function(gui) {
     };
 
     // make the button
-    const openButton = main.gui.add({
+    const openButton = gui.add({
         type: 'button',
-        buttonText: 'open file with structure data'
+        buttonText: 'open file with points data'
     });
-    openButton.addHelp('Open a *.json file with data for a tiling or fractal. Keyboard shortcut with the "=" - key.');
     openButton.uiElement.asFileInput('.json');
     openButton.uiElement.onFileInput = function(files) {
         file = files[0];
         fileReader.readAsText(file);
     };
 
-    */
+
+};
