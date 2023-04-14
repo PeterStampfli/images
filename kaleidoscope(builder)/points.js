@@ -13,6 +13,9 @@ import {
 const drawRadius = 5;
 const selectionRadius = 6;
 const linewidth = 2;
+const amplitude = {};
+amplitude.real = 1;
+amplitude.imag = 0;
 
 // colors
 const borderSelected = '#ffffff';
@@ -182,6 +185,19 @@ const randomize = {};
 randomize.amount = 0.2;
 
 points.setup = function(gui) {
+    gui.add({
+        type: 'number',
+        params: amplitude,
+        property: 'real',
+        labelText: 'amplitude re',
+        onChange: julia.drawNewStructure
+    }).add({
+        type: 'number',
+        params: amplitude,
+        property: 'imag',
+        labelText: 'im',
+        onChange: julia.drawNewStructure
+    });
     // controlling the selected point, deleting and cloning
     gui.addParagraph('selected point:');
     points.topXController = gui.add({
@@ -297,7 +313,7 @@ points.setup = function(gui) {
                 const point = new Point(x, y, config.type);
                 points.add(point);
             }
-            julia.drawNoChange();
+            julia.drawNewStructure();
         }
     }).add({
         type: 'button',
@@ -340,7 +356,7 @@ points.setup = function(gui) {
         }
         console.log(result);
         points.clear();
-        result.forEach(point=>points.add(new Point(point.x,point.y,point.type)));
+        result.forEach(point => points.add(new Point(point.x, point.y, point.type)));
         julia.drawNewStructure();
     };
 
@@ -358,6 +374,66 @@ points.setup = function(gui) {
         file = files[0];
         fileReader.readAsText(file);
     };
+};
 
+// make table of singularities
 
+const zerosRe = [];
+const zerosIm = [];
+const singuRe = [];
+const singuIm = [];
+
+points.zerosAndSingularities = function() {
+    zerosRe.length = 0;
+    zerosIm.length = 0;
+    singuRe.length = 0;
+    singuIm.length = 0;
+    const length = points.collection.length;
+    for (let i = 0; i < length; i++) {
+        const point = points.collection[i];
+        if (point.type === Point.zero) {
+            zerosRe.push(point.x);
+            zerosIm.push(point.y);
+        } else if (point.type === Point.singularity) {
+            singuRe.push(point.x);
+            singuIm.push(point.y);
+        }
+    }
+    console.log('zeros');
+    console.log(zerosRe);
+    console.log(zerosIm);
+    console.log('singularities');
+    console.log(singuRe);
+    console.log(singuIm);
+};
+const eps=0.0001;
+// evaluate the rational function
+points.evaluate=function(zRe,zIm){
+// nominator, including amplitude
+let nomRe=amplitude.real;
+let nomIm=amplitude.imag;
+let length=zerosRe.length;
+for (let i=0;i<length;i++){
+    const re=zRe- zerosRe[i];
+    const im=zIm- zerosIm[i];
+    const h=re*nomRe-im*nomIm;
+     nomIm=re*nomIm+im*nomRe; 
+     nomRe=h;
+}
+//denominator
+let denRe=1;
+let denIm=0;
+length=singuRe.length;
+for (let i=0;i<length;i++){
+    const re=zRe- singuRe[i];
+    const im=zIm- singuIm[i];
+    const h=re*denRe-im*denIm;
+     denIm=re*denIm+im*denRe; 
+     denRe=h;
+}
+// division, avoiding div by zero
+const norm=1/(denRe*denRe+denIm*denIm+eps);
+const re=norm*(denRe*nomRe+denIm*nomIm);
+const im=norm*(nomIm*denRe- nomRe*denIm);
+return [re,im];
 };

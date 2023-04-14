@@ -119,7 +119,24 @@
                 "origin": [1, 2]
             }]
         },
-        "star": {
+       "square": {
+            "color": "#ff8800",
+            "shape": [
+                [],
+                [1],
+                [1, 0, 1],
+                [0, 0, 1]
+            ],
+            "angle": 4,
+            "composition": [{
+                "name": "RSquare"
+            }, {
+                "name": "RSquare",
+                "origin": [1, 0, 1],
+                "orientation": 4
+            }]
+        },
+                "star": {
             "color": "#ff8800",
             "shape": [
                 [1],

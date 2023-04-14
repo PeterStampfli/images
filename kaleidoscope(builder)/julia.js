@@ -94,6 +94,7 @@ julia.drawNewImage = function() {
 // structure changes
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
+    points.zerosAndSingularities();
     output.fillCanvasBackgroundColor();
     output.drawGrid();
     points.draw();
