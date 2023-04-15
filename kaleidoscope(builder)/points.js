@@ -14,11 +14,11 @@ const drawRadius = 5;
 const selectionRadius = 6;
 const linewidth = 2;
 const amplitude = {};
-amplitude.real = 1;
+amplitude.real = 2;
 amplitude.imag = 0;
 
 // colors
-const borderSelected = '#ffffff';
+const borderSelected = '#ff8800';
 const borderNotSelected = '#000000';
 const fill = [];
 fill[0] = '#8888ff';
@@ -253,7 +253,7 @@ points.setup = function(gui) {
                 point.y += randomize.amount * (Math.random() - 0.5);
             }
             points.setTop(points.collection[length - 1]);
-            julia.drawNoChange();
+            julia.drawNewStructure();
         }
     }).add({
         type: 'number',
@@ -393,47 +393,43 @@ points.zerosAndSingularities = function() {
         const point = points.collection[i];
         if (point.type === Point.zero) {
             zerosRe.push(point.x);
-            zerosIm.push(point.y);
+            zerosIm.push(-point.y);
         } else if (point.type === Point.singularity) {
             singuRe.push(point.x);
-            singuIm.push(point.y);
+            singuIm.push(-point.y);
         }
     }
-    console.log('zeros');
-    console.log(zerosRe);
-    console.log(zerosIm);
-    console.log('singularities');
-    console.log(singuRe);
-    console.log(singuIm);
 };
-const eps=0.0001;
+
+const eps = 0.0001;
 // evaluate the rational function
-points.evaluate=function(zRe,zIm){
-// nominator, including amplitude
-let nomRe=amplitude.real;
-let nomIm=amplitude.imag;
-let length=zerosRe.length;
-for (let i=0;i<length;i++){
-    const re=zRe- zerosRe[i];
-    const im=zIm- zerosIm[i];
-    const h=re*nomRe-im*nomIm;
-     nomIm=re*nomIm+im*nomRe; 
-     nomRe=h;
-}
-//denominator
-let denRe=1;
-let denIm=0;
-length=singuRe.length;
-for (let i=0;i<length;i++){
-    const re=zRe- singuRe[i];
-    const im=zIm- singuIm[i];
-    const h=re*denRe-im*denIm;
-     denIm=re*denIm+im*denRe; 
-     denRe=h;
-}
-// division, avoiding div by zero
-const norm=1/(denRe*denRe+denIm*denIm+eps);
-const re=norm*(denRe*nomRe+denIm*nomIm);
-const im=norm*(nomIm*denRe- nomRe*denIm);
-return [re,im];
+points.evaluate = function(point) {
+    let zRe=point.x;
+    let zIm=point.y;
+    // nominator, including amplitude
+    let nomRe = amplitude.real;
+    let nomIm = amplitude.imag;
+    let length = zerosRe.length;
+    for (let i = 0; i < length; i++) {
+        const re = zRe - zerosRe[i];
+        const im = zIm - zerosIm[i];
+        const h = re * nomRe - im * nomIm;
+        nomIm = re * nomIm + im * nomRe;
+        nomRe = h;
+    }
+    //denominator
+    let denRe = 1;
+    let denIm = 0;
+    length = singuRe.length;
+    for (let i = 0; i < length; i++) {
+        const re = zRe - singuRe[i];
+        const im = zIm - singuIm[i];
+        const h = re * denRe - im * denIm;
+        denIm = re * denIm + im * denRe;
+        denRe = h;
+    }
+    // division, avoiding div by zero
+    const norm = 1 / (denRe * denRe + denIm * denIm + eps);
+    point.x = norm * (denRe * nomRe + denIm * nomIm);
+    point.y = norm * (nomIm * denRe - nomRe * denIm);
 };

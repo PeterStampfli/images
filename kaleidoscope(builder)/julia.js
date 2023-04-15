@@ -10,6 +10,10 @@ import {
     points
 } from "./points.js";
 
+import {
+    map
+} from "./juliaMap.js";
+
 export const julia = {};
 
 function setup() {
@@ -24,12 +28,10 @@ function setup() {
     output.addCoordinateTransform(false);
     output.setInitialCoordinates(0, 0, 3);
     output.createPixels();
-    // add options for the output image
-    output.addImageProcessing();
-    output.addAntialiasing();
     output.grid.interval = 0.1;
     output.addGrid();
     output.addCursorposition();
+    map.setup(gui);
 
     points.setup(gui);
 
@@ -81,12 +83,10 @@ function setup() {
 
 }
 
-
-
 // structure does not change
-// image may change (other quality, input image)
+// (input) image may change (other quality, input image)
 julia.drawNewImage = function() {
-    output.fillCanvasBackgroundColor();
+    map.drawStructure();
     output.drawGrid();
     points.draw();
 };
@@ -95,7 +95,9 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     points.zerosAndSingularities();
-    output.fillCanvasBackgroundColor();
+    map.startDrawing();
+    map.make();
+    map.drawStructure();
     output.drawGrid();
     points.draw();
 };
@@ -103,21 +105,17 @@ julia.drawNewStructure = function() {
 // structure and image does not change
 // grid may change, selection of points may change
 julia.drawNoChange = function() {
-    output.fillCanvasBackgroundColor();
+    map.drawStructure();
     output.drawGrid();
     points.draw();
 };
 
 setup();
 
+points.add(new Point(0, 0, Point.zero));
 
-const a = new Point(0, 0, Point.zero);
-const b = new Point(0.5, 0.5, Point.singularity);
-const c = new Point(0, 0.5, Point.neutral);
+map.mapping=map.juliaSet;
 
-points.add(a);
-points.add(b);
-points.add(c);
 
 
 julia.drawNewStructure();
