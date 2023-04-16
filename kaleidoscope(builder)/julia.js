@@ -95,8 +95,8 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     points.zerosAndSingularities();
-    map.startDrawing();
-    map.make();
+    map.init();
+map.juliaSet();
     map.drawStructure();
     output.drawGrid();
     points.draw();
@@ -113,9 +113,6 @@ julia.drawNoChange = function() {
 setup();
 
 points.add(new Point(0, 0, Point.zero));
-
-map.mapping=map.juliaSet;
-
 
 
 julia.drawNewStructure();

@@ -51,45 +51,16 @@ map.yArray = new Float32Array(1);
 map.structureArray = new Uint8Array(1);
 
 /**
- * the mapping function transforms a point argument
- * (point.x,point.y) coordinates
- * point.structure: initially 0, 0 or 1, negative for invalid points, failures
- * point.region: initially 0, number of region for endpoint (if distinct regions)
- * @method map.mapping
- * @param {object}point
- */
-map.mapping = function(point) {}; // default is identity
-
-// to show the simple julia set from iterations
-// make map.limit  large enough
-map.juliaSet = function(point) {
-    let structure = 0;
-    for (let i = 0; i < iters; i++) {
-        const x = point.x;
-        const y = point.y;
-        if ((x * x + y * y) > limit2) {
-            point.structure = structure;
-            return;
-        }
-        points.evaluate(point);
-        structure = 1 - structure;
-    }
-    point.structure = -1;
-}
-
-/**
  * initialization, at start of the drawing method
  * update output canvas parameters and array dimensions
  * make sure that we have output.pixels(output.canvas)
  * update pixels
  * if the mapping determines the "pixel sizes": set map.needsSizeArrayUpdate = false afterwards
  * and we need a value for the ranges of the mapping
+ * * initialize the map positions and structure
  * @method map.startDrawing
  */
-map.startDrawing = function() {
-    // parameter shortcuts
-    iters = map.iters;
-    limit2 = map.limit * map.limit;
+map.init = function() {
     // initialize map
     map.needsSizeArrayUpdate = true;
     map.rangeValid = false;
@@ -104,22 +75,6 @@ map.startDrawing = function() {
         map.yArray = new Float32Array(size);
         map.structureArray = new Uint8Array(size);
     }
-};
-
-/**
- * make the map using the map.mapping(point) function
- * initialize map before
- * @method map.make
- */
-map.make = function() {
-    points.zerosAndSingularities();
-    const point = {
-        x: 0,
-        y: 0,
-        structureIndex: 0,
-        region: 0,
-        valid: 1
-    };
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;
     let shiftY = output.coordinateTransform.shiftY;
@@ -127,22 +82,77 @@ map.make = function() {
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
-    const mapping = map.mapping;
     let y = shiftY;
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
-            point.x = x;
-            point.y = y;
-            point.structure = 0;
-            mapping(point);
-            xArray[index] = point.x;
-            yArray[index] = point.y;
-            structureArray[index] = point.structure;
+            xArray[index] = x;
+            yArray[index] = y;
+            structureArray[index] = 0;
             index += 1;
             x += scale;
         }
         y += scale;
+    }
+};
+
+/**
+ * make the julia set map using the map.mapping(point) function
+ * initialize map before
+ * @method map.make
+ */
+map.juliaSet = function() {
+    points.zerosAndSingularities();
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const amplitudeReal = amplitude.real;
+    const amplitudeImag = amplitude.imag;
+    const nPixels = map.length;
+    const iters = map.iters;
+    const limit2 = map.limit * map.limit;
+    const zerosLength = zerosRe.length;
+    const singuLength = singuRe.length;
+    const eps=0.0001;
+    for (var index = 0; index < nPixels; index++) {
+        let x = xArray[index];
+        let y = yArray[index];
+        let structure = structureArray[index];
+        let outOfBounds = false;
+        for (let iter = 0; iter < iters; i++) {
+            if ((x * x + y * y) > limit2) {
+                outOfBounds = true;
+                break;
+            }
+            // nominator, including amplitude
+            let nomRe = amplitudeReal;
+            let nomIm = amplitudeImag;
+            for (let i = 0; i < zerosLength; i++) {
+                const re = x - zerosRe[i];
+                const im = y - zerosIm[i];
+                const h = re * nomRe - im * nomIm;
+                nomIm = re * nomIm + im * nomRe;
+                nomRe = h;
+            }
+            //denominator
+            let denRe = 1;
+            let denIm = 0;
+            for (let i = 0; i < singuLength; i++) {
+                const re = x - singuRe[i];
+                const im = y - singuIm[i];
+                const h = re * denRe - im * denIm;
+                denIm = re * denIm + im * denRe;
+                denRe = h;
+            }
+            // division, avoiding div by zero
+            const norm = 1 / (denRe * denRe + denIm * denIm + eps);
+            x = norm * (nomRe * denRe + nomIm * denIm);
+            y = norm * (nomIm * denRe - nomRe * denIm);
+            structure = 1 - structure;
+        }
+        xArray[index] = x;
+        yArray[index] = y;
+        structureArray[index] = outOfBounds ? structure : -1;
     }
 };
 

@@ -378,25 +378,25 @@ points.setup = function(gui) {
 
 // make table of singularities
 
-const zerosRe = [];
-const zerosIm = [];
-const singuRe = [];
-const singuIm = [];
+points.zerosRe = [];
+points.zerosIm = [];
+points.singuRe = [];
+points.singuIm = [];
 
 points.zerosAndSingularities = function() {
-    zerosRe.length = 0;
-    zerosIm.length = 0;
-    singuRe.length = 0;
-    singuIm.length = 0;
+    points.zerosRe.length = 0;
+    points.zerosIm.length = 0;
+    points.singuRe.length = 0;
+    points.singuIm.length = 0;
     const length = points.collection.length;
     for (let i = 0; i < length; i++) {
         const point = points.collection[i];
         if (point.type === Point.zero) {
-            zerosRe.push(point.x);
-            zerosIm.push(-point.y);
+            points.zerosRe.push(point.x);
+            points.zerosIm.push(-point.y);
         } else if (point.type === Point.singularity) {
-            singuRe.push(point.x);
-            singuIm.push(-point.y);
+            points.singuRe.push(point.x);
+            points.singuIm.push(-point.y);
         }
     }
 };
