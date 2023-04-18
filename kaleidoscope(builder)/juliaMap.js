@@ -46,9 +46,12 @@ map.height = 1;
 map.xArray = new Float32Array(1);
 map.yArray = new Float32Array(1);
 
-// structure of inversion, 0 or 1, negative values for "invalid" points
-// iteration fail
+// structure of inversion, 0 or 1
 map.structureArray = new Uint8Array(1);
+
+// selection of points for computation
+// 0 for points that should not be precessed
+map.selectArray = new Uint8Array(1);
 
 /**
  * initialization, at start of the drawing method
@@ -74,6 +77,7 @@ map.init = function() {
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
         map.structureArray = new Uint8Array(size);
+        map.selectArray = new Uint8Array(size);
     }
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;
@@ -81,81 +85,51 @@ map.init = function() {
     let index = 0;
     const xArray = map.xArray;
     const yArray = map.yArray;
-    const structureArray = map.structureArray;
     let y = shiftY;
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
             xArray[index] = x;
             yArray[index] = y;
-            structureArray[index] = 0;
             index += 1;
             x += scale;
         }
         y += scale;
     }
+    map.structureArray.fill(0);
+    map.selectArray.fill(1);
 };
 
 /**
- * make the julia set map using the map.mapping(point) function
- * initialize map before
- * @method map.make
+ * apply limit to the map, all pixels with radius> limit will be invalid
+ * (structure)
  */
-map.juliaSet = function() {
-    points.zerosAndSingularities();
+map.radialLimit = function(limit) {
+    const limit2 = limit * limit;
     const xArray = map.xArray;
     const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const amplitudeReal = amplitude.real;
-    const amplitudeImag = amplitude.imag;
+    const selectArray = map.selectArray;
     const nPixels = map.length;
-    const iters = map.iters;
-    const limit2 = map.limit * map.limit;
-    const zerosLength = zerosRe.length;
-    const singuLength = singuRe.length;
-    const eps=0.0001;
     for (var index = 0; index < nPixels; index++) {
+        if (selectArray[index] === 0) {
+            continue;
+        }
         let x = xArray[index];
         let y = yArray[index];
-        let structure = structureArray[index];
-        let outOfBounds = false;
-        for (let iter = 0; iter < iters; i++) {
-            if ((x * x + y * y) > limit2) {
-                outOfBounds = true;
-                break;
-            }
-            // nominator, including amplitude
-            let nomRe = amplitudeReal;
-            let nomIm = amplitudeImag;
-            for (let i = 0; i < zerosLength; i++) {
-                const re = x - zerosRe[i];
-                const im = y - zerosIm[i];
-                const h = re * nomRe - im * nomIm;
-                nomIm = re * nomIm + im * nomRe;
-                nomRe = h;
-            }
-            //denominator
-            let denRe = 1;
-            let denIm = 0;
-            for (let i = 0; i < singuLength; i++) {
-                const re = x - singuRe[i];
-                const im = y - singuIm[i];
-                const h = re * denRe - im * denIm;
-                denIm = re * denIm + im * denRe;
-                denRe = h;
-            }
-            // division, avoiding div by zero
-            const norm = 1 / (denRe * denRe + denIm * denIm + eps);
-            x = norm * (nomRe * denRe + nomIm * denIm);
-            y = norm * (nomIm * denRe - nomRe * denIm);
-            structure = 1 - structure;
+        if ((x * x + y * y) > limit2) {
+            selectArray[index] = 0;
         }
-        xArray[index] = x;
-        yArray[index] = y;
-        structureArray[index] = outOfBounds ? structure : -1;
     }
 };
 
+// make the julia set
+map.juliaSet = function() {
+    map.radialLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.radialLimit(map.limit);
+    }
+}
 
 // integer colors for structure
 const invalidColor = Pixels.integerOfColor({

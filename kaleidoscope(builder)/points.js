@@ -10,12 +10,17 @@ import {
     julia
 } from "./julia.js";
 
-const drawRadius = 5;
-const selectionRadius = 6;
-const linewidth = 2;
+import {
+    map
+} from "./juliaMap.js";
+
 const amplitude = {};
 amplitude.real = 2;
 amplitude.imag = 0;
+
+const drawRadius = 5;
+const selectionRadius = 6;
+const linewidth = 2;
 
 // colors
 const borderSelected = '#ff8800';
@@ -401,35 +406,52 @@ points.zerosAndSingularities = function() {
     }
 };
 
-const eps = 0.0001;
-// evaluate the rational function
-points.evaluate = function(point) {
-    let zRe=point.x;
-    let zIm=point.y;
-    // nominator, including amplitude
-    let nomRe = amplitude.real;
-    let nomIm = amplitude.imag;
-    let length = zerosRe.length;
-    for (let i = 0; i < length; i++) {
-        const re = zRe - zerosRe[i];
-        const im = zIm - zerosIm[i];
-        const h = re * nomRe - im * nomIm;
-        nomIm = re * nomIm + im * nomRe;
-        nomRe = h;
+
+/**
+ * evaluate the rational function for each pixel
+ * only for pixel with structure>=0 (valid pixels)
+ */
+map.evaluateRationalFunction = function() {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const selectArray=map.selectArray;
+    const amplitudeReal = amplitude.real;
+    const amplitudeImag = amplitude.imag;
+    const zerosLength = zerosRe.length;
+    const singuLength = singuRe.length;
+    const eps = 0.0001;
+     const nPixels = map.length;
+   for (var index = 0; index < nPixels; index++) {
+        if (selectArray[index] === 0) {
+            continue;
+        }
+         let x = xArray[index];
+        let y = yArray[index];
+        // nominator, including amplitude
+        let nomRe = amplitudeReal;
+        let nomIm = amplitudeImag;
+        for (let i = 0; i < zerosLength; i++) {
+            const re = x - zerosRe[i];
+            const im = y - zerosIm[i];
+            const h = re * nomRe - im * nomIm;
+            nomIm = re * nomIm + im * nomRe;
+            nomRe = h;
+        }
+        //denominator
+        let denRe = 1;
+        let denIm = 0;
+        for (let i = 0; i < singuLength; i++) {
+            const re = x - singuRe[i];
+            const im = y - singuIm[i];
+            const h = re * denRe - im * denIm;
+            denIm = re * denIm + im * denRe;
+            denRe = h;
+        }
+        // division, avoiding div by zero
+        const norm = 1 / (denRe * denRe + denIm * denIm + eps);
+        xArray[index] = norm * (nomRe * denRe + nomIm * denIm);
+        yArray[index] = norm * (nomIm * denRe - nomRe * denIm);
+        structureArray[index] = 1 - structureArray[index];
     }
-    //denominator
-    let denRe = 1;
-    let denIm = 0;
-    length = singuRe.length;
-    for (let i = 0; i < length; i++) {
-        const re = zRe - singuRe[i];
-        const im = zIm - singuIm[i];
-        const h = re * denRe - im * denIm;
-        denIm = re * denIm + im * denRe;
-        denRe = h;
-    }
-    // division, avoiding div by zero
-    const norm = 1 / (denRe * denRe + denIm * denIm + eps);
-    point.x = norm * (denRe * nomRe + denIm * nomIm);
-    point.y = norm * (nomIm * denRe - nomRe * denIm);
 };
