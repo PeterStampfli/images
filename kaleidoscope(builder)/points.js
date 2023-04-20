@@ -383,25 +383,25 @@ points.setup = function(gui) {
 
 // make table of singularities
 
-points.zerosRe = [];
-points.zerosIm = [];
-points.singuRe = [];
-points.singuIm = [];
+const zerosRe = [];
+const zerosIm = [];
+const singuRe = [];
+const singuIm = [];
 
 points.zerosAndSingularities = function() {
-    points.zerosRe.length = 0;
-    points.zerosIm.length = 0;
-    points.singuRe.length = 0;
-    points.singuIm.length = 0;
+    zerosRe.length = 0;
+    zerosIm.length = 0;
+    singuRe.length = 0;
+    singuIm.length = 0;
     const length = points.collection.length;
     for (let i = 0; i < length; i++) {
         const point = points.collection[i];
         if (point.type === Point.zero) {
-            points.zerosRe.push(point.x);
-            points.zerosIm.push(-point.y);
+            zerosRe.push(point.x);
+            zerosIm.push(-point.y);
         } else if (point.type === Point.singularity) {
-            points.singuRe.push(point.x);
-            points.singuIm.push(-point.y);
+            singuRe.push(point.x);
+            singuIm.push(-point.y);
         }
     }
 };
@@ -415,18 +415,19 @@ map.evaluateRationalFunction = function() {
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
-    const selectArray=map.selectArray;
+    const selectArray = map.selectArray;
     const amplitudeReal = amplitude.real;
     const amplitudeImag = amplitude.imag;
     const zerosLength = zerosRe.length;
     const singuLength = singuRe.length;
     const eps = 0.0001;
-     const nPixels = map.length;
-   for (var index = 0; index < nPixels; index++) {
-        if (selectArray[index] === 0) {
+    const nPixels = map.length;
+    for (var index = 0; index < nPixels; index++) {
+        const structure = structureArray[index];
+        if (structure >= 128) {
             continue;
         }
-         let x = xArray[index];
+        let x = xArray[index];
         let y = yArray[index];
         // nominator, including amplitude
         let nomRe = amplitudeReal;
@@ -452,6 +453,6 @@ map.evaluateRationalFunction = function() {
         const norm = 1 / (denRe * denRe + denIm * denIm + eps);
         xArray[index] = norm * (nomRe * denRe + nomIm * denIm);
         yArray[index] = norm * (nomIm * denRe - nomRe * denIm);
-        structureArray[index] = 1 - structureArray[index];
+        structureArray[index] = 1 - structure;
     }
 };

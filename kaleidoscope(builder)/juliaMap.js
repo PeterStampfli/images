@@ -15,7 +15,6 @@ import {
 
 export const map = {};
 
-var iters, limit2;
 map.iters = 5;
 map.limit = 10;
 map.setup = function(gui) {
@@ -24,6 +23,7 @@ map.setup = function(gui) {
         type: 'number',
         params: map,
         property: 'limit',
+        min:0,
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
@@ -46,12 +46,11 @@ map.height = 1;
 map.xArray = new Float32Array(1);
 map.yArray = new Float32Array(1);
 
-// structure of inversion, 0 or 1
+// structure info
+// for julia set structure of inversion, 0 or 1
+// active pixels: value from 0 to 127
+// inactive (invalid) pixels: value from 128 to 255
 map.structureArray = new Uint8Array(1);
-
-// selection of points for computation
-// 0 for points that should not be precessed
-map.selectArray = new Uint8Array(1);
 
 /**
  * initialization, at start of the drawing method
@@ -101,24 +100,39 @@ map.init = function() {
 };
 
 /**
- * apply limit to the map, all pixels with radius> limit will be invalid
- * (structure)
+ * apply limit to the map, all pixels with radius> limit will become inactive
+ * complement to 255
+ * no further computation for these pixels
  */
 map.radialLimit = function(limit) {
     const limit2 = limit * limit;
     const xArray = map.xArray;
     const yArray = map.yArray;
     const selectArray = map.selectArray;
-    const nPixels = map.length;
+    const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
-        if (selectArray[index] === 0) {
-            continue;
+    	const structure=structureArray[index];
+        if (structure >=128) {
+              continue;
         }
         let x = xArray[index];
         let y = yArray[index];
         if ((x * x + y * y) > limit2) {
-            selectArray[index] = 0;
+            structureArray[index] =255- structure;
         }
+    }
+};
+
+/**
+ * invert select: needed for simple julia set display
+ *  for showing structure of "blocked" pixels
+ *  assuming active points have value select=1 and 'blocked' pixels value 0
+ */
+map.invertSelect = function() {
+    const selectArray = map.selectArray;
+    const nPixels = selectArray.length;
+    for (var index = 0; index < nPixels; index++) {
+            structureArray[index] = 255-structureArray[index];
     }
 };
 
@@ -126,10 +140,11 @@ map.radialLimit = function(limit) {
 map.juliaSet = function() {
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.radialLimit(map.limit);
+               map.evaluateRationalFunction();
+              map.radialLimit(map.limit);
     }
-}
+    map.invertSelect();
+};
 
 // integer colors for structure
 const invalidColor = Pixels.integerOfColor({
@@ -166,13 +181,16 @@ map.drawStructure = function() {
     const length = map.width * map.height;
     const pixelsArray = output.pixels.array;
     const structureArray = map.structureArray;
+    const selectArray = map.selectArray;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
-        let structure = structureArray[index];
-        if (structure === 0) {
-            pixelsArray[index] = white;
-        } else if (structure === 1) {
-            pixelsArray[index] = black;
+        const structure=structureArray[index];
+        if (structure <128) {
+            if (structure ===0) {
+                pixelsArray[index] = white;
+            } else  {
+                pixelsArray[index] = black;
+            }
         } else {
             pixelsArray[index] = invalidColor;
         }
