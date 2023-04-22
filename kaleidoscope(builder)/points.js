@@ -406,12 +406,12 @@ points.zerosAndSingularities = function() {
     }
 };
 
-
 /**
  * evaluate the rational function for each pixel
  * only for pixel with structure>=0 (valid pixels)
  */
 map.evaluateRationalFunction = function() {
+    console.log(zerosRe)
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
@@ -421,10 +421,10 @@ map.evaluateRationalFunction = function() {
     const zerosLength = zerosRe.length;
     const singuLength = singuRe.length;
     const eps = 0.0001;
-    const nPixels = map.length;
+    const nPixels = map.xArray.length;
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
-        if (structure >= 128) {
+         if (structure >= 128) {
             continue;
         }
         let x = xArray[index];
@@ -453,6 +453,5 @@ map.evaluateRationalFunction = function() {
         const norm = 1 / (denRe * denRe + denIm * denIm + eps);
         xArray[index] = norm * (nomRe * denRe + nomIm * denIm);
         yArray[index] = norm * (nomIm * denRe - nomRe * denIm);
-        structureArray[index] = 1 - structure;
     }
 };

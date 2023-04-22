@@ -15,7 +15,7 @@ import {
 
 export const map = {};
 
-map.iters = 5;
+map.iters = 1;
 map.limit = 10;
 map.setup = function(gui) {
     gui.addParagraph('mapping');
@@ -31,6 +31,7 @@ map.setup = function(gui) {
         property: 'iters',
         step: 1,
         min: 0,
+        max:127,
         onChange: julia.drawNewStructure
     });
 };
@@ -76,7 +77,6 @@ map.init = function() {
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
         map.structureArray = new Uint8Array(size);
-        map.selectArray = new Uint8Array(size);
     }
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;
@@ -96,7 +96,6 @@ map.init = function() {
         y += scale;
     }
     map.structureArray.fill(0);
-    map.selectArray.fill(1);
 };
 
 /**
@@ -108,7 +107,7 @@ map.radialLimit = function(limit) {
     const limit2 = limit * limit;
     const xArray = map.xArray;
     const yArray = map.yArray;
-    const selectArray = map.selectArray;
+    const structureArray = map.structureArray;
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
     	const structure=structureArray[index];
@@ -129,10 +128,22 @@ map.radialLimit = function(limit) {
  *  assuming active points have value select=1 and 'blocked' pixels value 0
  */
 map.invertSelect = function() {
-    const selectArray = map.selectArray;
-    const nPixels = selectArray.length;
+    const structureArray = map.structureArray;
+    const nPixels = structureArray.length;
     for (var index = 0; index < nPixels; index++) {
             structureArray[index] = 255-structureArray[index];
+    }
+};
+
+// count iterations, increment for active pixels
+map.countIterations = function() {
+    const structureArray = map.structureArray;
+    const nPixels = structureArray.length;
+    for (var index = 0; index < nPixels; index++) {
+            const structure=structureArray[index];
+            if (structure<128){
+                structureArray[index]=structure+1;
+            }
     }
 };
 
@@ -142,6 +153,7 @@ map.juliaSet = function() {
     for (let i = 0; i < map.iters; i++) {
                map.evaluateRationalFunction();
               map.radialLimit(map.limit);
+              map.countIterations();
     }
     map.invertSelect();
 };
@@ -169,7 +181,7 @@ const white = Pixels.integerOfColor({
 });
 
 /**
- * show structure of the map: color depending on the structure index
+ * show structure of the map: color depending on the structure index (even/odd)
  * using the map.colorTable
  * @method map.drawStructure
  */
@@ -181,12 +193,11 @@ map.drawStructure = function() {
     const length = map.width * map.height;
     const pixelsArray = output.pixels.array;
     const structureArray = map.structureArray;
-    const selectArray = map.selectArray;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
         const structure=structureArray[index];
         if (structure <128) {
-            if (structure ===0) {
+            if ((structure&1) ===0) {
                 pixelsArray[index] = white;
             } else  {
                 pixelsArray[index] = black;
