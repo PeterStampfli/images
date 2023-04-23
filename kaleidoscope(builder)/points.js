@@ -104,7 +104,7 @@ points.clear = function() {
 points.add = function(point) {
     points.collection.push(point);
     points.setTop(points.collection[points.collection.length - 1]);
-    points.topIsSelected = true;
+    points.topIsSelected = false;
 };
 
 // check if one of the points is selected, position or event (x,y) fields
@@ -118,7 +118,7 @@ points.isSelected = function(position) {
 };
 
 // select the point corresponding to event position, move it to top
-// (if not at top)
+// (if not at top), make that top point is selected
 points.select = function(position) {
     const length = points.collection.length;
     for (let i = length - 1; i >= 0; i--) {
@@ -129,6 +129,7 @@ points.select = function(position) {
             }
             points.collection[length - 1] = selectedPoint;
             points.setTop(selectedPoint);
+            points.topIsSelected = true;
             return;
         }
     }
@@ -169,6 +170,8 @@ points.drag = function(event) {
 const top = new Point(0, 0, Point.zero);
 
 points.setTop = function(point) {
+    console.log('settop');
+    console.log(point);
     points.topXController.setValueOnly(point.x);
     points.topYController.setValueOnly(point.y);
     points.topTypeController.setValueOnly(point.type);
@@ -242,8 +245,10 @@ points.setup = function(gui) {
         type: 'button',
         buttonText: 'remove',
         onClick: function() {
-            points.remove();
-            julia.drawNewStructure();
+            if (points.topIsSelected) {
+                points.remove();
+                julia.drawNewStructure();
+            }
         }
     }).add({
         type: 'button',
@@ -265,7 +270,9 @@ points.setup = function(gui) {
                 point.x += randomize.amount * (Math.random() - 0.5);
                 point.y += randomize.amount * (Math.random() - 0.5);
             }
-            points.setTop(points.collection[length - 1]);
+            if (points.topIsSelected) {
+                points.setTop(points.collection[length - 1]);
+            }
             julia.drawNewStructure();
         }
     }).add({
@@ -326,6 +333,7 @@ points.setup = function(gui) {
                 const point = new Point(x, y, config.type);
                 points.add(point);
             }
+            points.topIsSelected=false;
             julia.drawNewStructure();
         }
     }).add({
@@ -334,6 +342,7 @@ points.setup = function(gui) {
         onClick: function() {
             console.log('clear');
             points.clear();
+                        points.topIsSelected=false;
             julia.drawNewStructure();
         }
     });
@@ -368,6 +377,7 @@ points.setup = function(gui) {
             return;
         }
         console.log(result);
+            points.topIsSelected=false;
         points.clear();
         result.forEach(point => points.add(new Point(point.x, point.y, point.type)));
         julia.drawNewStructure();
@@ -389,14 +399,9 @@ points.setup = function(gui) {
     };
 
     // simplify mouse interactions
-    const mouseEvents = output.mouseEvents;
 
-
-
-    // mouse controls
-    // mouse move with ctrl shows objects that can be selected
-    // does not need redrawing
-    output.mouseCtrlMoveAction = function(event) {
+    output.mouseMoveAction = function(event) {
+        console.log('move');
         if (points.isSelected(event)) {
             output.canvas.style.cursor = "pointer";
         } else {
@@ -404,33 +409,28 @@ points.setup = function(gui) {
         }
     };
 
-    // smooth transition when ctrl key is pressed
-    output.ctrlKeyDownAction = function(event) {
-        output.mouseCtrlMoveAction(event);
-    };
+    output.mouseUpAction = output.mouseMoveAction;
 
-    // mouse down with ctrl selects intersection or circle
-    // image pixels do not change, put on canvas, draw grid&points
-    output.mouseCtrlDownAction = function(event) {
+    output.mouseDownAction = function(event) { // mouse down
+        console.log('down');
+        output.canvas.style.cursor = "grabbing";
         if (points.isSelected(event)) {
             points.select(event);
+        } else {
+            points.topIsSelected = false;
         }
         julia.drawNoChange();
     };
 
-    // changes also image
-    // mouse drag with ctrl moves selected circle
-    output.mouseCtrlDragAction = function(event) {
-        points.drag(event);
-
-        julia.drawNewStructure();
+    output.mouseDragAction = function(event) { // mouse drag (move with button pressed)
+        console.log('drag', points.topIsSelected);
+        if (points.topIsSelected) {
+            points.drag(event);
+            julia.drawNewStructure();
+        } else {
+            output.dragImage();
+        }
     };
-
-
-
-
-
-
 };
 
 // make table of singularities
