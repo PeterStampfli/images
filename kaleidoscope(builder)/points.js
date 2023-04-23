@@ -94,13 +94,17 @@ export const points = {};
 
 points.collection = [];
 
+points.topIsSelected = false;
+
 points.clear = function() {
     points.collection.length = 0;
+    points.topIsSelected = false;
 };
 
 points.add = function(point) {
     points.collection.push(point);
     points.setTop(points.collection[points.collection.length - 1]);
+    points.topIsSelected = true;
 };
 
 // check if one of the points is selected, position or event (x,y) fields
@@ -137,7 +141,7 @@ points.draw = function() {
         for (let i = 0; i < length - 1; i++) {
             points.collection[i].draw(false);
         }
-        points.collection[length - 1].draw(true);
+        points.collection[length - 1].draw(points.topIsSelected);
     }
 };
 
@@ -148,6 +152,7 @@ points.remove = function() {
     if (length > 0) {
         points.setTop(points.collection[length - 1]);
     }
+    points.topIsSelected = false;
 };
 
 // drag selected point at top
@@ -170,11 +175,14 @@ points.setTop = function(point) {
 };
 
 // set data of last point equal to top, data changed needs redraw
+// only if selected
 points.setLastPoint = function() {
-    const length = points.collection.length;
-    if (length > 0) {
-        points.collection[length - 1].set(top);
-        julia.drawNewStructure();
+    if (points.topIsSelected) {
+        const length = points.collection.length;
+        if (length > 0) {
+            points.collection[length - 1].set(top);
+            julia.drawNewStructure();
+        }
     }
 };
 
@@ -379,6 +387,50 @@ points.setup = function(gui) {
         file = files[0];
         fileReader.readAsText(file);
     };
+
+    // simplify mouse interactions
+    const mouseEvents = output.mouseEvents;
+
+
+
+    // mouse controls
+    // mouse move with ctrl shows objects that can be selected
+    // does not need redrawing
+    output.mouseCtrlMoveAction = function(event) {
+        if (points.isSelected(event)) {
+            output.canvas.style.cursor = "pointer";
+        } else {
+            output.canvas.style.cursor = "default";
+        }
+    };
+
+    // smooth transition when ctrl key is pressed
+    output.ctrlKeyDownAction = function(event) {
+        output.mouseCtrlMoveAction(event);
+    };
+
+    // mouse down with ctrl selects intersection or circle
+    // image pixels do not change, put on canvas, draw grid&points
+    output.mouseCtrlDownAction = function(event) {
+        if (points.isSelected(event)) {
+            points.select(event);
+        }
+        julia.drawNoChange();
+    };
+
+    // changes also image
+    // mouse drag with ctrl moves selected circle
+    output.mouseCtrlDragAction = function(event) {
+        points.drag(event);
+
+        julia.drawNewStructure();
+    };
+
+
+
+
+
+
 };
 
 // make table of singularities
@@ -411,7 +463,6 @@ points.zerosAndSingularities = function() {
  * only for pixel with structure>=0 (valid pixels)
  */
 map.evaluateRationalFunction = function() {
-    console.log(zerosRe)
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
@@ -424,7 +475,7 @@ map.evaluateRationalFunction = function() {
     const nPixels = map.xArray.length;
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
-         if (structure >= 128) {
+        if (structure >= 128) {
             continue;
         }
         let x = xArray[index];

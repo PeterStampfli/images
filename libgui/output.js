@@ -190,7 +190,7 @@ function resizeOutputDiv() {
     // resize content: set up final dimensions of the div
     // you can use them to resize content
     output.divWidth = widthOfSpace;
-    output.divHeight = window.innerHeight-5;
+    output.divHeight = window.innerHeight - 5;
     output.div.style.width = output.divWidth + "px";
     output.div.style.height = output.divHeight + "px";
 }
@@ -786,6 +786,55 @@ output.addCoordinateTransform = function() {
         }
     }, false);
 
+    // direct standard mouse actions (changing transform/view, or doing something else ...)
+
+    // dragging the image, and updating correctly the coordinate transform
+    output.dragImage = function() {
+        v.x = mouseEvents.dx;
+        v.y = mouseEvents.dy;
+        coordinateTransform.rotateScale(v);
+        coordinateTransform.shiftX -= v.x;
+        coordinateTransform.shiftY -= v.y;
+        coordinateTransform.updateUI();
+        coordinateTransform.updateTransform();
+        output.drawCanvasChanged();
+    };
+
+    // same for zoomin
+    output.zoomImage = function() {
+        // the zoom center, prescaled
+        u.x = mouseEvents.x;
+        u.y = mouseEvents.y;
+        v.x = u.x;
+        v.y = u.y;
+        coordinateTransform.rotateScale(u);
+        const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
+        coordinateTransform.scale *= zoomFactor;
+        coordinateTransform.updateTransform();
+        coordinateTransform.rotateScale(v);
+        coordinateTransform.shiftX += u.x - v.x;
+        coordinateTransform.shiftY += u.y - v.y;
+        coordinateTransform.updateUI();
+        coordinateTransform.updateTransform();
+        output.drawCanvasChanged();
+    };
+
+    output.mouseInAction = function(event) {}; // mouse in (enter)
+    output.mouseMoveAction = function(event) {}; // mouse move (move with button released)
+    output.mouseDownAction = function(event) { // mouse down
+        output.canvas.style.cursor = "grabbing";
+    };
+    output.mouseDragAction = function(event) { // mouse drag (move with button pressed)
+        output.dragImage();
+    };
+    output.mouseUpAction = function(event) { // mouse up
+        output.canvas.style.cursor = "pointer";
+    };
+    output.mouseOutAction = function(event) {}; // mouse out (leave)
+    output.mouseWheelAction = function(event) { // mouse wheel or keyboard keys
+        output.zoomImage();
+    };
+
     // other mouse actions (ctrl-key pressed) than changing the transform/view
     output.mouseCtrlInAction = function(event) {}; // mouse in (enter)
     output.mouseCtrlMoveAction = function(event) {}; // mouse move (move with button released)
@@ -794,6 +843,7 @@ output.addCoordinateTransform = function() {
     output.mouseCtrlUpAction = function(event) {}; // mouse up
     output.mouseCtrlOutAction = function(event) {}; // mouse out (leave)
     output.mouseCtrlWheelAction = function(event) {}; // mouse wheel or keyboard keys
+
     // actions upon ctrl key down/up
     output.ctrlKeyUpAction = function(event) {};
     output.ctrlKeyDownAction = function(event) {};
@@ -806,9 +856,11 @@ output.addCoordinateTransform = function() {
     const transformedEvent = {};
 
     mouseEvents.inAction = function() {
+        makeTransformedMouseEvent(transformedEvent, mouseEvents);
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlInAction(transformedEvent);
+        } else {
+            output.mouseInAction(transformedEvent);
         }
     };
     mouseEvents.moveAction = function() {
@@ -816,14 +868,16 @@ output.addCoordinateTransform = function() {
         output.setCursorposition(transformedEvent);
         if (mouseEvents.ctrlPressed) {
             output.mouseCtrlMoveAction(transformedEvent);
+        } else {
+            output.mouseMoveAction(transformedEvent);
         }
     };
     mouseEvents.downAction = function() {
+        makeTransformedMouseEvent(transformedEvent, mouseEvents);
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlDownAction(transformedEvent);
         } else {
-            output.canvas.style.cursor = "grabbing";
+            output.mouseDownAction(transformedEvent);
         }
     };
     mouseEvents.dragAction = function() {
@@ -832,50 +886,31 @@ output.addCoordinateTransform = function() {
         if (mouseEvents.ctrlPressed) {
             output.mouseCtrlDragAction(transformedEvent);
         } else {
-            v.x = mouseEvents.dx;
-            v.y = mouseEvents.dy;
-            coordinateTransform.rotateScale(v);
-            coordinateTransform.shiftX -= v.x;
-            coordinateTransform.shiftY -= v.y;
-            coordinateTransform.updateUI();
-            coordinateTransform.updateTransform();
-            output.drawCanvasChanged();
+            output.mouseDragAction(transformedEvent);
         }
     };
     mouseEvents.upAction = function() {
+        makeTransformedMouseEvent(transformedEvent, mouseEvents);
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlUpAction(transformedEvent);
         } else {
-            output.canvas.style.cursor = "pointer";
+            output.mouseUpAction(transformedEvent);
         }
     };
     mouseEvents.outAction = function() {
+        makeTransformedMouseEvent(transformedEvent, mouseEvents);
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlOutAction(transformedEvent);
+        } else {
+            output.mouseOutAction(transformedEvent);
         }
     };
     mouseEvents.wheelAction = function() {
+        makeTransformedMouseEvent(transformedEvent, mouseEvents);
         if (mouseEvents.ctrlPressed) {
-            makeTransformedMouseEvent(transformedEvent, mouseEvents);
             output.mouseCtrlWheelAction(transformedEvent);
         } else {
-            // the zoom center, prescaled
-            u.x = mouseEvents.x;
-            u.y = mouseEvents.y;
-            v.x = u.x;
-            v.y = u.y;
-            coordinateTransform.rotateScale(u);
-            const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
-            coordinateTransform.scale *= zoomFactor;
-            coordinateTransform.updateTransform();
-            coordinateTransform.rotateScale(v);
-            coordinateTransform.shiftX += u.x - v.x;
-            coordinateTransform.shiftY += u.y - v.y;
-            coordinateTransform.updateUI();
-            coordinateTransform.updateTransform();
-            output.drawCanvasChanged();
+            output.mouseWheelAction(transformedEvent);
         }
     };
 };
