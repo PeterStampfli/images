@@ -2,7 +2,9 @@
 
 import {
     Pixels,
-    output
+    output,
+    CoordinateTransform,
+    MouseEvents
 } from "../libgui/modules.js";
 
 import {
@@ -17,13 +19,17 @@ export const map = {};
 
 map.iters = 1;
 map.limit = 10;
+map.drawingInputImage = false;
+
+
+
 map.setup = function(gui) {
     gui.addParagraph('mapping');
     gui.add({
         type: 'number',
         params: map,
         property: 'limit',
-        min:0,
+        min: 0,
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
@@ -31,9 +37,185 @@ map.setup = function(gui) {
         property: 'iters',
         step: 1,
         min: 0,
-        max:127,
+        max: 127,
         onChange: julia.drawNewStructure
     });
+    map.draw = map.callDrawStructure;
+    map.whatToShowController = gui.add({
+        type: 'selection',
+        params: map,
+        property: 'draw',
+        options: {
+            'structure': map.callDrawStructure,
+            'image - low quality': map.callDrawImageLowQuality,
+            'image - high quality': map.callDrawImageHighQuality,
+            'image - very high quality': map.callDrawImageVeryHighQuality
+        },
+        onChange: function() {
+            julia.drawNewImage();
+        }
+    });
+    // a hidden canvas for the input image
+    map.inputCanvas = document.createElement('canvas'); // has default width and height
+    map.inputCanvas.style.display = 'none';
+    map.inputPixels = new Pixels(map.inputCanvas);
+    map.inputCanvasContext = map.inputCanvas.getContext('2d');
+    map.inputImageLoaded = false;
+    // setup image selection
+    map.inputImage = '../libgui/dormouse.jpg';
+    map.imageController = gui.add({
+        type: 'image',
+        params: map,
+        property: 'inputImage',
+        options: {
+            dormouse: '../libgui/dormouse.jpg',
+            'railway station': '../libgui/railway station.jpg'
+        },
+        labelText: 'input image',
+        onChange: function() {
+            if (!map.drawingInputImage) {
+                map.whatToShowController.setValueOnly('image - low quality');
+            }
+            map.loadInputImage();
+        },
+        onInteraction: function() {
+            if (!map.drawingInputImage) {
+                map.whatToShowController.setValueOnly('image - low quality');
+            }
+            map.drawImageChangedCheckMapUpdate();
+        }
+    });
+
+
+    // setup control canvas
+    // a div that contains the control canvas to 
+    // avoid that the lower part of the gui 'jumps' if the input image changes
+    const controlDiv = document.createElement('div');
+    map.controlDiv = controlDiv;
+    // force the scroll bar with vertical overflow of the bodydiv
+    controlDiv.style.position = 'relative'; // to make centering work
+    controlDiv.style.height = '10000px';
+    gui.bodyDiv.appendChild(controlDiv);
+    // now the clientwidth accounts for the scroll bar
+    // and we can get the effective width of the gui
+    // we can only determine the clientwidth if the folder (and parents) is open (displayed)
+    const parentGuiClosed = gui.parent && gui.parent.closed;
+    if (parentGuiClosed) {
+        gui.parent.bodyDiv.style.display = "block";
+    }
+    if (gui.closed) {
+        gui.bodyDiv.style.display = "block";
+    }
+    map.guiWidth = gui.bodyDiv.clientWidth;
+    if (gui.closed) {
+        gui.bodyDiv.style.display = "none";
+    }
+    if (parentGuiClosed) {
+        gui.parent.bodyDiv.style.display = "none";
+    }
+    controlDiv.style.width = map.guiWidth + 'px';
+    controlDiv.style.height = map.guiWidth + 'px';
+    controlDiv.style.backgroundColor = '#dddddd';
+    // a CENTERED canvas in the controldiv 
+    map.controlCanvas = document.createElement('canvas');
+    const controlCanvas = map.controlCanvas;
+    controlDiv.appendChild(controlCanvas);
+    controlCanvas.style.position = 'absolute';
+    controlCanvas.style.top = '50%';
+    controlCanvas.style.left = '50%';
+    controlCanvas.style.transform = 'translate(-50%,-50%)';
+    controlCanvas.style.cursor = 'pointer';
+    controlCanvas.width = map.guiWidth;
+    controlCanvas.height = map.guiWidth;
+    map.controlPixels = new Pixels(controlCanvas);
+    map.controlCanvasContext = controlCanvas.getContext('2d');
+    // the transform from the map to the input image, normalized
+    // beware of border
+    // initial values depend on the image
+    // but not on the map (because it is normalized)
+    map.inputTransform = new CoordinateTransform(gui, null, true);
+    const inputTransform = map.inputTransform;
+    inputTransform.setStepShift(1);
+    map.inputTransform.onChange = function() {
+        map.drawImageChanged();
+    };
+    // resetting the input transform means adjusting the image to range
+    map.inputTransform.resetButton.callback = function() {
+        map.setupMapImageTransform();
+        map.drawImageChanged();
+    };
+    map.inputTransform.resetButton.addHelp('Above you see the input image and its parts used for the kaleidoscopic image. Unused pixels are greyed out. You can change this using mouse drag on the image for translation, mouse wheel to zoom and shift-mouse wheel to rotate. The current mouse position is the center for zoom and rotation.');
+
+    // the mouse events on the control canvas
+    map.mouseEvents = new MouseEvents(map.controlCanvas);
+    const mouseEvents = map.mouseEvents;
+    // vectors for intermediate results
+    const u = {
+        x: 0,
+        y: 0
+    };
+    const v = {
+        x: 0,
+        y: 0
+    };
+
+    // upon click on control image: change to showing image in low quality
+    mouseEvents.downAction = function() {
+        ParamGui.closePopups();
+        if (!map.drawingInputImage) {
+            map.whatToShowController.setValueOnly('image - low quality');
+            map.drawImageChangedCheckMapUpdate();
+        }
+        mouseEvents.element.onwheel = mouseEvents.onWheelHandler;
+    };
+    // drag image: map.inputImageControlCanvasScale is scale from input image to control image
+    mouseEvents.dragAction = function() {
+        const shiftX = mouseEvents.dx / map.inputImageControlCanvasScale;
+        const shiftY = mouseEvents.dy / map.inputImageControlCanvasScale;
+        inputTransform.shiftX += shiftX;
+        inputTransform.shiftY += shiftY;
+        inputTransform.updateUI();
+        inputTransform.updateTransform();
+        map.drawImageChanged();
+    };
+    // zoom or rotate
+    // the controlcanvas shows a 'shadow' of the mapping result
+    // its center should stay fixed when zoomin or scrolling
+    // that means the inputTransformation does not change its image of the center of the map
+    // be careful not to interfere with ui scrolling
+    mouseEvents.element.onwheel = null;
+
+    mouseEvents.wheelAction = function() {
+        if (map.drawingInputImage) {
+            // position of mouse in input image plane
+            u.x = mouseEvents.x / map.inputImageControlCanvasScale;
+            u.y = mouseEvents.y / map.inputImageControlCanvasScale;
+            v.x = u.x;
+            v.y = u.y;
+            // back to map plane
+            inputTransform.inverseTransform(v);
+            if (keyboard.shiftPressed) {
+                const step = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.angleStep : -CoordinateTransform.angleStep;
+                inputTransform.angle += step;
+            } else {
+                const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
+                inputTransform.scale *= zoomFactor;
+            }
+            inputTransform.updateTransform();
+            // transform after zooming/rotating
+            inputTransform.transform(v);
+            // correction
+            inputTransform.shiftX -= (v.x - u.x);
+            inputTransform.shiftY -= (v.y - u.y);
+            inputTransform.updateUI();
+            inputTransform.updateTransform();
+            map.drawImageChanged();
+        }
+    };
+
+    mouseEvents.outAction = function() {
+        mouseEvents.element.onwheel = null;
+    };
 };
 
 
@@ -70,7 +252,6 @@ map.init = function() {
     output.pixels.update();
     output.isDrawing = true;
     if ((map.width !== output.canvas.width) || (map.height !== output.canvas.height)) {
-        console.log('new map size');
         map.width = output.canvas.width;
         map.height = output.canvas.height;
         const size = map.width * map.height;
@@ -110,14 +291,14 @@ map.radialLimit = function(limit) {
     const structureArray = map.structureArray;
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
-    	const structure=structureArray[index];
-        if (structure >=128) {
-              continue;
+        const structure = structureArray[index];
+        if (structure >= 128) {
+            continue;
         }
         let x = xArray[index];
         let y = yArray[index];
         if ((x * x + y * y) > limit2) {
-            structureArray[index] =255- structure;
+            structureArray[index] = 255 - structure;
         }
     }
 };
@@ -131,7 +312,7 @@ map.invertSelect = function() {
     const structureArray = map.structureArray;
     const nPixels = structureArray.length;
     for (var index = 0; index < nPixels; index++) {
-            structureArray[index] = 255-structureArray[index];
+        structureArray[index] = 255 - structureArray[index];
     }
 };
 
@@ -140,10 +321,10 @@ map.countIterations = function() {
     const structureArray = map.structureArray;
     const nPixels = structureArray.length;
     for (var index = 0; index < nPixels; index++) {
-            const structure=structureArray[index];
-            if (structure<128){
-                structureArray[index]=structure+1;
-            }
+        const structure = structureArray[index];
+        if (structure < 128) {
+            structureArray[index] = structure + 1;
+        }
     }
 };
 
@@ -151,12 +332,43 @@ map.countIterations = function() {
 map.juliaSet = function() {
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
-               map.evaluateRationalFunction();
-              map.radialLimit(map.limit);
-              map.countIterations();
+        map.evaluateRationalFunction();
+        map.radialLimit(map.limit);
+        map.countIterations();
     }
     map.invertSelect();
 };
+
+// showing the map
+//==================================
+
+/**
+ * showing the map as structure or image, redefine in controller
+ * take care, in case user supplies new routines
+ * @method map.draw
+ */
+// flag to show that the input image is used
+map.drawingInputImage = false;
+// flag, shows if there is an updated map
+map.updatingTheMap = true;
+
+// hide all image controllers
+map.allImageControllersHide = function() {
+    map.controlDiv.style.display = 'none';
+    map.inputTransform.hide();
+    map.imageController.hide();
+};
+
+// show the input image controllers
+map.inputImageControllersShow = function() {
+    map.controlDiv.style.display = 'block';
+    map.inputTransform.show();
+    map.imageController.show();
+};
+
+
+
+
 
 // integer colors for structure
 const invalidColor = Pixels.integerOfColor({
@@ -180,11 +392,41 @@ const white = Pixels.integerOfColor({
     alpha: 255
 });
 
+
+map.callDrawStructure = function() {
+    console.log('structure');
+    map.drawingInputImage = false;
+    //   map.allImageControllersHide();
+    map.drawStructure();
+};
+map.callDrawImageLowQuality = function() {
+    console.log('lowquality');
+    map.drawingInputImage = true;
+    //    map.allImageControllersHide();
+    //   map.inputImageControllersShow();
+    //   map.drawImageLowQuality();
+};
+map.callDrawImageHighQuality = function() {
+    console.log('highquality');
+    map.drawingInputImage = true;
+    //  map.allImageControllersHide();
+    //   map.inputImageControllersShow();
+    //  map.drawImageHighQuality();
+};
+map.callDrawImageVeryHighQuality = function() {
+    console.log('veryhighquality');
+    map.drawingInputImage = true;
+    //   map.allImageControllersHide();
+    //   map.inputImageControllersShow();
+    //  map.drawImageVeryHighQuality();
+};
+
 /**
  * show structure of the map: color depending on the structure index (even/odd)
  * using the map.colorTable
  * @method map.drawStructure
  */
+
 map.drawStructure = function() {
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
@@ -195,11 +437,11 @@ map.drawStructure = function() {
     const structureArray = map.structureArray;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
-        const structure=structureArray[index];
-        if (structure <128) {
-            if ((structure&1) ===0) {
+        const structure = structureArray[index];
+        if (structure < 128) {
+            if ((structure & 1) === 0) {
                 pixelsArray[index] = white;
-            } else  {
+            } else {
                 pixelsArray[index] = black;
             }
         } else {

@@ -52,7 +52,7 @@ function setup() {
 // structure does not change
 // (input) image may change (other quality, input image)
 julia.drawNewImage = function() {
-    map.drawStructure();
+    map.draw();
     output.drawGrid();
     points.draw();
 };
@@ -63,7 +63,7 @@ julia.drawNewStructure = function() {
     points.zerosAndSingularities();
     map.init();
 map.juliaSet();
-    map.drawStructure();
+    map.draw();
     output.drawGrid();
     points.draw();
 };
@@ -71,7 +71,7 @@ map.juliaSet();
 // structure and image does not change
 // grid may change, selection of points may change
 julia.drawNoChange = function() {
-    map.drawStructure();
+    map.draw();
     output.drawGrid();
     points.draw();
 };

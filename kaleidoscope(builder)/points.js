@@ -170,8 +170,6 @@ points.drag = function(event) {
 const top = new Point(0, 0, Point.zero);
 
 points.setTop = function(point) {
-    console.log('settop');
-    console.log(point);
     points.topXController.setValueOnly(point.x);
     points.topYController.setValueOnly(point.y);
     points.topTypeController.setValueOnly(point.type);
@@ -401,7 +399,6 @@ points.setup = function(gui) {
     // simplify mouse interactions
 
     output.mouseMoveAction = function(event) {
-        console.log('move');
         if (points.isSelected(event)) {
             output.canvas.style.cursor = "pointer";
         } else {
@@ -412,7 +409,6 @@ points.setup = function(gui) {
     output.mouseUpAction = output.mouseMoveAction;
 
     output.mouseDownAction = function(event) { // mouse down
-        console.log('down');
         output.canvas.style.cursor = "grabbing";
         if (points.isSelected(event)) {
             points.select(event);
@@ -423,7 +419,6 @@ points.setup = function(gui) {
     };
 
     output.mouseDragAction = function(event) { // mouse drag (move with button pressed)
-        console.log('drag', points.topIsSelected);
         if (points.topIsSelected) {
             points.drag(event);
             julia.drawNewStructure();
