@@ -35,6 +35,8 @@ function setup() {
 
     points.setup(gui);
 
+    map.setupDrawing(gui);
+
     // re-drawing
 
     // changing the grid

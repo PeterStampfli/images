@@ -21,8 +21,6 @@ map.iters = 1;
 map.limit = 10;
 map.drawingInputImage = false;
 
-
-
 map.setup = function(gui) {
     gui.addParagraph('mapping');
     gui.add({
@@ -40,6 +38,9 @@ map.setup = function(gui) {
         max: 127,
         onChange: julia.drawNewStructure
     });
+};
+
+map.setupDrawing = function(gui) {
     map.draw = map.callDrawStructure;
     map.whatToShowController = gui.add({
         type: 'selection',
@@ -85,7 +86,6 @@ map.setup = function(gui) {
             map.drawImageChangedCheckMapUpdate();
         }
     });
-
 
     // setup control canvas
     // a div that contains the control canvas to 
@@ -342,15 +342,20 @@ map.juliaSet = function() {
 // showing the map
 //==================================
 
-/**
- * showing the map as structure or image, redefine in controller
- * take care, in case user supplies new routines
- * @method map.draw
- */
 // flag to show that the input image is used
 map.drawingInputImage = false;
 // flag, shows if there is an updated map
 map.updatingTheMap = true;
+
+// size of pixels after mapping, not taking into account the final input image transform
+map.sizeArray = new Float32Array(1);
+map.maxSize = 0; // maximum value
+
+// greying out the control image
+map.controlPixelsAlpha = 100;
+
+// fractional length of image region checked initially
+map.initialImageCovering = 0.75;
 
 // hide all image controllers
 map.allImageControllersHide = function() {
@@ -366,9 +371,38 @@ map.inputImageControllersShow = function() {
     map.imageController.show();
 };
 
+// the different drawing methods
+//===================================================
+map.callDrawStructure = function() {
+    console.log('structure');
+    map.drawingInputImage = false;
+    map.allImageControllersHide();
+    map.drawStructure();
+};
+map.callDrawImageLowQuality = function() {
+    console.log('lowquality');
+    map.drawingInputImage = true;
+    map.inputImageControllersShow();
+    //   map.drawImageLowQuality();
+};
+map.callDrawImageHighQuality = function() {
+    console.log('highquality');
+    map.drawingInputImage = true;
+    map.inputImageControllersShow();
+    //  map.drawImageHighQuality();
+};
+map.callDrawImageVeryHighQuality = function() {
+    console.log('veryhighquality');
+    map.drawingInputImage = true;
+    map.inputImageControllersShow();
+    //  map.drawImageVeryHighQuality();
+};
 
-
-
+/**
+ * show structure of the map: color depending on the structure index (even/odd)
+ * using the map.colorTable
+ * @method map.drawStructure
+ */
 
 // integer colors for structure
 const invalidColor = Pixels.integerOfColor({
@@ -392,41 +426,6 @@ const white = Pixels.integerOfColor({
     alpha: 255
 });
 
-
-map.callDrawStructure = function() {
-    console.log('structure');
-    map.drawingInputImage = false;
-    //   map.allImageControllersHide();
-    map.drawStructure();
-};
-map.callDrawImageLowQuality = function() {
-    console.log('lowquality');
-    map.drawingInputImage = true;
-    //    map.allImageControllersHide();
-    //   map.inputImageControllersShow();
-    //   map.drawImageLowQuality();
-};
-map.callDrawImageHighQuality = function() {
-    console.log('highquality');
-    map.drawingInputImage = true;
-    //  map.allImageControllersHide();
-    //   map.inputImageControllersShow();
-    //  map.drawImageHighQuality();
-};
-map.callDrawImageVeryHighQuality = function() {
-    console.log('veryhighquality');
-    map.drawingInputImage = true;
-    //   map.allImageControllersHide();
-    //   map.inputImageControllersShow();
-    //  map.drawImageVeryHighQuality();
-};
-
-/**
- * show structure of the map: color depending on the structure index (even/odd)
- * using the map.colorTable
- * @method map.drawStructure
- */
-
 map.drawStructure = function() {
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
@@ -449,4 +448,39 @@ map.drawStructure = function() {
         }
     }
     output.pixels.show();
+};
+
+// for mapping images
+//==================================================
+
+
+/**
+ * get center and range of map values (only valid points)
+ * required for loading an input image and zooming/rotating image
+ * @method map.determineRange
+ */
+map.determineRange = function() {
+    if (!map.rangeValid) {
+        map.rangeValid = true;
+        var i;
+        const length = map.width * map.height;
+        let xMin = 1e10;
+        let xMax = -1e10;
+        let yMin = 1e10;
+        let yMax = -1e10;
+        for (i = 0; i < length; i++) {
+            if (map.sizeArray[i] >= 0) {
+                const x = map.xArray[i];
+                xMax = Math.max(x, xMax);
+                xMin = Math.min(x, xMin);
+                const y = map.yArray[i];
+                yMax = Math.max(y, yMax);
+                yMin = Math.min(y, yMin);
+            }
+        }
+        map.centerX = 0.5 * (xMax + xMin);
+        map.centerY = 0.5 * (yMax + yMin);
+        map.rangeX = xMax - xMin;
+        map.rangeY = yMax - yMin;
+    }
 };
