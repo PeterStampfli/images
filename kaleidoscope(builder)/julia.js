@@ -11,8 +11,12 @@ import {
 } from "./points.js";
 
 import {
-    map
+    juliaMap
 } from "./juliaMap.js";
+
+import {
+    map
+} from "./mapImage.js";
 
 export const julia = {};
 
@@ -31,7 +35,7 @@ function setup() {
     output.grid.interval = 0.1;
     output.addGrid();
     output.addCursorposition();
-    map.setup(gui);
+    juliaMap.setup(gui);
 
     points.setup(gui);
 

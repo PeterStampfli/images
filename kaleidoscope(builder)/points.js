@@ -12,7 +12,7 @@ import {
 
 import {
     map
-} from "./juliaMap.js";
+} from "./mapImage.js";
 
 const amplitude = {};
 amplitude.real = 2;
