@@ -4,8 +4,13 @@ import {
     Pixels,
     output,
     CoordinateTransform,
-    MouseEvents
+    MouseEvents,
+    keyboard
 } from "../libgui/modules.js";
+
+import {
+    julia
+} from "./julia.js";
 
 export const map = {};
 
@@ -25,6 +30,9 @@ map.yArray = new Float32Array(1);
 // inactive (invalid) pixels: value from 128 to 255
 map.structureArray = new Uint8Array(1);
 
+// the size of pixels of the map, for antialiasing
+map.sizeArray = new Float32Array(1);
+
 /**
  * initialization, at start of the drawing method
  * update output canvas parameters and array dimensions
@@ -39,6 +47,7 @@ map.init = function() {
     // initialize map
     map.sizesValid = false;
     map.rangeValid = false;
+    map.inputTransformValid = false;
     output.pixels.update();
     output.isDrawing = true;
     if ((map.width !== output.canvas.width) || (map.height !== output.canvas.height)) {
@@ -48,6 +57,7 @@ map.init = function() {
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
         map.structureArray = new Uint8Array(size);
+        map.sizeArray = new Float32Array(size);
     }
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;
@@ -71,7 +81,6 @@ map.init = function() {
 
 //  making images
 //========================================================================
-
 
 /**
  * load the image with url=map.inputImage
@@ -99,7 +108,8 @@ map.loadInputImage = function() {
         // dereference the image for garbage collection
         image = null;
         //  draw the new output image
-        map.drawImageChanged();
+        map.inputTransformValid = false;
+        julia.drawNewImage();
     };
 
     image.src = map.inputImage;
@@ -149,7 +159,7 @@ map.setupDrawing = function(gui) {
             if (!map.drawingInputImage) {
                 map.whatToShowController.setValueOnly('image - low quality');
             }
-            map.drawImageChangedCheckMapUpdate();
+            julia.drawNewImage();
         }
     });
 
@@ -200,14 +210,13 @@ map.setupDrawing = function(gui) {
     // initial values depend on the image
     // but not on the map (because it is normalized)
     map.inputTransform = new CoordinateTransform(gui, null, true);
-    const inputTransform = map.inputTransform;
-    inputTransform.setStepShift(1);
+    map.inputTransform.setStepShift(1);
     map.inputTransform.onChange = function() {
-        map.drawImageChanged();
+        julia.drawNewImage();
     };
     // resetting the input transform means adjusting the image to range
     map.inputTransform.resetButton.callback = function() {
-        map.drawImageChanged();
+        julia.drawNewImage();
     };
     map.inputTransform.resetButton.addHelp('Above you see the input image and its parts used for the kaleidoscopic image. Unused pixels are greyed out. You can change this using mouse drag on the image for translation, mouse wheel to zoom and shift-mouse wheel to rotate. The current mouse position is the center for zoom and rotation.');
 
@@ -226,10 +235,9 @@ map.setupDrawing = function(gui) {
 
     // upon click on control image: change to showing image in low quality
     mouseEvents.downAction = function() {
-        ParamGui.closePopups();
         if (!map.drawingInputImage) {
             map.whatToShowController.setValueOnly('image - low quality');
-            map.drawImageChangedCheckMapUpdate();
+            julia.drawNewImage();
         }
         mouseEvents.element.onwheel = mouseEvents.onWheelHandler;
     };
@@ -237,11 +245,11 @@ map.setupDrawing = function(gui) {
     mouseEvents.dragAction = function() {
         const shiftX = mouseEvents.dx / map.inputImageControlCanvasScale;
         const shiftY = mouseEvents.dy / map.inputImageControlCanvasScale;
-        inputTransform.shiftX += shiftX;
-        inputTransform.shiftY += shiftY;
-        inputTransform.updateUI();
-        inputTransform.updateTransform();
-        map.drawImageChanged();
+        map.inputTransform.shiftX += shiftX;
+        map.inputTransform.shiftY += shiftY;
+        map.inputTransform.updateUI();
+        map.inputTransform.updateTransform();
+        julia.drawNewImage();
     };
     // zoom or rotate
     // the controlcanvas shows a 'shadow' of the mapping result
@@ -258,23 +266,23 @@ map.setupDrawing = function(gui) {
             v.x = u.x;
             v.y = u.y;
             // back to map plane
-            inputTransform.inverseTransform(v);
+            map.inputTransform.inverseTransform(v);
             if (keyboard.shiftPressed) {
                 const step = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.angleStep : -CoordinateTransform.angleStep;
-                inputTransform.angle += step;
+                map.inputTransform.angle += step;
             } else {
                 const zoomFactor = (mouseEvents.wheelDelta > 0) ? CoordinateTransform.zoomFactor : 1 / CoordinateTransform.zoomFactor;
-                inputTransform.scale *= zoomFactor;
+                map.inputTransform.scale *= zoomFactor;
             }
-            inputTransform.updateTransform();
+            map.inputTransform.updateTransform();
             // transform after zooming/rotating
-            inputTransform.transform(v);
+            map.inputTransform.transform(v);
             // correction
-            inputTransform.shiftX -= (v.x - u.x);
-            inputTransform.shiftY -= (v.y - u.y);
-            inputTransform.updateUI();
-            inputTransform.updateTransform();
-            map.drawImageChanged();
+            map.inputTransform.shiftX -= (v.x - u.x);
+            map.inputTransform.shiftY -= (v.y - u.y);
+            map.inputTransform.updateUI();
+            map.inputTransform.updateTransform();
+            julia.drawNewImage();
         }
     };
 
@@ -291,6 +299,10 @@ map.rangeValid = true;
 
 // flag, calculated "pixelsizes" are valid
 map.sizesValid = false;
+
+// flag to show that transform from input image to output image is valid
+// becomes false if map is recalculated or new image loaded
+map.inputTransformValid = false;
 
 // size of pixels after mapping, not taking into account the final input image transform
 map.sizeArray = new Float32Array(1);
@@ -334,13 +346,13 @@ map.callDrawImageHighQuality = function() {
     console.log('highquality');
     map.drawingInputImage = true;
     map.inputImageControllersShow();
-    //  map.drawImageHighQuality();
+      map.drawImageHighQuality();
 };
 map.callDrawImageVeryHighQuality = function() {
     console.log('veryhighquality');
     map.drawingInputImage = true;
     map.inputImageControllersShow();
-    //  map.drawImageVeryHighQuality();
+      map.drawImageVeryHighQuality();
 };
 
 /**
@@ -376,9 +388,9 @@ map.drawStructure = function() {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
-    const length = map.width * map.height;
     const pixelsArray = output.pixels.array;
     const structureArray = map.structureArray;
+    const length = structureArray.length;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
         const structure = structureArray[index];
@@ -409,7 +421,7 @@ map.determineRange = function() {
         const structureArray = map.structureArray;
         const xArray = map.xArray;
         const yArray = map.yArray;
-        const length = map.width * map.height;
+        const length = xArray.length;
         let xMin = 1e10;
         let xMax = -1e10;
         let yMin = 1e10;
@@ -437,20 +449,23 @@ map.determineRange = function() {
  * @method map.setupMapImageTransform
  */
 map.setupMapImageTransform = function() {
-    map.determineRange();
-    // find prescale for inputTransform to fit map into input image, with some free border
-    const imageWidth = map.inputCanvas.width;
-    const imageHeight = map.inputCanvas.height;
-    map.inputTransform.setPrescale(map.initialImageCovering * Math.min(imageWidth / map.rangeX, imageHeight / map.rangeY));
-    // determine shifts to get map center to input image center: determine transform of the map center without shift
-    map.inputTransform.setValues(0, 0, 1, 0);
-    const v = {
-        x: map.centerX,
-        y: map.centerY
-    };
-    map.inputTransform.transform(v);
-    // now we can determine the correct shifts
-    map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
+    if (!map.inputTransformValid) {
+        map.inputTransformValid = true;
+        map.determineRange();
+        // find prescale for inputTransform to fit map into input image, with some free border
+        const imageWidth = map.inputCanvas.width;
+        const imageHeight = map.inputCanvas.height;
+        map.inputTransform.setPrescale(map.initialImageCovering * Math.min(imageWidth / map.rangeX, imageHeight / map.rangeY));
+        // determine shifts to get map center to input image center: determine transform of the map center without shift
+        map.inputTransform.setValues(0, 0, 1, 0);
+        const v = {
+            x: map.centerX,
+            y: map.centerY
+        };
+        map.inputTransform.transform(v);
+        // now we can determine the correct shifts
+        map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
+    }
 };
 
 /**
@@ -467,18 +482,184 @@ map.drawImageLowQuality = function() {
     } else {
         map.setupMapImageTransform();
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
-        const point = {
-            x: 0,
-            y: 0
-        };
-        const length = map.width * map.height;
+        const inputImageControlCanvasScale = map.inputImageControlCanvasScale;
+        const structureArray = map.structureArray;
+        const xArray = map.xArray;
+        const yArray = map.yArray;
+        const length = xArray.length;
+        const point = {};
         for (var index = 0; index < length; index++) {
-            if (map.showRegion[map.regionArray[index]] && (map.sizeArray[index] >= 0)) {
-                point.x = map.xArray[index];
-                point.y = map.yArray[index];
+            if (structureArray[index] < 128) {
+                point.x = xArray[index];
+                point.y = yArray[index];
                 map.inputTransform.transform(point);
                 output.pixels.array[index] = map.inputPixels.getNearestPixel(point.x, point.y);
-                map.controlPixels.setOpaque(map.inputImageControlCanvasScale * point.x, map.inputImageControlCanvasScale * point.y);
+                map.controlPixels.setOpaque(inputImageControlCanvasScale * point.x, inputImageControlCanvasScale * point.y);
+            } else {
+                output.pixels.array[index] = 0; //transparent black
+            }
+        }
+        map.controlPixels.show();
+        output.pixels.show();
+    }
+};
+
+/**
+ * calculate the sizes of pixels based on the maps differences
+ * does not include the scaling from the map to the input image
+ * includes all other scaling (from outputCanvas to map space)
+ * multiply with scale from mapped image to input image
+ * required for high and very high quality images
+ * @method map.sizeArrayUpdate
+ */
+
+map.sizeArrayUpdate = function() {
+    if (!map.sizesValid) {
+        map.sizesValid = true;
+        map.maxSize = 0;
+        const width = map.width;
+        const widthM = width - 1;
+        const heightM = map.height - 1;
+        const xArray = map.xArray;
+        const yArray = map.yArray;
+        const sizeArray = map.sizeArray;
+        const structureArray = map.structureArray;
+        var xPlusX, x, yPlusX, y, structurePlusX, structure;
+        var index;
+        var ax, ay, bx, by;
+        var newSize;
+        // use rhomb defined by mapped vectors
+        // from point(i,j) to point(i+1,j)
+        // from point(i,j) to point(i,j+1)
+        // so it's offset by half a pixel
+        // sizes for i=width-1 and j=height-1 have to be copied
+        for (var j = 0; j < heightM; j++) {
+            index = j * map.width;
+            xPlusX = xArray[index];
+            yPlusX = yArray[index];
+            structurePlusX = structureArray[index];
+            for (var i = 0; i < widthM; i++) {
+                x = xPlusX;
+                const index1 = index + 1;
+                xPlusX = xArray[index1];
+                y = yPlusX;
+                yPlusX = yArray[index1];
+                structure = structurePlusX;
+                structurePlusX = structureArray[index1];
+                // if size <0 then it is an invalid point, do not change/use that
+                if ((structure < 128) && (structurePlusX < 128) && (structureArray[index + width] < 128)) {
+                    // the first side
+                    ax = xPlusX - x;
+                    ay = yPlusX - y;
+                    // the second side
+                    bx = xArray[index + width] - x;
+                    by = yArray[index + width] - y;
+                    // surface results from absolute value of the cross product
+                    // the size is its square root
+                    newSize = Math.sqrt(Math.abs(ax * by - ay * bx));
+                    map.maxSize = Math.max(map.maxSize, newSize);
+                    sizeArray[index] = newSize;
+                } else {
+                    newSize = -1;
+                }
+                index++;
+            }
+            // the last pixel i=map.width-1 in a row copies the value before, if valid
+            if (structureArray[index] < 128) {
+                sizeArray[index] = newSize;
+            }
+        }
+        // the top row at j=height-1 copies the lower row
+        let indexMax = width * map.height;
+        for (index = indexMax - width; index < indexMax; index++) {
+            if (structureArray[index] < 128) {
+                sizeArray[index] = sizeArray[index - width];
+            }
+        }
+    }
+};
+
+/**
+ * show image resulting from the map and the input image
+ * high quality using nearest neighbor, averaging or linear interpolation
+ * @method map.drawImageHighQuality
+ */
+map.drawImageHighQuality = function() {
+    // make sure we have an input image, if not: load and use it in a callback
+    if (!map.inputImageLoaded) {
+        map.inputImageLoaded = true;
+        map.loadInputImage();
+    } else {
+        map.sizeArrayUpdate();
+        const totalScale = map.inputTransform.totalScale;
+        map.setupMapImageTransform();
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        const inputImageControlCanvasScale = map.inputImageControlCanvasScale;
+        const structureArray = map.structureArray;
+        const xArray = map.xArray;
+        const yArray = map.yArray;
+        const length = xArray.length;
+        const color = {
+            red: 0,
+            green: 128,
+            blue: 0,
+            alpha: 255
+        };
+        const point = {};
+        for (var index = 0; index < length; index++) {
+            if (structureArray[index] < 128) {
+                point.x = xArray[index];
+                point.y = yArray[index];
+                map.inputTransform.transform(point);
+                let size = totalScale * map.sizeArray[index];
+                map.inputPixels.getHighQualityColor(color, point.x, point.y, size);
+                output.pixels.setColorAtIndex(color, index);
+                map.controlPixels.setOpaque(inputImageControlCanvasScale * point.x, inputImageControlCanvasScale * point.y);
+            } else {
+                output.pixels.array[index] = 0; //transparent black
+            }
+        }
+        map.controlPixels.show();
+        output.pixels.show();
+    }
+};
+
+/**
+ * show image resulting from the map and the input image
+ * high quality using cubic interpolation, nearest neighbor, averaging or linear interpolation
+ * @method map.drawImageHighQuality
+ */
+map.drawImageVeryHighQuality = function() {
+    // make sure we have an input image, if not: load and use it in a callback
+    if (!map.inputImageLoaded) {
+        map.inputImageLoaded = true;
+        map.loadInputImage();
+    } else {
+        map.sizeArrayUpdate();
+        const totalScale = map.inputTransform.totalScale;
+        map.setupMapImageTransform();
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        const inputImageControlCanvasScale = map.inputImageControlCanvasScale;
+        const structureArray = map.structureArray;
+        const xArray = map.xArray;
+        const yArray = map.yArray;
+        const length = xArray.length;
+        const color = {
+            red: 0,
+            green: 128,
+            blue: 0,
+            alpha: 255
+        };
+        const point = {};
+        for (var index = 0; index < length; index++) {
+            if (structureArray[index] < 128) {
+                point.x = xArray[index];
+                point.y = yArray[index];
+                map.inputTransform.transform(point);
+                let size = totalScale * map.sizeArray[index];
+                map.inputPixels.getVeryHighQualityColor(color, point.x, point.y, size);
+                output.pixels.setColorAtIndex(color, index);
+                map.controlPixels.setOpaque(inputImageControlCanvasScale * point.x, inputImageControlCanvasScale * point.y);
             } else {
                 output.pixels.array[index] = 0; //transparent black
             }

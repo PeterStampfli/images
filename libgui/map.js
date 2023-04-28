@@ -12,6 +12,7 @@ import {
     ParamGui
 } from "./modules.js";
 
+console.log('hahaha')
 /**
  * organizing the mapping from the output canvas
  * (after transforming the pixel positions to a adjustable space region)
@@ -987,14 +988,14 @@ map.sizeArrayUpdate = function() {
                 index++;
             }
             // the last pixel i=map.width-1 in a row copies the value before, if valid
-            if (sizeArray[index > 0]) {
+            if (sizeArray[index] > 0) {
                 sizeArray[index] = newSize;
             }
         }
         // the top row at j=height-1 copies the lower row
         let indexMax = width * map.height;
         for (index = indexMax - width; index < indexMax; index++) {
-            if (sizeArray[index > 0]) {
+            if (sizeArray[index] > 0) {
                 sizeArray[index] = sizeArray[index - width];
             }
         }

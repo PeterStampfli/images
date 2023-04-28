@@ -21,7 +21,7 @@ import {
 
 export const juliaMap = {};
 
-map.iters = 1;
+map.iters = 5;
 map.limit = 10;
 
 juliaMap.setup = function(gui) {
