@@ -12,7 +12,6 @@ import {
     ParamGui
 } from "./modules.js";
 
-console.log('hahaha')
 /**
  * organizing the mapping from the output canvas
  * (after transforming the pixel positions to a adjustable space region)

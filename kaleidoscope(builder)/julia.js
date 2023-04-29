@@ -36,23 +36,17 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     juliaMap.setup(gui);
-
     points.setup(gui);
-
     map.setupDrawing(gui);
-
-    // re-drawing
 
     // changing the grid
     // image pixels do not change, put on canvas, draw grid&points
     output.drawGridChanged = function() {
-
         julia.drawNoChange();
     };
 
     // moving/zooming canvas
     output.drawCanvasChanged = julia.drawNewStructure;
-
 }
 
 // structure does not change
@@ -68,7 +62,7 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     points.zerosAndSingularities();
     map.init();
-map.juliaSet();
+    map.iteration();
     map.draw();
     output.drawGrid();
     points.draw();
@@ -85,6 +79,5 @@ julia.drawNoChange = function() {
 setup();
 
 points.add(new Point(0, 0, Point.zero));
-
 
 julia.drawNewStructure();

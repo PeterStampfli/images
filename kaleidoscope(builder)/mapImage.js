@@ -124,6 +124,7 @@ map.setupDrawing = function(gui) {
         property: 'draw',
         options: {
             'structure': map.callDrawStructure,
+            'phase': map.callDrawPhase,
             'image - low quality': map.callDrawImageLowQuality,
             'image - high quality': map.callDrawImageHighQuality,
             'image - very high quality': map.callDrawImageVeryHighQuality
@@ -336,6 +337,12 @@ map.callDrawStructure = function() {
     map.allImageControllersHide();
     map.drawStructure();
 };
+map.callDrawPhase = function() {
+    console.log('phase');
+    map.drawingInputImage = false;
+    map.allImageControllersHide();
+    map.drawPhase();
+};
 map.callDrawImageLowQuality = function() {
     console.log('lowquality');
     map.drawingInputImage = true;
@@ -346,13 +353,13 @@ map.callDrawImageHighQuality = function() {
     console.log('highquality');
     map.drawingInputImage = true;
     map.inputImageControllersShow();
-      map.drawImageHighQuality();
+    map.drawImageHighQuality();
 };
 map.callDrawImageVeryHighQuality = function() {
     console.log('veryhighquality');
     map.drawingInputImage = true;
     map.inputImageControllersShow();
-      map.drawImageVeryHighQuality();
+    map.drawImageVeryHighQuality();
 };
 
 /**
@@ -667,4 +674,77 @@ map.drawImageVeryHighQuality = function() {
         map.controlPixels.show();
         output.pixels.show();
     }
+};
+
+// showing phase as hue, brightness for radius
+//=======================================================================================
+// set rgb components of a color depending on hue, brightness and saturation values
+// hue can have any value, cyclic, interval 0 to 1
+// brightness and saturation are clamped to interval 0 to 1
+function setRGBFromHBS(color, hue, brightness, saturation) {
+    let red = 0;
+    let green = 0;
+    let blue = 0;
+    hue = 6 * (hue - Math.floor(hue));
+    const c = Math.floor(hue);
+    const x = hue - c;
+    switch (c) {
+        case 0:
+            blue = 1;
+            red = x;
+            break;
+        case 1:
+            blue = 1 - x;
+            red = 1;
+            break;
+        case 2:
+            green = x;
+            red = 1;
+            break;
+        case 3:
+            green = 1;
+            red = 1 - x;
+            break;
+        case 4:
+            blue = x;
+            green = 1;
+            break;
+        case 5:
+            blue = 1;
+            green = 1 - x;
+            break;
+    }
+    saturation = Math.max(0, Math.min(1, saturation));
+    brightness = 255.9 * Math.max(0, Math.min(1, brightness));
+    color.red = Math.floor(brightness * (saturation * red + 1 - saturation));
+    color.green = Math.floor(brightness * (saturation * green + 1 - saturation));
+    color.blue = Math.floor(brightness * (saturation * blue + 1 - saturation));
+}
+
+map.drawPhase = function() {
+    const minBrightness = 0.7;
+    const extraBrightness = 1 - minBrightness;
+    if (map.inputImageLoaded) {
+        map.controlPixels.setAlpha(map.controlPixelsAlpha);
+        map.controlPixels.show();
+    }
+    const iPi2 = 0.5 / Math.PI;
+    const limit2 = map.limit * map.limit;
+    console.log(map.limit);
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const pixelsArray = output.pixels.array;
+    const color = {};
+    color.alpha = 255;
+    const length = xArray.length;
+    for (var index = 0; index < length; index++) {
+        const x = xArray[index];
+        const y = yArray[index];
+        const r2 = x * x + y * y;
+        const brightness = minBrightness + r2 / limit2 * extraBrightness;
+        const hue = iPi2 * Math.atan2(y, x)
+        setRGBFromHBS(color, hue, brightness, 1);
+        pixelsArray[index] = Pixels.integerOfColor(color);
+    }
+    output.pixels.show();
 };
