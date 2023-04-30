@@ -25,7 +25,7 @@ map.iters = 5;
 map.limit = 10;
 
 juliaMap.setup = function(gui) {
-map.iteration = map.juliaSet;
+    map.iteration = map.juliaSet;
     gui.addParagraph('mapping');
     gui.add({
         type: 'number',
@@ -47,7 +47,12 @@ map.iteration = map.juliaSet;
         params: map,
         property: 'iteration',
         options: {
-            'julia set': map.juliaSet
+            'julia set': map.juliaSet,
+            'inversions': map.inversions,
+            'linear julia set': map.linearJuliaSet,
+            'linear inversions': map.linearInversions,
+            'square julia set': map.squareJuliaSet,
+            'square inversions': map.squareInversions
         },
         onChange: julia.drawNewStructure
     });
@@ -82,6 +87,62 @@ map.radialLimit = function(limit) {
     }
 };
 
+//now using a line along the x-axis
+map.lineLimit = function(limit) {
+    const limit2 = limit * limit;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const structure = structureArray[index];
+        if (structure >= 128) {
+            continue;
+        }
+        const y = yArray[index];
+        const r2 = y * y;
+        if (r2 > limit2) {
+            const factor = limit2 / r2;
+            xArray[index] = factor * xArray[index];
+            yArray[index] = factor * y;
+            structureArray[index] = 255 - structure;
+        }
+    }
+};
+
+map.squareLimit = function(limit) {
+    const limit2 = limit * limit;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const structure = structureArray[index];
+        if (structure >= 128) {
+            continue;
+        }
+        const x = xArray[index];
+        const y = yArray[index];
+        const x2 = x * x;
+        const y2 = y * y;
+        if (y2 > x2) {
+            if (y2 > limit2) {
+                const factor = limit2 / y2;
+                xArray[index] = factor * x;
+                yArray[index] = factor * y;
+                structureArray[index] = 255 - structure;
+            }
+        } else {
+            if (x2 > limit2) {
+                const factor = limit2 / x2;
+                xArray[index] = factor * x;
+                yArray[index] = factor * y;
+                structureArray[index] = 255 - structure;
+            }
+        }
+    }
+};
+
 /**
  * apply limit to the map, all pixels with radius> limit will be inverted
  * calculation continues, structure results from number of inversions
@@ -101,6 +162,54 @@ map.radialInversion = function(limit) {
             xArray[index] = factor * x;
             yArray[index] = factor * y;
             structureArray[index] += 1;
+        }
+    }
+};
+
+map.linearInversion = function(limit) {
+    const limit2 = limit * limit;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const y = yArray[index];
+        const r2 = y * y;
+        if (r2 > limit2) {
+            const factor = limit2 / r2;
+            xArray[index] = factor * xArray[index];
+            yArray[index] = factor * y;
+            structureArray[index] += 1;
+        }
+    }
+};
+
+map.squareInversion = function(limit) {
+    const limit2 = limit * limit;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const structure = structureArray[index];
+        const x = xArray[index];
+        const y = yArray[index];
+        const x2 = x * x;
+        const y2 = y * y;
+        if (y2 > x2) {
+            if (y2 > limit2) {
+                const factor = limit2 / y2;
+                xArray[index] = factor * x;
+                yArray[index] = factor * y;
+                structureArray[index] +=1;
+            }
+        } else {
+            if (x2 > limit2) {
+                const factor = limit2 / x2;
+                xArray[index] = factor * x;
+                yArray[index] = factor * y;
+                structureArray[index] +=1;
+            }
         }
     }
 };
@@ -139,4 +248,53 @@ map.juliaSet = function() {
         map.countIterations();
     }
     map.invertSelect();
+};
+
+// make inversions
+map.inversions = function() {
+    map.radialInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.radialInversion(map.limit);
+    }
+};
+
+// make the julia set
+map.linearJuliaSet = function() {
+    map.lineLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.lineLimit(map.limit);
+        map.countIterations();
+    }
+    map.invertSelect();
+};
+
+// make inversions, linear
+map.linearInversions = function() {
+    map.linearInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.linearInversion(map.limit);
+    }
+};
+
+// make the julia set
+map.squareJuliaSet = function() {
+    map.squareLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.squareLimit(map.limit);
+        map.countIterations();
+    }
+    map.invertSelect();
+};
+
+map.squareInversions = function() {
+    map.squareInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.squareInversion(map.limit);
+        map.countIterations();
+    }
 };

@@ -78,6 +78,8 @@ julia.drawNoChange = function() {
 
 setup();
 
-points.add(new Point(0, 0, Point.zero));
+const x=0.5;
+points.add(new Point(x, 0, Point.zero));
+points.add(new Point(-x, 0, Point.zero));
 
 julia.drawNewStructure();
