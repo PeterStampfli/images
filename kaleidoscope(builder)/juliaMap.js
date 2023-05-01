@@ -161,7 +161,7 @@ map.radialInversion = function(limit) {
             const factor = limit2 / r2;
             xArray[index] = factor * x;
             yArray[index] = factor * y;
-            structureArray[index] += 1;
+            structureArray[index] = 1 - structureArray[index];
         }
     }
 };
@@ -179,7 +179,7 @@ map.linearInversion = function(limit) {
             const factor = limit2 / r2;
             xArray[index] = factor * xArray[index];
             yArray[index] = factor * y;
-            structureArray[index] += 1;
+            structureArray[index] = 1 - structureArray[index];
         }
     }
 };
@@ -201,14 +201,14 @@ map.squareInversion = function(limit) {
                 const factor = limit2 / y2;
                 xArray[index] = factor * x;
                 yArray[index] = factor * y;
-                structureArray[index] +=1;
+                structureArray[index]=1-structureArray[index];
             }
         } else {
             if (x2 > limit2) {
                 const factor = limit2 / x2;
                 xArray[index] = factor * x;
                 yArray[index] = factor * y;
-                structureArray[index] +=1;
+                structureArray[index]=1-structureArray[index];
             }
         }
     }
@@ -236,6 +236,19 @@ map.countIterations = function() {
         if (structure < 128) {
             structureArray[index] = structure + 1;
         }
+    }
+};
+
+// scale from given radius to 1 (for hyperbolic disc)
+
+map.scale = function(radius) {
+    const factor=1/radius;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        xArray[index]*=factor;
+        yArray[index]*=factor;
     }
 };
 
