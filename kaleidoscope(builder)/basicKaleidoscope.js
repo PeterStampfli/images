@@ -44,7 +44,7 @@
 
 
 
-function basicKaleidoscope(k, m, n, maxRange = 1000, minRange = 0) {
+function basicKaleidoscope(k, m, n = 2, maxRange = 1000, minRange = 0) {
     // geometry types
     var geometry;
     const elliptic = 0;
@@ -97,7 +97,7 @@ function basicKaleidoscope(k, m, n, maxRange = 1000, minRange = 0) {
                 x = h;
                 if (y < 0) {
                     y = -y;
-                    structure += 1;
+                    structure = 1 - structure;
                 }
                 xArray[index] = x;
                 yArray[index] = y;
@@ -163,9 +163,7 @@ function basicKaleidoscope(k, m, n, maxRange = 1000, minRange = 0) {
             y = inMap[index + nXnY];
             /* invalid if outside of poincare disc for hyperbolic kaleidoscope*/
             if ((geometry == hyperbolic) && (x * x + y * y >= 1)) {
-                outMap[index] = INVALID;
-                outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID;
+                structureArray[index] = 128 + structure;
                 continue;
             }
             /* make dihedral map to put point in first sector*/
@@ -178,7 +176,7 @@ function basicKaleidoscope(k, m, n, maxRange = 1000, minRange = 0) {
             x = h;
             if (y < 0) {
                 y = -y;
-                structure += 1;
+                structure = 1 - structure;
             }
             /* repeat inversion and dihedral group until success*/
             let success = false;
