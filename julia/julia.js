@@ -15,6 +15,10 @@ import {
 } from "./juliaMap.js";
 
 import {
+    kaleidoscope
+} from "./kaleidoscope.js";
+
+import {
     map
 } from "./mapImage.js";
 
@@ -36,6 +40,7 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     juliaMap.setup(gui);
+    kaleidoscope.setup(gui);
     points.setup(gui);
     map.setupDrawing(gui);
 

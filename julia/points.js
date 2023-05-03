@@ -199,6 +199,7 @@ const randomize = {};
 randomize.amount = 0.2;
 
 points.setup = function(gui) {
+    gui.addParagraph('<strong>rational function</strong>');
     gui.add({
         type: 'number',
         params: amplitude,

@@ -1,6 +1,10 @@
 /* jshint esversion:6 */
 
 
+import {
+    julia
+} from "./julia.js";
+
 
 export const kaleidoscope = {};
 
@@ -9,7 +13,7 @@ kaleidoscope.m = 4;
 
 
 kaleidoscope.setup = function(gui) {
-    gui.addParagraph('kaleidoscope');
+    gui.addParagraph('<strong>kaleidoscope</strong>');
     gui.add({
         type: 'number',
         params: kaleidoscope,

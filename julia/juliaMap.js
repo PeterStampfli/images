@@ -26,7 +26,7 @@ map.limit = 10;
 
 juliaMap.setup = function(gui) {
     map.iteration = map.juliaSet;
-    gui.addParagraph('mapping');
+    gui.addParagraph('<strong>mapping</strong>');
     gui.add({
         type: 'number',
         params: map,
