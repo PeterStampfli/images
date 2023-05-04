@@ -332,31 +332,26 @@ map.inputImageControllersShow = function() {
 // the different drawing methods
 //===================================================
 map.callDrawStructure = function() {
-    console.log('structure');
     map.drawingInputImage = false;
     map.allImageControllersHide();
     map.drawStructure();
 };
 map.callDrawPhase = function() {
-    console.log('phase');
     map.drawingInputImage = false;
     map.allImageControllersHide();
     map.drawPhase();
 };
 map.callDrawImageLowQuality = function() {
-    console.log('lowquality');
     map.drawingInputImage = true;
     map.inputImageControllersShow();
     map.drawImageLowQuality();
 };
 map.callDrawImageHighQuality = function() {
-    console.log('highquality');
     map.drawingInputImage = true;
     map.inputImageControllersShow();
     map.drawImageHighQuality();
 };
 map.callDrawImageVeryHighQuality = function() {
-    console.log('veryhighquality');
     map.drawingInputImage = true;
     map.inputImageControllersShow();
     map.drawImageVeryHighQuality();

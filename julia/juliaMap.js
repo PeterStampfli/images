@@ -25,7 +25,6 @@ map.iters = 5;
 map.limit = 10;
 
 juliaMap.setup = function(gui) {
-    map.iteration = map.juliaSet;
     gui.addParagraph('<strong>mapping</strong>');
     gui.add({
         type: 'number',
@@ -42,11 +41,14 @@ juliaMap.setup = function(gui) {
         max: 127,
         onChange: julia.drawNewStructure
     });
+    map.iteration = map.juliaSet;
+    map.iteration = map.nothing;
     gui.add({
         type: 'selection',
         params: map,
         property: 'iteration',
         options: {
+            'nothing': map.nothing,
             'julia set': map.juliaSet,
             'inversions': map.inversions,
             'linear julia set': map.linearJuliaSet,
@@ -201,14 +203,14 @@ map.squareInversion = function(limit) {
                 const factor = limit2 / y2;
                 xArray[index] = factor * x;
                 yArray[index] = factor * y;
-                structureArray[index]=1-structureArray[index];
+                structureArray[index] = 1 - structureArray[index];
             }
         } else {
             if (x2 > limit2) {
                 const factor = limit2 / x2;
                 xArray[index] = factor * x;
                 yArray[index] = factor * y;
-                structureArray[index]=1-structureArray[index];
+                structureArray[index] = 1 - structureArray[index];
             }
         }
     }
@@ -239,18 +241,21 @@ map.countIterations = function() {
     }
 };
 
-// scale from given radius to 1 (for hyperbolic disc)
+// scale from given length to 1 (for hyperbolic disc)
 
-map.scale = function(radius) {
-    const factor=1/radius;
+map.scale = function(length) {
+    const factor = 1 / length;
     const xArray = map.xArray;
     const yArray = map.yArray;
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
-        xArray[index]*=factor;
-        yArray[index]*=factor;
+        xArray[index] *= factor;
+        yArray[index] *= factor;
     }
 };
+
+map.nothing=function (){};
+
 
 // make the julia set
 map.juliaSet = function() {
@@ -261,6 +266,7 @@ map.juliaSet = function() {
         map.countIterations();
     }
     map.invertSelect();
+    map.scale(map.limit);
 };
 
 // make inversions
@@ -270,6 +276,7 @@ map.inversions = function() {
         map.evaluateRationalFunction();
         map.radialInversion(map.limit);
     }
+    map.scale(map.limit);
 };
 
 // make the julia set
@@ -281,6 +288,7 @@ map.linearJuliaSet = function() {
         map.countIterations();
     }
     map.invertSelect();
+    map.scale(map.limit);
 };
 
 // make inversions, linear
@@ -290,6 +298,7 @@ map.linearInversions = function() {
         map.evaluateRationalFunction();
         map.linearInversion(map.limit);
     }
+    map.scale(map.limit);
 };
 
 // make the julia set
@@ -301,6 +310,7 @@ map.squareJuliaSet = function() {
         map.countIterations();
     }
     map.invertSelect();
+    map.scale(map.limit);
 };
 
 map.squareInversions = function() {
@@ -310,4 +320,5 @@ map.squareInversions = function() {
         map.squareInversion(map.limit);
         map.countIterations();
     }
+    map.scale(map.limit);
 };

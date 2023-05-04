@@ -34,7 +34,7 @@ function setup() {
 
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
-    output.setInitialCoordinates(0, 0, 3);
+    output.setInitialCoordinates(0, 0, 2);
     output.createPixels();
     output.grid.interval = 0.1;
     output.addGrid();
@@ -68,6 +68,8 @@ julia.drawNewStructure = function() {
     points.zerosAndSingularities();
     map.init();
     map.iteration();
+    kaleidoscope.basic();
+    kaleidoscope.type();
     map.draw();
     output.drawGrid();
     points.draw();
