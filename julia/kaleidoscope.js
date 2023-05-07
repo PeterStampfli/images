@@ -37,6 +37,7 @@ kaleidoscope.setup = function(gui) {
         params: kaleidoscope,
         property: 'type',
         options: {
+            nothing: kaleidoscope.nothing,
             regular: kaleidoscope.regular,
             rectified: kaleidoscope.rectified,
             'uniform truncated': kaleidoscope.uniformTruncated
@@ -46,12 +47,15 @@ kaleidoscope.setup = function(gui) {
 
 };
 
+kaleidoscope.nothing = function() {};
+
 // kaleidoscope depends on kaleidoscope.k/m
 
 kaleidoscope.basic = function() {
     const m = kaleidoscope.m;
-    const k = Math.min(100,kaleidoscope.k);
+    const k = Math.min(100, kaleidoscope.k);
     const n = 2;
+    const maxIterations = 1000;
     // geometry types
     var geometry;
     const elliptic = 0;
@@ -73,7 +77,7 @@ kaleidoscope.basic = function() {
     const k2 = 2 * k;
     const sines = [];
     const cosines = [];
-    for (i = 0; i < k2; i++) {
+    for (let i = 0; i < k2; i++) {
         sines.push(Math.sin(i * dAngle));
         cosines.push(Math.cos(i * dAngle));
     }
@@ -83,7 +87,7 @@ kaleidoscope.basic = function() {
 
     /* catch case that there is no triangle*/
     /* m<=1 or n<=1: simple dihedral group of order k*/
-    if ((m < 2) || (n < 2)) {
+    if (m < 2) {
         for (let index = 0; index < nPixels; index++) {
             let structure = structureArray[index];
             /* do only transform if pixel is valid*/
@@ -161,10 +165,10 @@ kaleidoscope.basic = function() {
         let structure = structureArray[index];
         /* do only transform if pixel is valid*/
         if (structure < 128) {
-            x = inMap[index];
-            y = inMap[index + nXnY];
+            let x = xArray[index];
+            let y = yArray[index];
             /* invalid if outside of poincare disc for hyperbolic kaleidoscope*/
-            if ((geometry == hyperbolic) && (x * x + y * y >= 1)) {
+            if ((geometry === hyperbolic) && (x * x + y * y >= 1)) {
                 structureArray[index] = 128 + structure;
                 continue;
             }
@@ -233,7 +237,7 @@ kaleidoscope.basic = function() {
                         break;
                 }
                 /* dihedral symmetry, if no mapping we have finished*/
-                rotation = Math.floor(Math.atan2f(y, x) * iGamma2 + kPlus05);
+                rotation = Math.floor(Math.atan2(y, x) * iGamma2 + kPlus05);
                 if (rotation != k) {
                     /* we have a rotation and can't return*/
                     cosine = cosines[rotation];
@@ -258,10 +262,10 @@ kaleidoscope.basic = function() {
                 }
                 iterations += 1;
             }
-            /* fail after doing maximum repetitions or less than minimum iterations*/
-            if ((success) && (iterations > minIterations)) {
+            /* fail after doing maximum repetitions*/
+            if (success) {
                 /* be safe: do not get points outside the poincare disc*/
-                if ((geometry == hyperbolic) && (x * x + y * y >= 1)) {
+                if ((geometry === hyperbolic) && (x * x + y * y >= 1)) {
                     structure += 128;
                 }
             } else {
@@ -277,9 +281,8 @@ kaleidoscope.basic = function() {
 
 kaleidoscope.regular = function() {
     console.log('regular');
+    kaleidoscope.basic();
 };
-
-
 
 /*==========================================================
  * rectifying the result of the basic kaleidoscope(k,m,n)
@@ -291,8 +294,9 @@ kaleidoscope.regular = function() {
  *========================================================*/
 
 kaleidoscope.rectified = function() {
+    kaleidoscope.basic();
     const m = kaleidoscope.m;
-    const k = Math.min(100,kaleidoscope.k);
+    const k = Math.min(100, kaleidoscope.k);
     const n = 2;
     // geometry types
     var geometry;
@@ -331,7 +335,7 @@ kaleidoscope.rectified = function() {
     var circleCenterX, circleCenterY, circleRadius2;
     var mirrorX, mirrorNormalX, mirrorNormalY;
     var centerX, centerY, factor;
-    var c2x, c2y, c2r2, c3x, c3y, c3r2;
+    var c2x, c2y, c2r2, d;
     /* define the inverting circle/mirror line*/
     switch (geometry) {
         case hyperbolic:
@@ -344,13 +348,11 @@ kaleidoscope.rectified = function() {
             circleCenterX = factor * centerX;
             circleCenterY = factor * centerY;
             circleRadius2 = factor * factor;
+            d = circleCenterX - factor;
             d = 0.5 * (1 + d * d) / d / cosGamma;
             c2x = d * cosGamma;
             c2y = d * sinGamma;
             c2r2 = d * d - 1;
-            c3x = circleCenterX * cosGamma;
-            c3y = circleCenterX * sinGamma;
-            c3r2 = circleRadius2;
             break;
         case elliptic:
             /* calculation of center for circle radius=1*/
@@ -361,6 +363,7 @@ kaleidoscope.rectified = function() {
             circleCenterX = factor * centerX;
             circleCenterY = factor * centerY;
             circleRadius2 = factor * factor;
+            d = circleCenterX - factor;
             d = 0.5 * (1 - d * d) / d / cosGamma;
             c2x = -d * cosGamma;
             c2y = -d * sinGamma;
@@ -383,8 +386,9 @@ kaleidoscope.rectified = function() {
         let structure = structureArray[index];
         /* do only transform if pixel is valid*/
         if (structure < 128) {
-            x = inMap[index];
-            y = inMap[index + nXnY];
+            let x = xArray[index];
+            let y = yArray[index];
+            var dx, dy, d2;
             switch (geometry) {
                 case hyperbolic:
                     dx = x - c2x;
@@ -435,9 +439,10 @@ kaleidoscope.rectified = function() {
  * uniformTrucated(k, m);
  *========================================================*/
 
-kaleidoscope.uniformTruncated= function() {
+kaleidoscope.uniformTruncated = function() {
+    kaleidoscope.basic();
     const m = kaleidoscope.m;
-    const k = Math.min(100,kaleidoscope.k);
+    const k = Math.min(100, kaleidoscope.k);
     const n = 2;
     // geometry types
     var geometry;
@@ -460,7 +465,8 @@ kaleidoscope.uniformTruncated= function() {
     const gamma = Math.PI / k;
     const cosGamma = Math.cos(gamma);
     const sinGamma = Math.sin(gamma);
-
+const cosGamma2 = Math.cos(gamma / 2);
+ const   sinGamma2 = Math.sin(gamma / 2);
     /* we have a triangle*/
     const alpha = Math.PI / n;
     const beta = Math.PI / m;
@@ -476,7 +482,7 @@ kaleidoscope.uniformTruncated= function() {
     var circleCenterX, circleCenterY, circleRadius2;
     var mirrorX, mirrorNormalX, mirrorNormalY;
     var centerX, centerY, factor;
-    var c2x, c2y, c2r2, c3x, c3y, c3r2;
+    var c3x, c3y, c3r2;
     /* define the inverting circle/mirror line*/
     switch (geometry) {
         case hyperbolic:
@@ -489,10 +495,6 @@ kaleidoscope.uniformTruncated= function() {
             circleCenterX = factor * centerX;
             circleCenterY = factor * centerY;
             circleRadius2 = factor * factor;
-            d = 0.5 * (1 + d * d) / d / cosGamma;
-            c2x = d * cosGamma;
-            c2y = d * sinGamma;
-            c2r2 = d * d - 1;
             c3x = circleCenterX * cosGamma;
             c3y = circleCenterX * sinGamma;
             c3r2 = circleRadius2;
@@ -506,10 +508,6 @@ kaleidoscope.uniformTruncated= function() {
             circleCenterX = factor * centerX;
             circleCenterY = factor * centerY;
             circleRadius2 = factor * factor;
-            d = 0.5 * (1 - d * d) / d / cosGamma;
-            c2x = -d * cosGamma;
-            c2y = -d * sinGamma;
-            c2r2 = d * d + 1;
             c3x = circleCenterX * cosGamma;
             c3y = circleCenterX * sinGamma;
             c3r2 = circleRadius2;
@@ -527,9 +525,10 @@ kaleidoscope.uniformTruncated= function() {
     for (let index = 0; index < nPixels; index++) {
         let structure = structureArray[index];
         /* do only transform if pixel is valid*/
+        var dx,dy,d2;
         if (structure < 128) {
-            x = inMap[index];
-            y = inMap[index + nXnY];
+            let x = xArray[index];
+            let y = yArray[index];
             switch (geometry) {
                 case hyperbolic:
                     dx = x - c3x;
@@ -565,7 +564,7 @@ kaleidoscope.uniformTruncated= function() {
             }
             /* mirror at half-diagonal*/
             // for all cases
-            d = y * cosGamma2 - x * sinGamma2;
+            let d = y * cosGamma2 - x * sinGamma2;
             if (d > 0) {
                 structure = 1 - structure;
                 d = d + d;

@@ -68,7 +68,6 @@ julia.drawNewStructure = function() {
     points.zerosAndSingularities();
     map.init();
     map.iteration();
-    kaleidoscope.basic();
     kaleidoscope.type();
     map.draw();
     output.drawGrid();
