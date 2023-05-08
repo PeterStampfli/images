@@ -137,12 +137,14 @@ points.select = function(position) {
 
 // draw points
 points.draw = function() {
-    const length = points.collection.length;
-    if (length > 0) {
-        for (let i = 0; i < length - 1; i++) {
-            points.collection[i].draw(false);
+    if (points.show) {
+        const length = points.collection.length;
+        if (length > 0) {
+            for (let i = 0; i < length - 1; i++) {
+                points.collection[i].draw(false);
+            }
+            points.collection[length - 1].draw(points.topIsSelected);
         }
-        points.collection[length - 1].draw(points.topIsSelected);
     }
 };
 
@@ -197,6 +199,8 @@ config.centerY = 0;
 
 const randomize = {};
 randomize.amount = 0.2;
+
+points.show = true;
 
 points.setup = function(gui) {
     gui.addParagraph('<strong>rational function</strong>');
@@ -332,7 +336,7 @@ points.setup = function(gui) {
                 const point = new Point(x, y, config.type);
                 points.add(point);
             }
-            points.topIsSelected=false;
+            points.topIsSelected = false;
             julia.drawNewStructure();
         }
     }).add({
@@ -341,7 +345,7 @@ points.setup = function(gui) {
         onClick: function() {
             console.log('clear');
             points.clear();
-                        points.topIsSelected=false;
+            points.topIsSelected = false;
             julia.drawNewStructure();
         }
     });
@@ -376,7 +380,7 @@ points.setup = function(gui) {
             return;
         }
         console.log(result);
-            points.topIsSelected=false;
+        points.topIsSelected = false;
         points.clear();
         result.forEach(point => points.add(new Point(point.x, point.y, point.type)));
         julia.drawNewStructure();
@@ -396,6 +400,16 @@ points.setup = function(gui) {
         file = files[0];
         fileReader.readAsText(file);
     };
+
+    gui.addParagraph('<strong>image</strong>');
+
+    gui.add({
+        type: 'boolean',
+        params: points,
+        property: 'show',
+        labelText: 'show points',
+        onChange: julia.drawNoChange
+    });
 
     // simplify mouse interactions
 

@@ -1,7 +1,5 @@
 /* jshint esversion:6 */
 // transformation from band to circle
-
-
 function bulatovBand() {
     const a = 1; //original transform
     const piA2 = Math.PI * a / 2;
@@ -12,13 +10,19 @@ function bulatovBand() {
     const nPixels = xArray.length;
     for (let index = 0; index < nPixels; index++) {
         /* do only transform if pixel is valid*/
-        if (structureArray[index] < 128) {
-            const x = piA2 * xArray[index];
-            const y = piA2 * yArray[index];
-            const exp2x = Math.exp(x);
-            const base = iTanPiA4 / (exp2x + 1.0 / exp2x + 2 * Math.cos(y));
-            xArray[index] = (exp2x - 1.0 / exp2x) * base;
-            yArray[index] = 2 * Math.sin(y) * base;
+        const structure = structureArray[index];
+        if (structure < 128) {
+            let y=yArray[index];
+            if (Math.abs(y) > 1) {
+                structureArray[index] = 255 - structure;
+            } else {
+                y *= piA2;
+                const x = piA2 * xArray[index];
+                const exp2x = Math.exp(x);
+                const base = iTanPiA4 / (exp2x + 1.0 / exp2x + 2 * Math.cos(y));
+                xArray[index] = (exp2x - 1.0 / exp2x) * base;
+                yArray[index] = 2 * Math.sin(y) * base;
+            }
         }
     }
 }

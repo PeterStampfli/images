@@ -19,6 +19,10 @@ import {
     map
 } from "./mapImage.js";
 
+import {
+    kaleidoscope
+} from "./kaleidoscope.js";
+
 export const juliaMap = {};
 
 map.iters = 5;
@@ -254,7 +258,7 @@ map.scale = function(length) {
     }
 };
 
-map.nothing=function (){};
+map.nothing = function() {};
 
 
 // make the julia set
@@ -289,16 +293,19 @@ map.linearJuliaSet = function() {
     }
     map.invertSelect();
     map.scale(map.limit);
+    kaleidoscope.bulatovBand();
 };
 
 // make inversions, linear
+// transform from band to sphere
 map.linearInversions = function() {
-    map.linearInversion(map.limit);
+    // map.linearInversion(map.limit);
     for (let i = 0; i < map.iters; i++) {
         map.evaluateRationalFunction();
         map.linearInversion(map.limit);
     }
     map.scale(map.limit);
+    kaleidoscope.bulatovBand();
 };
 
 // make the julia set
@@ -314,7 +321,7 @@ map.squareJuliaSet = function() {
 };
 
 map.squareInversions = function() {
-    map.squareInversion(map.limit);
+    //   map.squareInversion(map.limit);
     for (let i = 0; i < map.iters; i++) {
         map.evaluateRationalFunction();
         map.squareInversion(map.limit);

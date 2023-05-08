@@ -1,6 +1,5 @@
 /* jshint esversion:6 */
 
-
 import {
     julia
 } from "./julia.js";
@@ -465,8 +464,8 @@ kaleidoscope.uniformTruncated = function() {
     const gamma = Math.PI / k;
     const cosGamma = Math.cos(gamma);
     const sinGamma = Math.sin(gamma);
-const cosGamma2 = Math.cos(gamma / 2);
- const   sinGamma2 = Math.sin(gamma / 2);
+    const cosGamma2 = Math.cos(gamma / 2);
+    const sinGamma2 = Math.sin(gamma / 2);
     /* we have a triangle*/
     const alpha = Math.PI / n;
     const beta = Math.PI / m;
@@ -525,7 +524,7 @@ const cosGamma2 = Math.cos(gamma / 2);
     for (let index = 0; index < nPixels; index++) {
         let structure = structureArray[index];
         /* do only transform if pixel is valid*/
-        var dx,dy,d2;
+        var dx, dy, d2, d;
         if (structure < 128) {
             let x = xArray[index];
             let y = yArray[index];
@@ -564,7 +563,7 @@ const cosGamma2 = Math.cos(gamma / 2);
             }
             /* mirror at half-diagonal*/
             // for all cases
-            let d = y * cosGamma2 - x * sinGamma2;
+            d = y * cosGamma2 - x * sinGamma2;
             if (d > 0) {
                 structure = 1 - structure;
                 d = d + d;
@@ -576,4 +575,87 @@ const cosGamma2 = Math.cos(gamma / 2);
             yArray[index] = y;
         }
     }
+};
+
+//  bulatov band
+//==================================
+
+// make periodic in x-direction
+// going from x=-length/2 to  + length/2
+
+kaleidoscope.periodicX = function(length) {
+    const xArray = map.xArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    const iLength = 1 / length;
+    for (var index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            let x = xArray[index];
+            x -= Math.round(x * iLength) * length;
+            xArray[index] = x;
+        }
+    }
+};
+
+// determine period length of bulatov band
+kaleidoscope.bulatovPeriod = function() {
+    const n = 2;
+    const m = kaleidoscope.m;
+    const k = kaleidoscope.k;
+    const gamma = Math.PI / k;
+    const alpha = Math.PI / n;
+    const beta = Math.PI / m;
+    const angleSum = 1 / k + 1 / n + 1 / m;
+    // check for elliptic and euklidic case
+    // just some arbitrary length
+    if (angleSum > 0.999) {
+        return 1;
+    }
+    // hyperbolic case assuming circle r=1, circle is on x-axis
+    let centerX = Math.cos(beta) / Math.sin(gamma);
+    // renormalize to poincare radius 1 (devide by poincare radius)
+    const radius = 1 / Math.sqrt(centerX * centerX - 1);
+    centerX = radius * centerX;
+    if ((k % 2) === 0) {
+        return 8 / Math.PI * Math.atanh(centerX - radius);
+    } else {
+        const angle = Math.PI * (0.5 - 1 / k - 1 / m);
+        const a = Math.sqrt(centerX * centerX + radius * radius - 2 * centerX * radius * Math.cos(angle));
+        return 8 / Math.PI * (Math.atanh(centerX - radius) + Math.atanh(a));
+    }
+};
+
+// transformation from band to circle
+kaleidoscope.bulatovBandTransformation=function() {
+    const a = 1; //original transform
+    const piA2 = Math.PI * a / 2;
+    const iTanPiA4 = 1.0 / Math.tan(Math.PI * a / 4);
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (let index = 0; index < nPixels; index++) {
+        /* do only transform if pixel is valid*/
+        const structure = structureArray[index];
+        if (structure < 128) {
+            let y = yArray[index];
+            if (Math.abs(y) > 1) {
+                structureArray[index] = 255 - structure;
+            } else {
+                y *= piA2;
+                const x = piA2 * xArray[index];
+                const exp2x = Math.exp(x);
+                const base = iTanPiA4 / (exp2x + 1.0 / exp2x + 2 * Math.cos(y));
+                xArray[index] = (exp2x - 1.0 / exp2x) * base;
+                yArray[index] = 2 * Math.sin(y) * base;
+            }
+        }
+    }
+}
+
+// full transform from band to disc
+kaleidoscope.bulatovBand = function() {
+    const period = kaleidoscope.bulatovPeriod();
+    kaleidoscope.periodicX(period);
+    kaleidoscope.bulatovBandTransformation();
 };
