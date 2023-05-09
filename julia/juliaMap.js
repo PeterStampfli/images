@@ -26,7 +26,7 @@ import {
 export const juliaMap = {};
 
 map.iters = 5;
-map.limit = 10;
+map.limit = 1;
 
 juliaMap.setup = function(gui) {
     gui.addParagraph('<strong>mapping</strong>');
@@ -58,7 +58,10 @@ juliaMap.setup = function(gui) {
             'linear julia set': map.linearJuliaSet,
             'linear inversions': map.linearInversions,
             'square julia set': map.squareJuliaSet,
-            'square inversions': map.squareInversions
+            'square inversions': map.squareInversions,
+            'half-plane julia set': map.halfPlaneJuliaSet,
+            'half-plane inversions': map.halfPlaneInversions,
+            'joukowski': map.joukowski
         },
         onChange: julia.drawNewStructure
     });
@@ -190,6 +193,72 @@ map.linearInversion = function(limit) {
     }
 };
 
+// mirroring at the x-axis
+
+map.reflectionXAxis = function() {
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = yArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const y = yArray[index];
+        if (y < 0) {
+            yArray[index] = -y;
+            structureArray[index] = 1 - structureArray[index];
+        }
+    }
+};
+
+// joukowski function, scaled by 2
+// unit circle maps to real axis, -1 ... +1
+
+map.joukowskiTransform = function() {
+    const eps = 0.001;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            const denom = 1 / (x * x + y * y + eps);
+            xArray[index] = 0.5 * (x + denom * x);
+            yArray[index] = 0.5 * (y - denom * y);
+        }
+    }
+};
+
+// cayley transform
+// maps real axis to unit circle
+
+map.cayleyTransform = function() {
+    const eps = 0.001;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            const denom = 1 / (x * x + (y + 1) * (y + 1) + eps);
+            xArray[index] = denom * (x * x - 1 + y * y);
+            yArray[index] = -2 * denom * x;
+        }
+    }
+};
+
+map.halfPlaneLimit = function() {
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = yArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        if ((structureArray[index] < 128) && (yArray[index] < 0)) {
+            structureArray[index] = 255 - structureArray[index];
+        }
+    }
+};
+
 map.squareInversion = function(limit) {
     const limit2 = limit * limit;
     const xArray = map.xArray;
@@ -260,7 +329,6 @@ map.scale = function(length) {
 
 map.nothing = function() {};
 
-
 // make the julia set
 map.juliaSet = function() {
     map.radialLimit(map.limit);
@@ -275,7 +343,7 @@ map.juliaSet = function() {
 
 // make inversions
 map.inversions = function() {
-    map.radialInversion(map.limit);
+    //  map.radialInversion(map.limit);
     for (let i = 0; i < map.iters; i++) {
         map.evaluateRationalFunction();
         map.radialInversion(map.limit);
@@ -328,4 +396,28 @@ map.squareInversions = function() {
         map.countIterations();
     }
     map.scale(map.limit);
+};
+
+map.joukowski = function() {
+    map.joukowskiTransform();
+    map.scale(map.limit);
+    // map.radialInversion(1);
+};
+
+map.halfPlaneJuliaSet = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.halfPlaneLimit();
+        map.countIterations();
+    }
+    map.invertSelect();
+};
+
+map.halfPlaneInversions = function() {
+    //   map.squareInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.reflectionXAxis();
+        map.countIterations();
+    }
 };

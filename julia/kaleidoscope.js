@@ -367,9 +367,6 @@ kaleidoscope.rectified = function() {
             c2x = -d * cosGamma;
             c2y = -d * sinGamma;
             c2r2 = d * d + 1;
-            c3x = circleCenterX * cosGamma;
-            c3y = circleCenterX * sinGamma;
-            c3r2 = circleRadius2;
             break;
         case euklidic:
             /* euklidic geometry with mirror line*/
