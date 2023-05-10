@@ -12,10 +12,6 @@ import {
 } from "./julia.js";
 
 import {
-    points
-} from "./points.js";
-
-import {
     map
 } from "./mapImage.js";
 
@@ -26,14 +22,14 @@ import {
 export const juliaMap = {};
 
 map.iters = 5;
-map.limit = 1;
+map.param = 1;
 
 juliaMap.setup = function(gui) {
     gui.addParagraph('<strong>mapping</strong>');
     gui.add({
         type: 'number',
         params: map,
-        property: 'limit',
+        property: 'param',
         min: 0,
         onChange: julia.drawNewStructure
     }).add({
@@ -45,7 +41,6 @@ juliaMap.setup = function(gui) {
         max: 127,
         onChange: julia.drawNewStructure
     });
-    map.iteration = map.juliaSet;
     map.iteration = map.nothing;
     gui.add({
         type: 'selection',
@@ -53,15 +48,6 @@ juliaMap.setup = function(gui) {
         property: 'iteration',
         options: {
             'nothing': map.nothing,
-            'julia set': map.juliaSet,
-            'inversions': map.inversions,
-            'repeat': map.repeat,
-            'linear julia set': map.linearJuliaSet,
-            'linear inversions': map.linearInversions,
-            'square julia set': map.squareJuliaSet,
-            'square inversions': map.squareInversions,
-            'half-plane julia set': map.halfPlaneJuliaSet,
-            'half-plane inversions': map.halfPlaneInversions,
             'joukowski': map.joukowski
         },
         onChange: julia.drawNewStructure
@@ -173,26 +159,6 @@ map.radialInversion = function(limit) {
             yArray[index] = factor * y;
             structureArray[index] = 1 - structureArray[index];
         }
-    }
-};
-
-/**
- * invert at unit circle
- */
-map.inversion = function(limit) {
-    const limit2 = limit * limit;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    for (var index = 0; index < nPixels; index++) {
-        const x = xArray[index];
-        const y = yArray[index];
-        const r2 = x * x + y * y;
-        const factor = 1 / r2;
-        xArray[index] = factor * x;
-        yArray[index] = factor * y;
-        structureArray[index] = 1 - structureArray[index];
     }
 };
 
@@ -350,106 +316,10 @@ map.scale = function(length) {
 
 map.nothing = function() {};
 
-// make the julia set
-map.juliaSet = function() {
-    map.radialLimit(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.radialLimit(map.limit);
-        map.countIterations();
-    }
-    map.invertSelect();
-    map.scale(map.limit);
-};
-
-// make inversions
-map.inversions = function() {
-    //  map.radialInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.radialInversion(map.limit);
-    }
-    map.scale(map.limit);
-};
-
-map.repeat = function() {
-    //  map.radialInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-    }
-    map.scale(map.limit);
-    map.inversion(1);
-};
-
-// make the julia set
-map.linearJuliaSet = function() {
-    map.lineLimit(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.lineLimit(map.limit);
-        map.countIterations();
-    }
-    map.invertSelect();
-    map.scale(map.limit);
-    kaleidoscope.bulatovBand();
-};
-
-// make inversions, linear
-// transform from band to sphere
-map.linearInversions = function() {
-    // map.linearInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.linearInversion(map.limit);
-    }
-    map.scale(map.limit);
-    kaleidoscope.bulatovBand();
-};
-
-// make the julia set
-map.squareJuliaSet = function() {
-    map.squareLimit(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.squareLimit(map.limit);
-        map.countIterations();
-    }
-    map.invertSelect();
-    map.scale(map.limit);
-};
-
-map.squareInversions = function() {
-    //   map.squareInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.squareInversion(map.limit);
-        map.countIterations();
-    }
-    map.scale(map.limit);
-};
-
 map.joukowski = function() {
-    //  map.joukowskiTransform();
-    map.cayleyTransform();
-    map.scale(map.limit);
+    map.joukowskiTransform();
+    map.scale(map.param);
+    map.joukowskiTransform();
+    map.scale(map.param);
     // map.radialInversion(1);
-};
-
-map.halfPlaneJuliaSet = function() {
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.halfPlaneLimit();
-        map.countIterations();
-    }
-    map.invertSelect();
-};
-
-map.halfPlaneInversions = function() {
-    //   map.squareInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.reflectionXAxis();
-        map.countIterations();
-    }
-    map.cayleyTransform();
 };
