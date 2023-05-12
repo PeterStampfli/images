@@ -21,8 +21,8 @@ import {
 
 export const juliaMap = {};
 
-map.iters = 5;
-map.param = 1;
+map.n = 5;
+map.param = 0.5;
 
 juliaMap.setup = function(gui) {
     gui.addParagraph('<strong>mapping</strong>');
@@ -35,7 +35,7 @@ juliaMap.setup = function(gui) {
     }).add({
         type: 'number',
         params: map,
-        property: 'iters',
+        property: 'n',
         step: 1,
         min: 0,
         max: 127,
@@ -48,7 +48,8 @@ juliaMap.setup = function(gui) {
         property: 'iteration',
         options: {
             'nothing': map.nothing,
-            'joukowski': map.joukowski
+            'joukowski': map.joukowski,
+            'n-joukowski': map.nJoukowski
         },
         onChange: julia.drawNewStructure
     });
@@ -195,8 +196,8 @@ map.reflectionXAxis = function() {
     }
 };
 
-// joukowski function, scaled by 2
-// unit circle maps to real axis, -1 ... +1
+// joukowski function,
+// unit circle maps to real axis, -2 ... +2
 
 map.joukowskiTransform = function() {
     const eps = 0.001;
@@ -209,8 +210,37 @@ map.joukowskiTransform = function() {
             const x = xArray[index];
             const y = yArray[index];
             const denom = 1 / (x * x + y * y + eps);
-            xArray[index] = 0.5 * (x + denom * x);
-            yArray[index] = 0.5 * (y - denom * y);
+            xArray[index] = map.param*(x + denom * x);
+            yArray[index] = map.param*(y - denom * y);
+        }
+    }
+};
+
+map.nJoukowskiTransform = function() {
+    const n=map.n;
+    const radius=Math.pow(n,1/(n+1));
+    console.log(radius);
+    const a=1/(radius+Math.pow(radius,-n));
+    console.log(a);
+    const eps = 1e-100;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            let real=x;
+            let imag=y;
+            for (let i=1;i<n;i++){
+                const h=real*x-imag*y;
+                imag=real*y+x*imag;
+                real=h;
+            }
+            const denom = 1 / (real*real+imag*imag + eps);
+            xArray[index] = a*(x + denom * real);
+            yArray[index] = a*(y - denom * imag);
         }
     }
 };
@@ -318,8 +348,13 @@ map.nothing = function() {};
 
 map.joukowski = function() {
     map.joukowskiTransform();
-    map.scale(map.param);
-    map.joukowskiTransform();
-    map.scale(map.param);
+ //   map.joukowskiTransform();
     // map.radialInversion(1);
+};
+
+map.nJoukowski = function() {
+    map.nJoukowskiTransform();
+ //   map.joukowskiTransform();
+ //   map.scale(map.param);
+     map.radialInversion(1);
 };
