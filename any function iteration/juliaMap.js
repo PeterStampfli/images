@@ -49,7 +49,10 @@ juliaMap.setup = function(gui) {
         options: {
             'nothing': map.nothing,
             'joukowski': map.joukowski,
-            'n-joukowski': map.nJoukowski
+            'n-joukowski': map.nJoukowski,
+            'n roots': map.nRoots,
+            'sum of singularities': map.sumOfSingularities,
+            'product of singularities': map.productOfSingularities
         },
         onChange: julia.drawNewStructure
     });
@@ -210,41 +213,166 @@ map.joukowskiTransform = function() {
             const x = xArray[index];
             const y = yArray[index];
             const denom = 1 / (x * x + y * y + eps);
-            xArray[index] = map.param*(x + denom * x);
-            yArray[index] = map.param*(y - denom * y);
+            xArray[index] = map.param * (x + denom * x);
+            yArray[index] = map.param * (y - denom * y);
         }
     }
 };
 
+function power(z, x, y, n) {
+    let real = x;
+    let imag = y;
+    for (let i = 1; i < n; i++) {
+        const h = real * x - imag * y;
+        imag = real * y + x * imag;
+        real = h;
+    }
+    z.real = real;
+    z.imag = imag;
+}
+
+function invert(z) {
+    eps = 1e-100;
+    let real = z.real;
+    let imag = z.imag;
+    const denom = 1 / (real * real + imag * imag + eps);
+    z.real = denom * real;
+    z.imag = -denom * imag;
+}
+
 map.nJoukowskiTransform = function() {
-    const n=map.n;
-    const radius=Math.pow(n,1/(n+1));
-    console.log(radius);
-    const a=1/(radius+Math.pow(radius,-n));
-    console.log(a);
+    const n = map.n;
+    const radius = Math.pow(1 / n, 1 / (n + 1));
+    const a = 1 / (1 / radius + Math.pow(radius, n));
     const eps = 1e-100;
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
     const nPixels = xArray.length;
+    const p = {};
     for (var index = 0; index < nPixels; index++) {
         if (structureArray[index] < 128) {
             const x = xArray[index];
             const y = yArray[index];
-            let real=x;
-            let imag=y;
-            for (let i=1;i<n;i++){
-                const h=real*x-imag*y;
-                imag=real*y+x*imag;
-                real=h;
-            }
-            const denom = 1 / (real*real+imag*imag + eps);
-            xArray[index] = a*(x + denom * real);
-            yArray[index] = a*(y - denom * imag);
+            power(p, x, y, n);
+            const denom = 1 / (x * x + y * y + eps);
+            xArray[index] = a * (denom * x + p.real);
+            yArray[index] = a * (-denom * y + p.imag);
         }
     }
 };
 
+
+map.nRootsTransform = function() {
+    const n = map.n;
+    const radius = Math.pow(1 / n, 1 / (n + 1));
+    const a = 1 / (1 / radius + Math.pow(radius, n));
+    const eps = 1e-100;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    const p = {};
+    const d = {};
+    for (var index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            power(p, x, y, n);
+            power(d, x, y, n);
+            p.real += 1;
+            d.real -= 0.7;
+            const denom = 1 / (d.real * d.real + d.imag * d.imag + eps);
+            d.real *= denom;
+            d.imag *= -denom;
+
+            xArray[index] = map.param * (p.real * d.real - p.imag * d.imag);
+            yArray[index] = map.param * (p.imag * d.real + p.real * d.imag);
+        }
+    }
+};
+
+map.productOfSingularitiesTransform = function() {
+    const n = map.n;
+    const radius = 1;
+    const eps=1e-100;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    const p = {};
+    const d = {};
+    for (var index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            power(d, x, y, n);
+            d.real -= 1;
+            const denom = 1 / (d.real * d.real + d.imag * d.imag + eps);
+            d.real *= denom;
+            d.imag *= -denom;
+
+            xArray[index] = map.param * d.real;
+            yArray[index] = map.param * d.imag;
+        }
+    }
+};
+
+map.starPoints = function(radius, n, relAngle) {
+    const result = {};
+    result.real = [];
+    result.imag = [];
+    const dAngle = 2 * Math.PI / n;
+    for (let i = 0; i < n; i++) {
+        const angle = (i + relAngle) * dAngle;
+        result.real.push(Math.cos(angle));
+        result.imag.push(Math.sin(angle));
+    }
+    return result;
+};
+
+map.sumSingularities = function(result, x, y, positions) {
+    let real = 0;
+    let imag = 0;
+    const eps = 1e-100;
+    const realPos = positions.real;
+    const imagPos = positions.imag;
+    const lenght = positions.real.length;
+    for (let i = 0; i < lenght; i++) {
+        const dx = x - realPos[i];
+        const dy = y - imagPos[i];
+        const denom = 1 / (dx * dx + dy * dy + eps);
+        real += denom * dx;
+        imag -= denom * dy;
+    }
+    result.real = real;
+    result.imag = imag;
+};
+
+map.sumOfSingularitiesTransform = function() {
+    const n = map.n;
+    const radius = 1;
+    const eps=1e-100;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    const p = {};
+    const d = {};
+    const positions=map.starPoints(1,n,0);
+    for (var index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            power(d, x, y, n);
+            map.sumSingularities(d,x,y,positions);
+            const denom=1/(x*x+y*y+eps);
+
+            xArray[index] = map.param * (d.real+denom*x);
+            yArray[index] = map.param * (d.imag-denom*y);
+        }
+    }
+};
 // cayley transform
 // maps real axis to unit circle
 
@@ -348,13 +476,35 @@ map.nothing = function() {};
 
 map.joukowski = function() {
     map.joukowskiTransform();
- //   map.joukowskiTransform();
+    //   map.joukowskiTransform();
     // map.radialInversion(1);
 };
 
 map.nJoukowski = function() {
     map.nJoukowskiTransform();
- //   map.joukowskiTransform();
- //   map.scale(map.param);
-     map.radialInversion(1);
+    //   map.joukowskiTransform();
+    //   map.scale(map.param);
+    //   map.radialInversion(1);
+};
+
+
+map.nRoots = function() {
+    map.nRootsTransform();
+    //   map.joukowskiTransform();
+    //   map.scale(map.param);
+    //   map.radialInversion(1);
+};
+
+map.sumOfSingularities = function() {
+    map.sumOfSingularitiesTransform();
+    //   map.joukowskiTransform();
+    //   map.scale(map.param);
+    //   map.radialInversion(1);
+};
+
+map.productOfSingularities = function() {
+    map.productOfSingularitiesTransform();
+    //   map.joukowskiTransform();
+    //   map.scale(map.param);
+    //   map.radialInversion(1);
 };
