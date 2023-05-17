@@ -118,6 +118,7 @@ map.loadInputImage = function() {
 
 map.setupDrawing = function(gui) {
     map.draw = map.callDrawStructure;
+    gui.addParagraph('<strong>image</strong>');
     map.whatToShowController = gui.add({
         type: 'selection',
         params: map,

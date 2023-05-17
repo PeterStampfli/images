@@ -46,13 +46,13 @@ juliaMap.setup = function(gui) {
         onChange: julia.drawNewStructure
     });
     map.iteration = map.juliaSet;
-    map.iteration = map.nothing;
     gui.add({
         type: 'selection',
         params: map,
         property: 'iteration',
         options: {
             'nothing': map.nothing,
+            'iterations': map.iterations,
             'julia set': map.juliaSet,
             'inversions': map.inversions,
             'repeat': map.repeat,
@@ -359,6 +359,15 @@ map.juliaSet = function() {
         map.countIterations();
     }
     map.invertSelect();
+    map.scale(map.limit);
+};
+
+
+map.iterations = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+    }
+        map.radialInversion(map.limit);
     map.scale(map.limit);
 };
 

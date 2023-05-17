@@ -21,39 +21,44 @@ import {
 
 export const juliaMap = {};
 
-map.n = 5;
-map.param = 0.5;
+map.iters = 5;
+map.limit = 1;
 
 juliaMap.setup = function(gui) {
     gui.addParagraph('<strong>mapping</strong>');
     gui.add({
         type: 'number',
         params: map,
-        property: 'param',
+        property: 'limit',
         min: 0,
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
         params: map,
-        property: 'n',
+        property: 'iters',
         step: 1,
         min: 0,
         max: 127,
         onChange: julia.drawNewStructure
     });
-    map.iteration = map.nothing;
+    map.iteration = map.juliaSet;
     gui.add({
         type: 'selection',
         params: map,
         property: 'iteration',
         options: {
             'nothing': map.nothing,
-            'joukowski': map.joukowski,
-            'n-joukowski': map.nJoukowski,
-            'n roots': map.nRoots,
-            'sum of singularities': map.sumOfSingularities,
-            'alternating sum of singularities': map.alternatingSumOfSingularities,
-            'product of singularities': map.productOfSingularities
+            'iterations': map.iterations,
+            'julia set': map.juliaSet,
+            'inversions': map.inversions,
+            'repeat': map.repeat,
+            'linear julia set': map.linearJuliaSet,
+            'linear inversions': map.linearInversions,
+            'square julia set': map.squareJuliaSet,
+            'square inversions': map.squareInversions,
+            'half-plane julia set': map.halfPlaneJuliaSet,
+            'half-plane inversions': map.halfPlaneInversions,
+            'joukowski': map.joukowski
         },
         onChange: julia.drawNewStructure
     });
@@ -167,6 +172,26 @@ map.radialInversion = function(limit) {
     }
 };
 
+/**
+ * invert at unit circle
+ */
+map.inversion = function(limit) {
+    const limit2 = limit * limit;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const x = xArray[index];
+        const y = yArray[index];
+        const r2 = x * x + y * y;
+        const factor = 1 / r2;
+        xArray[index] = factor * x;
+        yArray[index] = factor * y;
+        structureArray[index] = 1 - structureArray[index];
+    }
+};
+
 map.linearInversion = function(limit) {
     const limit2 = limit * limit;
     const xArray = map.xArray;
@@ -200,8 +225,8 @@ map.reflectionXAxis = function() {
     }
 };
 
-// joukowski function,
-// unit circle maps to real axis, -2 ... +2
+// joukowski function, scaled by 2
+// unit circle maps to real axis, -1 ... +1
 
 map.joukowskiTransform = function() {
     const eps = 0.001;
@@ -214,213 +239,12 @@ map.joukowskiTransform = function() {
             const x = xArray[index];
             const y = yArray[index];
             const denom = 1 / (x * x + y * y + eps);
-            xArray[index] = map.param * (x + denom * x);
-            yArray[index] = map.param * (y - denom * y);
+            xArray[index] = 0.5 * (x + denom * x);
+            yArray[index] = 0.5 * (y - denom * y);
         }
     }
 };
 
-function power(z, x, y, n) {
-    let real = x;
-    let imag = y;
-    for (let i = 1; i < n; i++) {
-        const h = real * x - imag * y;
-        imag = real * y + x * imag;
-        real = h;
-    }
-    z.real = real;
-    z.imag = imag;
-}
-
-function invert(z) {
-    eps = 1e-100;
-    let real = z.real;
-    let imag = z.imag;
-    const denom = 1 / (real * real + imag * imag + eps);
-    z.real = denom * real;
-    z.imag = -denom * imag;
-}
-
-map.nJoukowskiTransform = function() {
-    const n = map.n;
-    const radius = Math.pow(1 / n, 1 / (n + 1));
-    const a = 1 / (1 / radius + Math.pow(radius, n));
-    const eps = 1e-100;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    const p = {};
-    for (var index = 0; index < nPixels; index++) {
-        if (structureArray[index] < 128) {
-            const x = xArray[index];
-            const y = yArray[index];
-            power(p, x, y, n);
-            const denom = 1 / (x * x + y * y + eps);
-            xArray[index] = a * (denom * x + p.real);
-            yArray[index] = a * (-denom * y + p.imag);
-        }
-    }
-};
-
-
-map.nRootsTransform = function() {
-    const n = map.n;
-    const radius = Math.pow(1 / n, 1 / (n + 1));
-    const a = 1 / (1 / radius + Math.pow(radius, n));
-    const eps = 1e-100;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    const p = {};
-    const d = {};
-    for (var index = 0; index < nPixels; index++) {
-        if (structureArray[index] < 128) {
-            const x = xArray[index];
-            const y = yArray[index];
-            power(p, x, y, n);
-            power(d, x, y, n);
-            p.real += 1;
-            d.real -= 0.7;
-            const denom = 1 / (d.real * d.real + d.imag * d.imag + eps);
-            d.real *= denom;
-            d.imag *= -denom;
-
-            xArray[index] = map.param * (p.real * d.real - p.imag * d.imag);
-            yArray[index] = map.param * (p.imag * d.real + p.real * d.imag);
-        }
-    }
-};
-
-map.productOfSingularitiesTransform = function() {
-    const n = map.n;
-    const radius = 1;
-    const eps=1e-100;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    const p = {};
-    const d = {};
-    for (var index = 0; index < nPixels; index++) {
-        if (structureArray[index] < 128) {
-            const x = xArray[index];
-            const y = yArray[index];
-            power(d, x, y, n);
-            d.real -= 1;
-            const denom = 1 / (d.real * d.real + d.imag * d.imag + eps);
-            d.real *= denom;
-            d.imag *= -denom;
-
-            xArray[index] = map.param * d.real;
-            yArray[index] = map.param * d.imag;
-        }
-    }
-};
-
-map.starPoints = function(radius, n, relAngle) {
-    const result = {};
-    result.real = [];
-    result.imag = [];
-    const dAngle = 2 * Math.PI / n;
-    for (let i = 0; i < n; i++) {
-        const angle = (i + relAngle) * dAngle;
-        result.real.push(Math.cos(angle));
-        result.imag.push(Math.sin(angle));
-    }
-    return result;
-};
-
-map.sumSingularities = function(result, x, y, positions) {
-    let real = 0;
-    let imag = 0;
-    const eps = 1e-100;
-    const realPos = positions.real;
-    const imagPos = positions.imag;
-    const lenght = positions.real.length;
-    for (let i = 0; i < lenght; i++) {
-        const dx = x - realPos[i];
-        const dy = y - imagPos[i];
-        const denom = 1 / (dx * dx + dy * dy + eps);
-        real += denom * dx;
-        imag -= denom * dy;
-    }
-    result.real = real;
-    result.imag = imag;
-};
-
-map.alternatingSumSingularities = function(result, x, y, positions) {
-    let real = 0;
-    let imag = 0;
-    const eps = 1e-100;
-    const realPos = positions.real;
-    const imagPos = positions.imag;
-    const lenght = positions.real.length;
-    let factor=1;
-    for (let i = 0; i < lenght; i++) {
-        factor=-factor;
-        const dx = x - realPos[i];
-        const dy = y - imagPos[i];
-        const denom = factor / (dx * dx + dy * dy + eps);
-        real += denom * dx;
-        imag -= denom * dy;
-    }
-    result.real = real;
-    result.imag = imag;
-};
-
-map.sumOfSingularitiesTransform = function() {
-    const n = map.n;
-    const radius = 1;
-    const eps=1e-100;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    const p = {};
-    const d = {};
-    const positions=map.starPoints(1,n,0);
-    for (var index = 0; index < nPixels; index++) {
-        if (structureArray[index] < 128) {
-            const x = xArray[index];
-            const y = yArray[index];
-            power(d, x, y, n);
-            map.sumSingularities(d,x,y,positions);
-            let denom=1/(x*x+y*y+eps);
-            denom=0;
-
-            xArray[index] = map.param * (d.real+denom*x);
-            yArray[index] = map.param * (d.imag-denom*y);
-        }
-    }
-};
-
-map.alternatingSumOfSingularitiesTransform = function() {
-    const n = map.n;
-    const radius = 1;
-    const eps=1e-100;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    const p = {};
-    const d = {};
-    const positions=map.starPoints(1,n,0);
-    for (var index = 0; index < nPixels; index++) {
-        if (structureArray[index] < 128) {
-            const x = xArray[index];
-            const y = yArray[index];
-            power(d, x, y, n);
-            map.alternatingSumSingularities(d,x,y,positions);
-            let denom=1/(x*x+y*y+eps);
-            denom=0;
-
-            xArray[index] = map.param * (d.real+denom*x);
-            yArray[index] = map.param * (d.imag-denom*y);
-        }
-    }
-};
 // cayley transform
 // maps real axis to unit circle
 
@@ -485,7 +309,6 @@ map.squareInversion = function(limit) {
 /**
  * invert select: needed for simple julia set display
  *  for showing structure of "blocked" pixels
- *  assuming active points have value select=1 and 'blocked' pixels value 0
  */
 map.invertSelect = function() {
     const structureArray = map.structureArray;
@@ -522,43 +345,115 @@ map.scale = function(length) {
 
 map.nothing = function() {};
 
+// make the julia set
+map.juliaSet = function() {
+    map.radialLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.radialLimit(map.limit);
+        map.countIterations();
+    }
+    map.invertSelect();
+    map.scale(map.limit);
+};
+
+
+map.iterations = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+    }
+        map.radialInversion(map.limit);
+    map.scale(map.limit);
+};
+
+// make inversions
+map.inversions = function() {
+    //  map.radialInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.radialInversion(map.limit);
+    }
+    map.scale(map.limit);
+};
+
+map.repeat = function() {
+    //  map.radialInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+    }
+    map.scale(map.limit);
+    map.inversion(1);
+};
+
+// make the julia set
+map.linearJuliaSet = function() {
+    map.lineLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.lineLimit(map.limit);
+        map.countIterations();
+    }
+    map.invertSelect();
+    map.scale(map.limit);
+    kaleidoscope.bulatovBand();
+};
+
+// make inversions, linear
+// transform from band to sphere
+map.linearInversions = function() {
+    // map.linearInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.linearInversion(map.limit);
+    }
+    map.scale(map.limit);
+    kaleidoscope.bulatovBand();
+};
+
+// make the julia set
+map.squareJuliaSet = function() {
+    map.squareLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.squareLimit(map.limit);
+        map.countIterations();
+    }
+    map.invertSelect();
+    map.scale(map.limit);
+};
+
+map.squareInversions = function() {
+    //   map.squareInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.squareInversion(map.limit);
+        map.countIterations();
+    }
+    map.scale(map.limit);
+};
+
 map.joukowski = function() {
-    map.joukowskiTransform();
-    //   map.joukowskiTransform();
+    //  map.joukowskiTransform();
+    map.cayleyTransform();
+    map.scale(map.limit);
     // map.radialInversion(1);
 };
 
-map.nJoukowski = function() {
-    map.nJoukowskiTransform();
-    //   map.joukowskiTransform();
-    //   map.scale(map.param);
-    //   map.radialInversion(1);
+map.halfPlaneJuliaSet = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.halfPlaneLimit();
+        map.countIterations();
+    }
+    map.invertSelect();
 };
 
-
-map.nRoots = function() {
-    map.nRootsTransform();
-    //   map.joukowskiTransform();
-    //   map.scale(map.param);
-    //   map.radialInversion(1);
-};
-
-map.sumOfSingularities = function() {
-    map.sumOfSingularitiesTransform();
-    //   map.joukowskiTransform();
-    //   map.scale(map.param);
-    //   map.radialInversion(1);
-};
-map.alternatingSumOfSingularities = function() {
-    map.alternatingSumOfSingularitiesTransform();
-    //   map.joukowskiTransform();
-    //   map.scale(map.param);
-    //   map.radialInversion(1);
-};
-
-map.productOfSingularities = function() {
-    map.productOfSingularitiesTransform();
-    //   map.joukowskiTransform();
-    //   map.scale(map.param);
-    //   map.radialInversion(1);
+map.halfPlaneInversions = function() {
+    //   map.squareInversion(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.reflectionXAxis();
+        map.countIterations();
+    }
+    map.cayleyTransform();
 };
