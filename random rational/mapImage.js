@@ -504,6 +504,7 @@ map.determineRange = function() {
         map.centerY = 0.5 * (yMax + yMin);
         map.rangeX = xMax - xMin;
         map.rangeY = yMax - yMin;
+        console.log('mapcenter',xMax,xMin,yMax,yMin);
     }
 };
 
@@ -528,6 +529,7 @@ map.setupMapImageTransform = function() {
         };
         map.inputTransform.transform(v);
         // now we can determine the correct shifts
+        console.log('setupimagetransform',imageWidth,imageHeight); 
         map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
     }
 };

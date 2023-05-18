@@ -514,5 +514,7 @@ map.evaluateRationalFunction = function() {
         const norm = 1 / (denRe * denRe + denIm * denIm + eps);
         xArray[index] = norm * (nomRe * denRe + nomIm * denIm);
         yArray[index] = norm * (nomIm * denRe - nomRe * denIm);
+            xArray[index]=amplitudeReal*(x*x-y*y-0.25);
+        yArray[index]=amplitudeReal*(2*x*y);
     }
 };

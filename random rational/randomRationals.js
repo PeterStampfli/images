@@ -17,12 +17,19 @@ import {
 export const randomRationals = {};
 
 randomRationals.range = 1;
-randomRationals.nomPower = 3;
-randomRationals.denomPower = 2;
+randomRationals.nomPower = 2;
+randomRationals.denomPower = 0;
 randomRationals.imaginaries=true;
+randomRationals.prefactor=2;
 
 randomRationals.setup = function(gui) {
     gui.addParagraph('<strong>random rational function</strong>');
+    gui.add({
+        type: 'number',
+        params: randomRationals,
+        property: 'prefactor',
+        onChange: julia.drawNewStructure
+    })
     gui.add({
         type: 'number',
         params: randomRationals,
@@ -32,7 +39,9 @@ randomRationals.setup = function(gui) {
         type: 'boolean',
         params: randomRationals,
         property: 'imaginaries',
-        onChange: julia.drawNewStructure
+        onChange: function(){randomKoeffs();
+            julia.drawNewStructure();
+        }
     });
     gui.add({
         type: 'number',
@@ -55,16 +64,17 @@ randomRationals.setup = function(gui) {
         onClick: function() {
             console.log('randomize');
             randomKoeffs();
+            julia.drawNewStructure();
         }
     });
     randomKoeffs();
 
 };
 
-const nomKoeffsReal = [];
-const nomKoeffsImag = [];
-const denomKoeffsReal = [];
-const denomKoeffsImag = [];
+let nomKoeffsReal = [];
+let nomKoeffsImag = [];
+let denomKoeffsReal = [];
+let denomKoeffsImag = [];
 
 function randomKoeffs() {
     nomKoeffsReal.length = 0;
@@ -73,14 +83,41 @@ function randomKoeffs() {
     denomKoeffsImag.length = 0;
     for (let i = 0; i <= randomRationals.nomPower; i++) {
         nomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
+        nomKoeffsImag.push(randomRationals.imaginaries?2 * randomRationals.range * (Math.random() - 0.5):0);
     }
     for (let i = 0; i <= randomRationals.denomPower; i++) {
         denomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
+        denomKoeffsImag.push(randomRationals.imaginaries?2 * randomRationals.range * (Math.random() - 0.5):0);
     }
+  //  nomKoeffsReal=[1,0,-0.25];
+   // nomKoeffsImag=[0,0,0];
+   
     console.log(nomKoeffsReal);
     console.log(nomKoeffsImag);
     console.log(denomKoeffsReal);
     console.log(denomKoeffsImag);
+    let x=0;
+    let y=1;
+      const nomPower=randomRationals.nomPower;
+    const denomPower=randomRationals.denomPower;
+         // nominator, including amplitude
+        let nomRe = nomKoeffsReal[0];
+        let nomIm = nomKoeffsImag[0];
+        for (let i=1;i<=nomPower;i++){
+            const h=nomRe*x-nomIm*y+nomKoeffsReal[i];
+            nomIm=nomIm*x+ nomRe*y+nomKoeffsImag[i];
+            nomRe=h;
+        }
+        console.log(nomRe,nomIm)
+        //denominator
+        let denomRe = 1;
+        let denomIm = 0;
+             for (let i=1;i<=denomPower;i++){
+            const h=denomRe*x-denomIm*y+denomKoeffsReal[i];
+            denomIm=denomIm*x+ denomRe*y+denomKoeffsImag[i];
+            denomRe=h;
+        }
+        console.log(denomRe,denomIm);
 }
 
 
@@ -95,6 +132,11 @@ map.evaluateRationalFunction = function() {
 
     const eps = 1e-100;
     const nPixels = map.xArray.length;
+    const nomPower=randomRationals.nomPower;
+    const denomPower=randomRationals.denomPower;
+    const prefactor=randomRationals.prefactor;
+    console.log(denomPower);
+
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
         if (structure >= 128) {
@@ -103,16 +145,27 @@ map.evaluateRationalFunction = function() {
         let x = xArray[index];
         let y = yArray[index];
         // nominator, including amplitude
-        let nomRe = 1;
-        let nomIm = 0;
-
+        let nomRe = nomKoeffsReal[0];
+        let nomIm = nomKoeffsImag[0];
+        for (let i=1;i<=nomPower;i++){
+            const h=nomRe*x-nomIm*y+nomKoeffsReal[i];
+            nomIm=nomIm*x+ nomRe*y+nomKoeffsImag[i];
+            nomRe=h;
+        }
         //denominator
-        let denRe = 1;
-        let denIm = 0;
-
+        let denomRe = 1;
+        let denomIm = 0;
+             for (let i=1;i<=nomPower;i++){
+            const h=denomRe*x-denomIm*y+denomKoeffsReal[i];
+         //   denomIm=denomIm*x+ denomRe*y+denomKoeffsImag[i];
+         //   denomRe=h;
+        }
         // division, avoiding div by zero
-        const norm = 1 / (denRe * denRe + denIm * denIm + eps);
-        xArray[index] = norm * (nomRe * denRe + nomIm * denIm);
-        yArray[index] = norm * (nomIm * denRe - nomRe * denIm);
+        const norm = prefactor / (denomRe * denomRe + denomIm * denomIm + eps);
+      //  const norm = 2 ;
+        xArray[index] = norm * (nomRe * denomRe + nomIm * denomIm);
+        yArray[index] = norm * (nomIm * denomRe - nomRe * denomIm);
+     //   xArray[index]=2*(x*x-y*y-0.25);
+     //   yArray[index]=4*x*y;
     }
 };
