@@ -19,8 +19,8 @@ export const randomRationals = {};
 randomRationals.range = 1;
 randomRationals.nomPower = 2;
 randomRationals.denomPower = 0;
-randomRationals.imaginaries=true;
-randomRationals.prefactor=2;
+randomRationals.imaginaries = true;
+randomRationals.prefactor = 1;
 
 randomRationals.setup = function(gui) {
     gui.addParagraph('<strong>random rational function</strong>');
@@ -39,7 +39,8 @@ randomRationals.setup = function(gui) {
         type: 'boolean',
         params: randomRationals,
         property: 'imaginaries',
-        onChange: function(){randomKoeffs();
+        onChange: function() {
+            randomKoeffs();
             julia.drawNewStructure();
         }
     });
@@ -49,20 +50,25 @@ randomRationals.setup = function(gui) {
         property: 'nomPower',
         step: 1,
         min: 0,
-        onChange: julia.drawNewStructure
+        onChange: function() {
+            randomKoeffs();
+            julia.drawNewStructure();
+        }
     }).add({
         type: 'number',
         params: randomRationals,
         property: 'denomPower',
         step: 1,
         min: 0,
-        onChange: julia.drawNewStructure
+        onChange: function() {
+            randomKoeffs();
+            julia.drawNewStructure();
+        }
     });
     gui.add({
         type: 'button',
         buttonText: 'randomize',
         onClick: function() {
-            console.log('randomize');
             randomKoeffs();
             julia.drawNewStructure();
         }
@@ -83,41 +89,41 @@ function randomKoeffs() {
     denomKoeffsImag.length = 0;
     for (let i = 0; i <= randomRationals.nomPower; i++) {
         nomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
-        nomKoeffsImag.push(randomRationals.imaginaries?2 * randomRationals.range * (Math.random() - 0.5):0);
+        nomKoeffsImag.push(randomRationals.imaginaries ? 2 * randomRationals.range * (Math.random() - 0.5) : 0);
     }
     for (let i = 0; i <= randomRationals.denomPower; i++) {
         denomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
-        denomKoeffsImag.push(randomRationals.imaginaries?2 * randomRationals.range * (Math.random() - 0.5):0);
+        denomKoeffsImag.push(randomRationals.imaginaries ? 2 * randomRationals.range * (Math.random() - 0.5) : 0);
     }
-  //  nomKoeffsReal=[1,0,-0.25];
-   // nomKoeffsImag=[0,0,0];
-   
+    //  nomKoeffsReal=[1,0,-0.25];
+    // nomKoeffsImag=[0,0,0];
+
     console.log(nomKoeffsReal);
     console.log(nomKoeffsImag);
     console.log(denomKoeffsReal);
     console.log(denomKoeffsImag);
-    let x=0;
-    let y=1;
-      const nomPower=randomRationals.nomPower;
-    const denomPower=randomRationals.denomPower;
-         // nominator, including amplitude
-        let nomRe = nomKoeffsReal[0];
-        let nomIm = nomKoeffsImag[0];
-        for (let i=1;i<=nomPower;i++){
-            const h=nomRe*x-nomIm*y+nomKoeffsReal[i];
-            nomIm=nomIm*x+ nomRe*y+nomKoeffsImag[i];
-            nomRe=h;
-        }
-        console.log(nomRe,nomIm)
+    let x = 0;
+    let y = 1;
+    const nomPower = randomRationals.nomPower;
+    const denomPower = randomRationals.denomPower;
+    // nominator, including amplitude
+    let nomRe = nomKoeffsReal[0];
+    let nomIm = nomKoeffsImag[0];
+    for (let i = 1; i <= nomPower; i++) {
+        const h = nomRe * x - nomIm * y + nomKoeffsReal[i];
+        nomIm = nomIm * x + nomRe * y + nomKoeffsImag[i];
+        nomRe = h;
+    }
+    console.log(nomRe, nomIm)
         //denominator
-        let denomRe = 1;
-        let denomIm = 0;
-             for (let i=1;i<=denomPower;i++){
-            const h=denomRe*x-denomIm*y+denomKoeffsReal[i];
-            denomIm=denomIm*x+ denomRe*y+denomKoeffsImag[i];
-            denomRe=h;
-        }
-        console.log(denomRe,denomIm);
+    let denomRe = 1;
+    let denomIm = 0;
+    for (let i = 1; i <= denomPower; i++) {
+        const h = denomRe * x - denomIm * y + denomKoeffsReal[i];
+        denomIm = denomIm * x + denomRe * y + denomKoeffsImag[i];
+        denomRe = h;
+    }
+    console.log(denomRe, denomIm);
 }
 
 
@@ -132,9 +138,9 @@ map.evaluateRationalFunction = function() {
 
     const eps = 1e-100;
     const nPixels = map.xArray.length;
-    const nomPower=randomRationals.nomPower;
-    const denomPower=randomRationals.denomPower;
-    const prefactor=randomRationals.prefactor;
+    const nomPower = randomRationals.nomPower;
+    const denomPower = randomRationals.denomPower;
+    const prefactor = randomRationals.prefactor;
     console.log(denomPower);
 
     for (var index = 0; index < nPixels; index++) {
@@ -147,25 +153,23 @@ map.evaluateRationalFunction = function() {
         // nominator, including amplitude
         let nomRe = nomKoeffsReal[0];
         let nomIm = nomKoeffsImag[0];
-        for (let i=1;i<=nomPower;i++){
-            const h=nomRe*x-nomIm*y+nomKoeffsReal[i];
-            nomIm=nomIm*x+ nomRe*y+nomKoeffsImag[i];
-            nomRe=h;
+        for (let i = 1; i <= nomPower; i++) {
+            const h = nomRe * x - nomIm * y + nomKoeffsReal[i];
+            nomIm = nomIm * x + nomRe * y + nomKoeffsImag[i];
+            nomRe = h;
         }
         //denominator
-        let denomRe = 1;
-        let denomIm = 0;
-             for (let i=1;i<=nomPower;i++){
-            const h=denomRe*x-denomIm*y+denomKoeffsReal[i];
-         //   denomIm=denomIm*x+ denomRe*y+denomKoeffsImag[i];
-         //   denomRe=h;
+        let denomRe = denomKoeffsReal[0];
+        let denomIm = denomKoeffsImag[0];
+        for (let i = 1; i <= denomPower; i++) {
+            const h = denomRe * x - denomIm * y + denomKoeffsReal[i];
+               denomIm=denomIm*x+ denomRe*y+denomKoeffsImag[i];
+               denomRe=h;
         }
         // division, avoiding div by zero
         const norm = prefactor / (denomRe * denomRe + denomIm * denomIm + eps);
-      //  const norm = 2 ;
+        //  const norm = 2 ;
         xArray[index] = norm * (nomRe * denomRe + nomIm * denomIm);
         yArray[index] = norm * (nomIm * denomRe - nomRe * denomIm);
-     //   xArray[index]=2*(x*x-y*y-0.25);
-     //   yArray[index]=4*x*y;
     }
 };

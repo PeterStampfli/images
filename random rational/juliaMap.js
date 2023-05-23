@@ -50,14 +50,11 @@ juliaMap.setup = function(gui) {
         options: {
             'nothing': map.nothing,
             'julia set': map.juliaSet,
-            'linear julia set': map.linearJuliaSet,
             'only iterations': map.onlyIterations,
             'final inversion': map.finalInversion,
             'many inversions': map.manyInversions,
             'final half-plane inversion': map.finalHalfPlaneInversion,
-            'many half-plane inversions': map.manyHalfPlaneInversions,
-            'final strip inversion': map.finalStripInversion,
-            'many strip inversions': map.manyStripInversions
+            'many half-plane inversions': map.manyHalfPlaneInversions
         },
         onChange: julia.drawNewStructure
     });
@@ -147,7 +144,11 @@ map.periodicY = function(limit) {
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
         const y = yArray[index];
-        yArray[index] = y - limit - period * Math.floor(y / period);
+        const n=Math.floor(y / period);
+        if (n&1){
+            structureArray[index]=1- structureArray[index];
+        }
+        yArray[index] = y - limit - period * n;
     }
 };
 
@@ -271,29 +272,6 @@ map.manyInversions = function() {
         map.radialInversion(map.limit);
     }
     map.scale(map.limit);
-};
-
-// make inversions, linear
-// transform from band to sphere
-
-map.finalStripInversion = function() {
-    // map.linearInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-    }
-    map.periodicY(map.limit);
-    map.scale(map.limit);
-    kaleidoscope.bulatovBand();
-};
-
-map.manyStripInversions = function() {
-    // map.linearInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
-        map.periodicY(map.limit);
-    }
-    map.scale(map.limit);
-    kaleidoscope.bulatovBand();
 };
 
 map.finalHalfPlaneInversion = function() {

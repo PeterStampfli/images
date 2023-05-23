@@ -15,7 +15,7 @@ import {
 } from "./mapImage.js";
 
 const amplitude = {};
-amplitude.real = 2;
+amplitude.real = 1;
 amplitude.imag = 0;
 
 const drawRadius = 5;
@@ -345,6 +345,8 @@ points.setup = function(gui) {
         onClick: function() {
             console.log('clear');
             points.clear();
+            points.topXController.setValueOnly(0);
+            points.topYController.setValueOnly(0);
             points.topIsSelected = false;
             julia.drawNewStructure();
         }
@@ -466,6 +468,8 @@ points.zerosAndSingularities = function() {
             singuIm.push(-point.y);
         }
     }
+    console.log('zerossings')
+    console.log(zerosRe,zerosIm);
 };
 
 /**
@@ -473,6 +477,7 @@ points.zerosAndSingularities = function() {
  * only for pixel with structure>=0 (valid pixels)
  */
 map.evaluateRationalFunction = function() {
+    console.log('evalratfun')
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
@@ -480,6 +485,7 @@ map.evaluateRationalFunction = function() {
     const amplitudeReal = amplitude.real;
     const amplitudeImag = amplitude.imag;
     const zerosLength = zerosRe.length;
+    console.log(zerosRe)
     const singuLength = singuRe.length;
     const eps = 0.0001;
     const nPixels = map.xArray.length;
@@ -514,7 +520,5 @@ map.evaluateRationalFunction = function() {
         const norm = 1 / (denRe * denRe + denIm * denIm + eps);
         xArray[index] = norm * (nomRe * denRe + nomIm * denIm);
         yArray[index] = norm * (nomIm * denRe - nomRe * denIm);
-            xArray[index]=amplitudeReal*(x*x-y*y-0.25);
-        yArray[index]=amplitudeReal*(2*x*y);
     }
 };
