@@ -193,7 +193,7 @@ const config = {};
 config.radius = 0.4;
 config.n = 5;
 config.type = Point.zero;
-config.angle = 0;
+config.rotated = false;
 config.centerX = 0;
 config.centerY = 0;
 
@@ -307,10 +307,9 @@ points.setup = function(gui) {
         property: 'radius',
         min: 0
     }).add({
-        type: 'number',
+        type: 'boolean',
         params: config,
-        property: 'angle',
-        labelText: 'angle in degrees'
+        property: 'rotated'
     });
     gui.add({
         type: 'number',
@@ -327,9 +326,9 @@ points.setup = function(gui) {
         type: 'button',
         buttonText: 'generate',
         onClick: function() {
-            const angle = Math.PI / 180 * config.angle;
             const radius = config.radius;
             const dAngle = 2 * Math.PI / config.n;
+            const angle = config.rotated ? 0.5 * dAngle : 0;
             for (let i = 0; i < config.n; i++) {
                 const x = config.centerX + radius * Math.cos(angle + i * dAngle);
                 const y = config.centerY + radius * Math.sin(angle + i * dAngle);
@@ -468,8 +467,6 @@ points.zerosAndSingularities = function() {
             singuIm.push(-point.y);
         }
     }
-    console.log('zerossings')
-    console.log(zerosRe,zerosIm);
 };
 
 /**
@@ -477,7 +474,6 @@ points.zerosAndSingularities = function() {
  * only for pixel with structure>=0 (valid pixels)
  */
 map.evaluateRationalFunction = function() {
-    console.log('evalratfun')
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
@@ -485,10 +481,21 @@ map.evaluateRationalFunction = function() {
     const amplitudeReal = amplitude.real;
     const amplitudeImag = amplitude.imag;
     const zerosLength = zerosRe.length;
-    console.log(zerosRe)
     const singuLength = singuRe.length;
     const eps = 0.0001;
     const nPixels = map.xArray.length;
+    // result for infty/infty
+    var inftDivInftyX, inftDivInftyY;
+    if (zerosLength > singuLength) {
+        inftDivInftyX = Infinity;
+        inftDivInftyY = Infinity;
+    } else if (zerosLength === singuLength) {
+        inftDivInftyX = amplitudeReal;
+        inftDivInftyY = amplitudeImag;
+    } else {
+        inftDivInftyX = 0;
+        inftDivInftyY = 0;
+    }
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
         if (structure >= 128) {
@@ -496,29 +503,64 @@ map.evaluateRationalFunction = function() {
         }
         let x = xArray[index];
         let y = yArray[index];
-        // nominator, including amplitude
-        let nomRe = amplitudeReal;
-        let nomIm = amplitudeImag;
-        for (let i = 0; i < zerosLength; i++) {
-            const re = x - zerosRe[i];
-            const im = y - zerosIm[i];
-            const h = re * nomRe - im * nomIm;
-            nomIm = re * nomIm + im * nomRe;
-            nomRe = h;
+        // safety: check if z is finite
+        if (isFinite(x * x + y * y)) {
+            // nominator, including amplitude
+            let nomRe = amplitudeReal;
+            let nomIm = amplitudeImag;
+            for (let i = 0; i < zerosLength; i++) {
+                const re = x - zerosRe[i];
+                const im = y - zerosIm[i];
+                const h = re * nomRe - im * nomIm;
+                nomIm = re * nomIm + im * nomRe;
+                nomRe = h;
+            }
+            //denominator
+            let denRe = 1;
+            let denIm = 0;
+            for (let i = 0; i < singuLength; i++) {
+                const re = x - singuRe[i];
+                const im = y - singuIm[i];
+                const h = re * denRe - im * denIm;
+                denIm = re * denIm + im * denRe;
+                denRe = h;
+            }
+            const denomAbs2 = denRe * denRe + denIm * denIm;
+            const nomAbs2 = nomRe * nomRe + nomIm * nomIm;
+            // problems with infinity  x=Infinity!!
+            if (isFinite(denomAbs2)) {
+                if (isFinite(nomAbs2)) {
+                    // division, avoiding div by zero
+                    // assuming that singularities and zeros are separated
+                    if (denomAbs2 > eps) {
+                        const factor = 1 / denomAbs2;
+                        xArray[index] = factor * (nomRe * denRe + nomIm * denIm);
+                        yArray[index] = factor * (nomIm * denRe - nomRe * denIm);
+                    } else {
+                        xArray[index] = Infinity;
+                        yArray[index] = Infinity;
+                    }
+                } else {
+                    //nominator infinite, denominator finite
+                    xArray[index] = Infinity;
+                    yArray[index] = Infinity;
+                }
+            } else {
+                if (isFinite(nomAbs2)) {
+                    // finite nominator, infinite denominator
+                    xArray[index] = 0;
+                    yArray[index] = 0;
+                } else {
+                    // both infinite infty/infty
+                    xArray[index] = inftDivInftyX;
+                    yArray[index] = inftDivInftyY;
+                }
+            }
+        } else {
+            // z is infinite-> infty/infty, depending on powers
+            // valid also if no singularity
+            xArray[index] = inftDivInftyX;
+            yArray[index] = inftDivInftyY;
         }
-        //denominator
-        let denRe = 1;
-        let denIm = 0;
-        for (let i = 0; i < singuLength; i++) {
-            const re = x - singuRe[i];
-            const im = y - singuIm[i];
-            const h = re * denRe - im * denIm;
-            denIm = re * denIm + im * denRe;
-            denRe = h;
-        }
-        // division, avoiding div by zero
-        const norm = 1 / (denRe * denRe + denIm * denIm + eps);
-        xArray[index] = norm * (nomRe * denRe + nomIm * denIm);
-        yArray[index] = norm * (nomIm * denRe - nomRe * denIm);
     }
 };
