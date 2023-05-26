@@ -118,7 +118,6 @@ map.loadInputImage = function() {
 
 map.setupDrawing = function(gui) {
     map.draw = map.callDrawStructure;
-    gui.addParagraph('<strong>image</strong>');
     map.whatToShowController = gui.add({
         type: 'selection',
         params: map,
@@ -438,49 +437,6 @@ map.drawStructure = function() {
     output.pixels.show();
 };
 
-const nanColor = Pixels.integerOfColor({
-    red: 255,
-    green: 0,
-    blue: 0,
-    alpha: 255
-});
-const inftyColor = Pixels.integerOfColor({
-    red: 255,
-    green: 128,
-    blue: 0,
-    alpha: 255
-});
-const invColor = Pixels.integerOfColor({
-    red: 0,
-    green: 0,
-    blue: 255,
-    alpha: 255
-});
-const smaller05Color = Pixels.integerOfColor({
-    red: 180,
-    green: 180,
-    blue: 180,
-    alpha: 255
-});
-const smaller1Color = Pixels.integerOfColor({
-    red: 0,
-    green: 0,
-    blue: 0,
-    alpha: 255
-});
-const greater1Color = Pixels.integerOfColor({
-    red: 255,
-    green: 255,
-    blue: 255,
-    alpha: 255
-});
-const greater2Color = Pixels.integerOfColor({
-    red: 255,
-    green: 255,
-    blue: 0,
-    alpha: 255
-});
-
 map.drawAmplitude = function() {
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
@@ -488,33 +444,27 @@ map.drawAmplitude = function() {
     }
     const pixelsArray = output.pixels.array;
     const structureArray = map.structureArray;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
+    const xArray=map.xArray;
+    const yArray=map.yArray;
     const length = structureArray.length;
     for (var index = 0; index < length; index++) {
         // target region, where the pixel has been mapped into
         const structure = structureArray[index];
         if (structure < 128) {
-            const x = xArray[index];
-            const y = yArray[index];
-            const amp2 = x * x + y * y;
-            if (isFinite(amp2)) {
-                if (amp2 < 0.25) {
-                    pixelsArray[index] = smaller05Color;
-                } else if (amp2 < 1) {
-                    pixelsArray[index] = smaller1Color;
-                } else if (amp2 < 4) {
-                    pixelsArray[index] = greater1Color;
-                } else {
-                    pixelsArray[index] = greater2Color;
-                }
-            } else if (isNaN(amp2)) {
-                pixelsArray[index] = nanColor;
-            } else {
-                pixelsArray[index] = inftyColor;
+            const x=xArray[index];
+            const y=yArray[index];
+            const amp2=x*x+y*y;
+            if (amp2<0.25){
+                         pixelsArray[index] = blue;
+            } else if (amp2<1){
+                         pixelsArray[index] = black;
+            } else if (amp2<4){
+                         pixelsArray[index] = white;
+            }  else {
+                         pixelsArray[index] = yellow;
             }
         } else {
-            pixelsArray[index] = invColor;
+            pixelsArray[index] = grey;
         }
     }
     output.pixels.show();
@@ -553,7 +503,7 @@ map.determineRange = function() {
         map.centerY = 0.5 * (yMax + yMin);
         map.rangeX = xMax - xMin;
         map.rangeY = yMax - yMin;
-        console.log('mapcenter', xMax, xMin, yMax, yMin);
+        console.log('xmaxmin,ymaxmin',xMax,xMin,yMax,yMin);
     }
 };
 
@@ -578,7 +528,6 @@ map.setupMapImageTransform = function() {
         };
         map.inputTransform.transform(v);
         // now we can determine the correct shifts
-        console.log('setupimagetransform', imageWidth, imageHeight);
         map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
     }
 };
@@ -850,7 +799,7 @@ map.drawPhase = function() {
         const y = yArray[index];
         const r2 = x * x + y * y;
         const brightness = minBrightness + r2 / limit2 * extraBrightness;
-        const hue = iPi2 * Math.atan2(y, x);
+        const hue = iPi2 * Math.atan2(y, x)
         setRGBFromHBS(color, hue, brightness, 1);
         pixelsArray[index] = Pixels.integerOfColor(color);
     }

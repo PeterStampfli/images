@@ -170,6 +170,10 @@ kaleidoscope.basic = function() {
             if ((geometry === hyperbolic) && (x * x + y * y >= 1)) {
                 structureArray[index] = 128 + structure;
                 continue;
+            } else if (!isFinite(x * x + y * y)){
+             xArray[index] = 0;
+            yArray[index] = 0; 
+            continue;              
             }
             /* make dihedral map to put point in first sector*/
             /* and thus be able to use inversion/mirror as first step in iterated mapping*/

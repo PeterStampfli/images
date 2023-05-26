@@ -21,6 +21,8 @@ randomRationals.nomPower = 2;
 randomRationals.denomPower = 0;
 randomRationals.imaginaries = true;
 randomRationals.prefactor = 1;
+randomRationals.noConstant=true;
+randomRationals.unitLinear=false;
 
 randomRationals.setup = function(gui) {
     gui.addParagraph('<strong>random rational function</strong>');
@@ -66,6 +68,23 @@ randomRationals.setup = function(gui) {
         }
     });
     gui.add({
+        type: 'boolean',
+        params: randomRationals,
+        property: 'noConstant',
+        onChange: function() {
+            randomKoeffs();
+            julia.drawNewStructure();
+        }
+    }).add({
+        type: 'boolean',
+        params: randomRationals,
+        property: 'unitLinear',
+        onChange: function() {
+            randomKoeffs();
+            julia.drawNewStructure();
+        }
+    });
+    gui.add({
         type: 'button',
         buttonText: 'randomize',
         onClick: function() {
@@ -95,8 +114,12 @@ function randomKoeffs() {
         denomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
         denomKoeffsImag.push(randomRationals.imaginaries ? 2 * randomRationals.range * (Math.random() - 0.5) : 0);
     }
-    //  nomKoeffsReal=[1,0,-0.25];
-    // nomKoeffsImag=[0,0,0];
+   
+
+if (randomRationals.noConstant){
+    denomKoeffsReal[nomPower]=0;
+    denomKoeffsImag[nomPower]=0;
+}
 
     console.log(nomKoeffsReal);
     console.log(nomKoeffsImag);

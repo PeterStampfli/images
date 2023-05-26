@@ -190,7 +190,7 @@ points.setLastPoint = function() {
 };
 
 const config = {};
-config.radius = 0.4;
+config.radius = 1;
 config.n = 5;
 config.type = Point.zero;
 config.rotated = false;

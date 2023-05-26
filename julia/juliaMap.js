@@ -49,8 +49,10 @@ juliaMap.setup = function(gui) {
         property: 'iteration',
         options: {
             'nothing': map.nothing,
+            'julia set approximation': map.juliaSetApproximation,
             'julia set': map.juliaSet,
             'only iterations': map.onlyIterations,
+            'final limit': map.finalLimit,
             'final inversion': map.finalInversion,
             'many inversions': map.manyInversions,
             'final half-plane inversion': map.finalHalfPlaneInversion,
@@ -243,6 +245,15 @@ map.juliaSet = function() {
     for (let i = 0; i < map.iters; i++) {
         map.evaluateRationalFunction();
         map.radialLimit(map.limit);
+    }
+    map.scale(map.limit);
+};
+
+map.juliaSetApproximation = function() {
+    map.radialLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+        map.radialLimit(map.limit);
         map.countIterations();
     }
     map.invertSelect();
@@ -261,6 +272,14 @@ map.finalInversion = function() {
         map.evaluateRationalFunction();
     }
     map.radialInversion(map.limit);
+    map.scale(map.limit);
+};
+
+map.finalLimit = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.evaluateRationalFunction();
+    }
+    map.radialLimit(map.limit);
     map.scale(map.limit);
 };
 
