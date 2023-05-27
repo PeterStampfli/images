@@ -11,18 +11,16 @@ import {
 } from "./points.js";
 
 import {
+    map,julia
+} from "./mapImage.js";
+
+import {
     juliaMap
 } from "./juliaMap.js";
 
 import {
     kaleidoscope
 } from "./kaleidoscope.js";
-
-import {
-    map
-} from "./mapImage.js";
-
-export const julia = {};
 
 function setup() {
     // base gui
@@ -84,7 +82,7 @@ julia.drawNoChange = function() {
 
 setup();
 
-const x=0.5;
+const x = 0.5;
 points.add(new Point(x, 0, Point.zero));
 points.add(new Point(-x, 0, Point.zero));
 

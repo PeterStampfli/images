@@ -1,11 +1,8 @@
 /* jshint esversion:6 */
 
 import {
+    map,
     julia
-} from "./julia.js";
-
-import {
-    map
 } from "./mapImage.js";
 
 export const kaleidoscope = {};
@@ -170,10 +167,10 @@ kaleidoscope.basic = function() {
             if ((geometry === hyperbolic) && (x * x + y * y >= 1)) {
                 structureArray[index] = 128 + structure;
                 continue;
-            } else if (!isFinite(x * x + y * y)){
-             xArray[index] = 0;
-            yArray[index] = 0; 
-            continue;              
+            } else if (!isFinite(x * x + y * y)) {
+                xArray[index] = 0;
+                yArray[index] = 0;
+                continue;
             }
             /* make dihedral map to put point in first sector*/
             /* and thus be able to use inversion/mirror as first step in iterated mapping*/
@@ -627,7 +624,7 @@ kaleidoscope.bulatovPeriod = function() {
 };
 
 // transformation from band to circle
-kaleidoscope.bulatovBandTransformation=function() {
+kaleidoscope.bulatovBandTransformation = function() {
     const a = 1; //original transform
     const piA2 = Math.PI * a / 2;
     const iTanPiA4 = 1.0 / Math.tan(Math.PI * a / 4);

@@ -6,23 +6,21 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    juliaMap
-} from "./juliaMap.js";
+    map,julia
+} from "./mapImage.js";
+
+import {
+    functions
+} from "./functions.js";
 
 import {
     kaleidoscope
 } from "./kaleidoscope.js";
 
-import {
-    map
-} from "./mapImage.js";
-
-export const julia = {};
-
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'julia+',
+        name: 'functions+',
         closed: false
     });
     julia.gui = gui;
@@ -34,7 +32,7 @@ function setup() {
     output.grid.interval = 0.1;
     output.addGrid();
     output.addCursorposition();
-    juliaMap.setup(gui);
+    functions.setup(gui);
     kaleidoscope.setup(gui);
     map.setupDrawing(gui);
 

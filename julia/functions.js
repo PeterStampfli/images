@@ -8,23 +8,19 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    julia
-} from "./julia.js";
-
-import {
-    map
+    map,julia
 } from "./mapImage.js";
 
 import {
     kaleidoscope
 } from "./kaleidoscope.js";
 
-export const juliaMap = {};
+export const functions = {};
 
 map.n = 5;
 map.param = 0.5;
 
-juliaMap.setup = function(gui) {
+functions.setup = function(gui) {
     gui.addParagraph('<strong>mapping</strong>');
     gui.add({
         type: 'number',
@@ -46,6 +42,7 @@ juliaMap.setup = function(gui) {
         type: 'selection',
         params: map,
         property: 'iteration',
+        labelText: 'mapping',
         options: {
             'nothing': map.nothing,
             'joukowski': map.joukowski,

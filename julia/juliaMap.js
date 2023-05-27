@@ -8,11 +8,8 @@ import {
 } from "../libgui/modules.js";
 
 import {
+    map,
     julia
-} from "./julia.js";
-
-import {
-    map
 } from "./mapImage.js";
 
 import {
@@ -21,10 +18,12 @@ import {
 
 export const juliaMap = {};
 
-map.iters = 5;
-map.limit = 10;
-
 juliaMap.setup = function(gui) {
+    map.iters = 5;
+    map.limit = 10;
+    map.mapping = function() {
+        console.error('map.mapping is undefined');
+    };
     gui.addParagraph('<strong>mapping</strong>');
     gui.add({
         type: 'number',
@@ -146,9 +145,9 @@ map.periodicY = function(limit) {
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
         const y = yArray[index];
-        const n=Math.floor(y / period);
-        if (n&1){
-            structureArray[index]=1- structureArray[index];
+        const n = Math.floor(y / period);
+        if (n & 1) {
+            structureArray[index] = 1 - structureArray[index];
         }
         yArray[index] = y - limit - period * n;
     }
@@ -243,7 +242,7 @@ map.nothing = function() {};
 map.juliaSet = function() {
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
         map.radialLimit(map.limit);
     }
     map.scale(map.limit);
@@ -252,7 +251,7 @@ map.juliaSet = function() {
 map.juliaSetApproximation = function() {
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
         map.radialLimit(map.limit);
         map.countIterations();
     }
@@ -262,14 +261,14 @@ map.juliaSetApproximation = function() {
 
 map.onlyIterations = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
     }
     map.scale(map.limit);
 };
 
 map.finalInversion = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
     }
     map.radialInversion(map.limit);
     map.scale(map.limit);
@@ -277,7 +276,7 @@ map.finalInversion = function() {
 
 map.finalLimit = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
     }
     map.radialLimit(map.limit);
     map.scale(map.limit);
@@ -287,7 +286,7 @@ map.finalLimit = function() {
 map.manyInversions = function() {
     //  map.radialInversion(map.limit);
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
         map.radialInversion(map.limit);
     }
     map.scale(map.limit);
@@ -295,7 +294,7 @@ map.manyInversions = function() {
 
 map.finalHalfPlaneInversion = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
     }
     map.reflectionXAxis();
     map.cayleyTransform();
@@ -303,7 +302,7 @@ map.finalHalfPlaneInversion = function() {
 
 map.manyHalfPlaneInversions = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
         map.reflectionXAxis();
     }
     map.cayleyTransform();

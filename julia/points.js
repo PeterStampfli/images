@@ -7,11 +7,8 @@ import {
 from "../libgui/modules.js";
 
 import {
+    map,
     julia
-} from "./julia.js";
-
-import {
-    map
 } from "./mapImage.js";
 
 const amplitude = {};
@@ -442,6 +439,7 @@ points.setup = function(gui) {
             output.dragImage();
         }
     };
+    map.mapping = map.evaluateRationalFunction;
 };
 
 // make table of singularities
