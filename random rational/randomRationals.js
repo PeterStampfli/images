@@ -21,8 +21,7 @@ randomRationals.nomPower = 2;
 randomRationals.denomPower = 0;
 randomRationals.imaginaries = true;
 randomRationals.prefactor = 1;
-randomRationals.noConstant=true;
-randomRationals.unitLinear=false;
+randomRationals.noConstant = true;
 
 randomRationals.setup = function(gui) {
     gui.addParagraph('<strong>random rational function</strong>');
@@ -31,7 +30,7 @@ randomRationals.setup = function(gui) {
         params: randomRationals,
         property: 'prefactor',
         onChange: julia.drawNewStructure
-    })
+    });
     gui.add({
         type: 'number',
         params: randomRationals,
@@ -75,14 +74,6 @@ randomRationals.setup = function(gui) {
             randomKoeffs();
             julia.drawNewStructure();
         }
-    }).add({
-        type: 'boolean',
-        params: randomRationals,
-        property: 'unitLinear',
-        onChange: function() {
-            randomKoeffs();
-            julia.drawNewStructure();
-        }
     });
     gui.add({
         type: 'button',
@@ -114,39 +105,15 @@ function randomKoeffs() {
         denomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
         denomKoeffsImag.push(randomRationals.imaginaries ? 2 * randomRationals.range * (Math.random() - 0.5) : 0);
     }
-   
-
-if (randomRationals.noConstant){
-    denomKoeffsReal[nomPower]=0;
-    denomKoeffsImag[nomPower]=0;
-}
+    if (randomRationals.noConstant) {
+        nomKoeffsReal[randomRationals.nomPower] = 0;
+        nomKoeffsImag[randomRationals.nomPower] = 0;
+    }
 
     console.log(nomKoeffsReal);
     console.log(nomKoeffsImag);
     console.log(denomKoeffsReal);
     console.log(denomKoeffsImag);
-    let x = 0;
-    let y = 1;
-    const nomPower = randomRationals.nomPower;
-    const denomPower = randomRationals.denomPower;
-    // nominator, including amplitude
-    let nomRe = nomKoeffsReal[0];
-    let nomIm = nomKoeffsImag[0];
-    for (let i = 1; i <= nomPower; i++) {
-        const h = nomRe * x - nomIm * y + nomKoeffsReal[i];
-        nomIm = nomIm * x + nomRe * y + nomKoeffsImag[i];
-        nomRe = h;
-    }
-    console.log(nomRe, nomIm)
-        //denominator
-    let denomRe = 1;
-    let denomIm = 0;
-    for (let i = 1; i <= denomPower; i++) {
-        const h = denomRe * x - denomIm * y + denomKoeffsReal[i];
-        denomIm = denomIm * x + denomRe * y + denomKoeffsImag[i];
-        denomRe = h;
-    }
-    console.log(denomRe, denomIm);
 }
 
 
@@ -158,14 +125,24 @@ map.evaluateRationalFunction = function() {
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
-
     const eps = 1e-100;
     const nPixels = map.xArray.length;
     const nomPower = randomRationals.nomPower;
     const denomPower = randomRationals.denomPower;
     const prefactor = randomRationals.prefactor;
-    console.log(denomPower);
-
+    // result for infty/infty
+    var inftDivInftyX, inftDivInftyY;
+    if (nomPower > denomPower) {
+        inftDivInftyX = Infinity;
+        inftDivInftyY = Infinity;
+    } else if (nomPower === denomPower) {
+        const factor = prefactor / (denomKoeffsReal[0] * denomKoeffsReal[0] + denomKoeffsImag[0] * denomKoeffsImag[0]);
+        inftDivInftyX = factor * (denomKoeffsReal[0] * nomKoeffsReal[0] + denomKoeffsImag[0] * denomKoeffsImag[0]);
+        inftDivInftyY = factor * (nomKoeffsImag[0] * denomKoeffsReal[0] - nomKoeffsReal[0] * denomKoeffsImag[0]);
+    } else {
+        inftDivInftyX = 0;
+        inftDivInftyY = 0;
+    }
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
         if (structure >= 128) {
@@ -173,26 +150,60 @@ map.evaluateRationalFunction = function() {
         }
         let x = xArray[index];
         let y = yArray[index];
-        // nominator, including amplitude
-        let nomRe = nomKoeffsReal[0];
-        let nomIm = nomKoeffsImag[0];
-        for (let i = 1; i <= nomPower; i++) {
-            const h = nomRe * x - nomIm * y + nomKoeffsReal[i];
-            nomIm = nomIm * x + nomRe * y + nomKoeffsImag[i];
-            nomRe = h;
+        // safety: check if z is finite
+        if (isFinite(x * x + y * y)) {
+            // nominator, including amplitude
+            let nomRe = nomKoeffsReal[0];
+            let nomIm = nomKoeffsImag[0];
+            for (let i = 1; i <= nomPower; i++) {
+                const h = nomRe * x - nomIm * y + nomKoeffsReal[i];
+                nomIm = nomIm * x + nomRe * y + nomKoeffsImag[i];
+                nomRe = h;
+            }
+            //denominator
+            let denRe = denomKoeffsReal[0];
+            let denIm = denomKoeffsImag[0];
+            for (let i = 1; i <= denomPower; i++) {
+                const h = denRe * x - denIm * y + denomKoeffsReal[i];
+                denIm = denIm * x + denRe * y + denomKoeffsImag[i];
+                denRe = h;
+            }
+            const denomAbs2 = denRe * denRe + denIm * denIm;
+            const nomAbs2 = nomRe * nomRe + nomIm * nomIm;
+            // problems with infinity  x=Infinity!!
+            if (isFinite(denomAbs2)) {
+                if (isFinite(nomAbs2)) {
+                    // division, avoiding div by zero
+                    // assuming that singularities and zeros are separated
+                    if (denomAbs2 > eps) {
+                        const factor = prefactor / denomAbs2;
+                        xArray[index] = factor * (nomRe * denRe + nomIm * denIm);
+                        yArray[index] = factor * (nomIm * denRe - nomRe * denIm);
+                    } else {
+                        xArray[index] = Infinity;
+                        yArray[index] = Infinity;
+                    }
+                } else {
+                    //nominator infinite, denominator finite
+                    xArray[index] = Infinity;
+                    yArray[index] = Infinity;
+                }
+            } else {
+                if (isFinite(nomAbs2)) {
+                    // finite nominator, infinite denominator
+                    xArray[index] = 0;
+                    yArray[index] = 0;
+                } else {
+                    // both infinite infty/infty
+                    xArray[index] = inftDivInftyX;
+                    yArray[index] = inftDivInftyY;
+                }
+            }
+        } else {
+            // z is infinite-> infty/infty, depending on powers
+            // valid also if no singularity
+            xArray[index] = inftDivInftyX;
+            yArray[index] = inftDivInftyY;
         }
-        //denominator
-        let denomRe = denomKoeffsReal[0];
-        let denomIm = denomKoeffsImag[0];
-        for (let i = 1; i <= denomPower; i++) {
-            const h = denomRe * x - denomIm * y + denomKoeffsReal[i];
-               denomIm=denomIm*x+ denomRe*y+denomKoeffsImag[i];
-               denomRe=h;
-        }
-        // division, avoiding div by zero
-        const norm = prefactor / (denomRe * denomRe + denomIm * denomIm + eps);
-        //  const norm = 2 ;
-        xArray[index] = norm * (nomRe * denomRe + nomIm * denomIm);
-        yArray[index] = norm * (nomIm * denomRe - nomRe * denomIm);
     }
 };
