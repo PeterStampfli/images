@@ -18,10 +18,8 @@ import {
 } from "./kaleidoscope.js";
 
 import {
-    map
+    map,julia
 } from "./mapImage.js";
-
-export const julia = {};
 
 function setup() {
     // base gui

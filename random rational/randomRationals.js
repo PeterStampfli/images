@@ -21,7 +21,7 @@ randomRationals.nomPower = 2;
 randomRationals.denomPower = 0;
 randomRationals.imaginaries = true;
 randomRationals.prefactor = 1;
-randomRationals.noConstant = true;
+randomRationals.limited = true;
 
 randomRationals.setup = function(gui) {
     gui.addParagraph('<strong>random rational function</strong>');
@@ -50,7 +50,7 @@ randomRationals.setup = function(gui) {
         params: randomRationals,
         property: 'nomPower',
         step: 1,
-        min: 0,
+        min: 1,
         onChange: function() {
             randomKoeffs();
             julia.drawNewStructure();
@@ -69,7 +69,7 @@ randomRationals.setup = function(gui) {
     gui.add({
         type: 'boolean',
         params: randomRationals,
-        property: 'noConstant',
+        property: 'limited',
         onChange: function() {
             randomKoeffs();
             julia.drawNewStructure();
@@ -84,7 +84,7 @@ randomRationals.setup = function(gui) {
         }
     });
     randomKoeffs();
-
+    map.mapping = map.evaluateRandomRationalFunction;
 };
 
 let nomKoeffsReal = [];
@@ -105,9 +105,13 @@ function randomKoeffs() {
         denomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
         denomKoeffsImag.push(randomRationals.imaginaries ? 2 * randomRationals.range * (Math.random() - 0.5) : 0);
     }
-    if (randomRationals.noConstant) {
+    if (randomRationals.limited) {
         nomKoeffsReal[randomRationals.nomPower] = 0;
         nomKoeffsImag[randomRationals.nomPower] = 0;
+        nomKoeffsReal[randomRationals.nomPower-1] = 1;
+        nomKoeffsImag[randomRationals.nomPower-1] = 0;
+        denomKoeffsReal[randomRationals.denomPower] = 1;
+        denomKoeffsImag[randomRationals.denomPower] = 0;
     }
 
     console.log(nomKoeffsReal);
@@ -121,7 +125,7 @@ function randomKoeffs() {
  * evaluate the rational function for each pixel
  * only for pixel with structure>=0 (valid pixels)
  */
-map.evaluateRationalFunction = function() {
+map.evaluateRandomRationalFunction = function() {
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;

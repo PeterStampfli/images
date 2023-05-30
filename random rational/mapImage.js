@@ -8,10 +8,7 @@ import {
     keyboard
 } from "../libgui/modules.js";
 
-import {
-    julia
-} from "./julia.js";
-
+export const julia={};
 export const map = {};
 
 // map data, dimensions same as canvas, if not => create new arrays
