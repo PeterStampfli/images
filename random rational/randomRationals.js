@@ -7,11 +7,7 @@ import {
 from "../libgui/modules.js";
 
 import {
-    julia
-} from "./julia.js";
-
-import {
-    map
+    map,julia
 } from "./mapImage.js";
 
 export const randomRationals = {};

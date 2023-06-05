@@ -1,11 +1,7 @@
 /* jshint esversion:6 */
 
 import {
-    julia
-} from "./julia.js";
-
-import {
-    map
+    map,julia
 } from "./mapImage.js";
 
 export const kaleidoscope = {};

@@ -8,11 +8,7 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    julia
-} from "./julia.js";
-
-import {
-    map
+    map,julia
 } from "./mapImage.js";
 
 import {
@@ -22,7 +18,7 @@ import {
 export const juliaMap = {};
 
 map.iters = 5;
-map.limit = 1;
+map.limit = 10;
 
 juliaMap.setup = function(gui) {
     gui.addParagraph('<strong>mapping</strong>');
@@ -241,7 +237,7 @@ map.nothing = function() {};
 map.juliaSet = function() {
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
         map.radialLimit(map.limit);
         map.countIterations();
     }
@@ -251,14 +247,14 @@ map.juliaSet = function() {
 
 map.onlyIterations = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
     }
     map.scale(map.limit);
 };
 
 map.finalInversion = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
     }
     map.radialInversion(map.limit);
     map.scale(map.limit);
@@ -268,7 +264,7 @@ map.finalInversion = function() {
 map.manyInversions = function() {
     //  map.radialInversion(map.limit);
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
         map.radialInversion(map.limit);
     }
     map.scale(map.limit);
@@ -276,7 +272,7 @@ map.manyInversions = function() {
 
 map.finalHalfPlaneInversion = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
     }
     map.reflectionXAxis();
     map.cayleyTransform();
@@ -284,7 +280,7 @@ map.finalHalfPlaneInversion = function() {
 
 map.manyHalfPlaneInversions = function() {
     for (let i = 0; i < map.iters; i++) {
-        map.evaluateRationalFunction();
+        map.mapping();
         map.reflectionXAxis();
     }
     map.cayleyTransform();
