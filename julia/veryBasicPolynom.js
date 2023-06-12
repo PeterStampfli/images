@@ -11,6 +11,10 @@ import {
     julia
 } from "./mapImage.js";
 
+import {
+    universalRational
+} from "./universalRational.js";
+
 export const veryBasicPolynom = {};
 
 const amplitude = {};
@@ -30,13 +34,9 @@ veryBasicPolynom.setup = function(gui) {
         type: 'number',
         params: veryBasicPolynom,
         property: 'nPhi',
+        labelText:'order',
         step: 1,
         min: 1,
-        onChange: julia.drawNewStructure
-    }).add({
-        type: 'number',
-        params: veryBasicPolynom,
-        property: 'nRad',
         onChange: julia.drawNewStructure
     });
     gui.add({
@@ -67,6 +67,7 @@ veryBasicPolynom.setup = function(gui) {
     });
 
     map.mapping = map.veryBasicPolynom;
+   map.mapping = map.veryBasicPolynomUniversalRational;
 };
 
 map.veryBasicPolynom = function() {
@@ -80,7 +81,7 @@ map.veryBasicPolynom = function() {
     const base2 = baseReal * baseReal + baseImag * baseImag + eps;
     const amplitudeReal = (amplitude.real * baseReal + amplitude.imag * baseImag) / base2;
     const amplitudeImag = (amplitude.imag * baseReal - amplitude.real * baseImag) / base2;
-    const nRad2 = veryBasicPolynom.nRad/2;
+    const nRad2 = veryBasicPolynom.nRad / 2;
     const nPhi = veryBasicPolynom.nPhi;
     const nPixels = map.xArray.length;
     for (var index = 0; index < nPixels; index++) {
@@ -99,8 +100,8 @@ map.veryBasicPolynom = function() {
             const zOrderImag = rOrder * Math.sin(phiOrder) + baseImag;
             let zzReal = zOrderReal * x - zOrderImag * y;
             let zzImag = zOrderImag * x + zOrderReal * y;
-   //         zzReal=zOrderReal;
-   //         zzImag=zOrderImag;
+            //         zzReal=zOrderReal;
+            //         zzImag=zOrderImag;
             xArray[index] = amplitudeReal * zzReal - amplitudeImag * zzImag;
             yArray[index] = amplitudeReal * zzImag + amplitudeImag * zzReal;
         } else {
@@ -108,4 +109,8 @@ map.veryBasicPolynom = function() {
             yArray[index] = Infinity;
         }
     }
+};
+
+map.veryBasicPolynomUniversalRational = function() {
+    map.universalRational([1, amplitude.real, amplitude.imag, veryBasicPolynom.nPhi, base.real, base.imag]);
 };
