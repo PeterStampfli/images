@@ -50,12 +50,8 @@ juliaMap.setup = function(gui) {
             'nothing': map.nothing,
             'julia set approximation': map.juliaSetApproximation,
             'julia set': map.juliaSet,
-            'only iterations': map.onlyIterations,
-            'final limit': map.finalLimit,
-            'final inversion': map.finalInversion,
-            'many inversions': map.manyInversions,
-            'final half-plane inversion': map.finalHalfPlaneInversion,
-            'many half-plane inversions': map.manyHalfPlaneInversions
+            'mandelbrot approximation': map.mandelbrotApproximation,
+            'mandelbrot': map.mandelbrot
         },
         onChange: julia.drawNewStructure
     });
@@ -82,42 +78,44 @@ map.radialLimit = function(limit) {
         const y = yArray[index];
         const r2 = x * x + y * y;
         if (r2 > limit2) {
-            const factor = limit2 / r2;
-            xArray[index] = factor * x;
-            yArray[index] = factor * y;
             structureArray[index] = 255 - structure;
         }
     }
 };
 
-//now using a line along the x-axis
-map.lineLimit = function(limit) {
+
+/**
+ * apply limit to the map, all pixels with radius> limit will become inactive
+ * complement to 255
+ * invert coordinates to get them inside limit
+ * no further computation for these pixels
+ */
+map.set = function(limit) {
     const limit2 = limit * limit;
+    const iLimit = 1 / limit;
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
-        if (structure >= 128) {
-            continue;
-        }
+        const x = xArray[index];
         const y = yArray[index];
-        const r2 = y * y;
-        if (r2 > limit2) {
-            const factor = limit2 / r2;
-            xArray[index] = factor * xArray[index];
-            yArray[index] = factor * y;
-            structureArray[index] = 255 - structure;
+        const r2 = x * x + y * y;
+        if (r2 < limit2) {
+            structureArray[index] = 0;
+            xArray[index] = x * iLimit;
+            yArray[index] = y * iLimit;
+        } else {
+            structureArray[index] = 128;
         }
     }
 };
 
 /**
- * apply limit to the map, all pixels with radius> limit will be inverted
- * calculation continues, structure results from number of inversions
+ * invert all pixels
  */
-map.radialInversion = function(limit) {
+map.complement = function(limit) {
     const limit2 = limit * limit;
     const xArray = map.xArray;
     const yArray = map.yArray;
@@ -127,74 +125,19 @@ map.radialInversion = function(limit) {
         const x = xArray[index];
         const y = yArray[index];
         const r2 = x * x + y * y;
-        if (r2 > limit2) {
-            const factor = limit2 / r2;
+        if (!isFinite(r2)) {
+            structureArray[index] = 128;
+            xArray[index] = 0;
+            yArray[index] = 0;
+        } else if (r2 > limit2) {
+            const factor = limit / r2;
             xArray[index] = factor * x;
             yArray[index] = factor * y;
-            structureArray[index] = 1 - structureArray[index];
-        }
-    }
-};
-
-// make periodic in y-direction, -limit to +limit
-map.periodicY = function(limit) {
-    const period = 2 * limit;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    for (var index = 0; index < nPixels; index++) {
-        const y = yArray[index];
-        const n = Math.floor(y / period);
-        if (n & 1) {
-            structureArray[index] = 1 - structureArray[index];
-        }
-        yArray[index] = y - limit - period * n;
-    }
-};
-
-// mirroring at the x-axis
-
-map.reflectionXAxis = function() {
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = yArray.length;
-    for (var index = 0; index < nPixels; index++) {
-        const y = yArray[index];
-        if (y < 0) {
-            yArray[index] = -y;
-            structureArray[index] = 1 - structureArray[index];
-        }
-    }
-};
-
-// cayley transform
-// maps real axis to unit circle
-
-map.cayleyTransform = function() {
-    const eps = 0.001;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = xArray.length;
-    for (var index = 0; index < nPixels; index++) {
-        if (structureArray[index] < 128) {
-            const x = xArray[index];
-            const y = yArray[index];
-            const denom = 1 / (x * x + (y + 1) * (y + 1) + eps);
-            xArray[index] = denom * (x * x - 1 + y * y);
-            yArray[index] = -2 * denom * x;
-        }
-    }
-};
-
-map.halfPlaneLimit = function() {
-    const yArray = map.yArray;
-    const structureArray = map.structureArray;
-    const nPixels = yArray.length;
-    for (var index = 0; index < nPixels; index++) {
-        if ((structureArray[index] < 128) && (yArray[index] < 0)) {
-            structureArray[index] = 255 - structureArray[index];
+            structureArray[index] = 0;
+        } else {
+            structureArray[index] = 128;
+            xArray[index] = 0;
+            yArray[index] = 0;
         }
     }
 };
@@ -238,14 +181,11 @@ map.scale = function(length) {
 
 map.nothing = function() {};
 
-// make the julia set
 map.juliaSet = function() {
-    map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
-        map.radialLimit(map.limit);
     }
-    map.scale(map.limit);
+    map.set(map.limit);
 };
 
 map.juliaSetApproximation = function() {
@@ -259,51 +199,58 @@ map.juliaSetApproximation = function() {
     map.scale(map.limit);
 };
 
-map.onlyIterations = function() {
-    for (let i = 0; i < map.iters; i++) {
-        map.mapping();
+
+// for the pseudo mandelbrot
+// save the iinitial coordinates, and add them to the iterated function
+
+map.setInitialXY = function() {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    if (xArray.length !== map.initialXArray.length) {
+        map.initialXArray = new Float32Array(xArray.lenght);
+        map.initialYArray = new Float32Array(xArray.lenght);
     }
-    map.scale(map.limit);
+    const structureArray = map.structureArray;
+    const initialXArray = map.xArray;
+    const initialYArray = map.yArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        initialXArray[index] = xArray[index];
+        initialYArray[index] = yArray[index];
+    }
 };
 
-map.finalInversion = function() {
-    for (let i = 0; i < map.iters; i++) {
-        map.mapping();
+map.addInitialXY = function() {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const initialXArray = map.xArray;
+    const initialYArray = map.yArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        xArray[index] += initialXArray[index];
+        yArray[index] += initialYArray[index];
     }
-    map.radialInversion(map.limit);
-    map.scale(map.limit);
 };
 
-map.finalLimit = function() {
+map.mandelbrot = function() {
+    map.setInitialXY();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
+        map.addInitialXY();
     }
+    map.set(map.limit);
+};
+
+map.mandelbrotApproximation = function() {
+    map.setInitialXY();
     map.radialLimit(map.limit);
+    for (let i = 0; i < map.iters; i++) {
+        map.mapping();
+        map.addInitialXY();
+        map.radialLimit(map.limit);
+        map.countIterations();
+    }
+    map.invertSelect();
     map.scale(map.limit);
-};
-
-// make inversions
-map.manyInversions = function() {
-    //  map.radialInversion(map.limit);
-    for (let i = 0; i < map.iters; i++) {
-        map.mapping();
-        map.radialInversion(map.limit);
-    }
-    map.scale(map.limit);
-};
-
-map.finalHalfPlaneInversion = function() {
-    for (let i = 0; i < map.iters; i++) {
-        map.mapping();
-    }
-    map.reflectionXAxis();
-    map.cayleyTransform();
-};
-
-map.manyHalfPlaneInversions = function() {
-    for (let i = 0; i < map.iters; i++) {
-        map.mapping();
-        map.reflectionXAxis();
-    }
-    map.cayleyTransform();
 };

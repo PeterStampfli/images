@@ -20,6 +20,8 @@ map.height = 1;
 // the mapped coordinates
 map.xArray = new Float32Array(1);
 map.yArray = new Float32Array(1);
+map.initialXArray=new Float32Array(1);
+map.initialYArray=new Float32Array(1);
 
 // structure info
 // for julia set structure of inversion, 0 or 1
@@ -550,7 +552,6 @@ map.determineRange = function() {
         map.centerY = 0.5 * (yMax + yMin);
         map.rangeX = xMax - xMin;
         map.rangeY = yMax - yMin;
-        console.log('mapcenter', xMax, xMin, yMax, yMin);
     }
 };
 
@@ -575,7 +576,6 @@ map.setupMapImageTransform = function() {
         };
         map.inputTransform.transform(v);
         // now we can determine the correct shifts
-        console.log('setupimagetransform', imageWidth, imageHeight);
         map.inputTransform.setValues(0.5 * imageWidth - v.x, 0.5 * imageHeight - v.y, 1, 0);
     }
 };
@@ -835,7 +835,6 @@ map.drawPhase = function() {
     }
     const iPi2 = 0.5 / Math.PI;
     const limit2 = map.limit * map.limit;
-    console.log(map.limit);
     const xArray = map.xArray;
     const yArray = map.yArray;
     const pixelsArray = output.pixels.array;
