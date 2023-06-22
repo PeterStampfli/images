@@ -6,8 +6,8 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    randomRationals
-} from "./randomRationals.js";
+    symmetricRandomRational
+} from "./symmetricRandomRational.js";
 
 import {
     juliaMap
@@ -18,13 +18,14 @@ import {
 } from "./kaleidoscope.js";
 
 import {
-    map,julia
+    map,
+    julia
 } from "./mapImage.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'julia+',
+        name: 'random Rationals',
         closed: false
     });
     julia.gui = gui;

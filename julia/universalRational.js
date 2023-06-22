@@ -1,5 +1,13 @@
 /* jshint esversion: 6 */
 
+/*
+rational functions of the form:
+
+      p                 n_1             n_?
+f(z)=z  * prefactor *[(z    +c_1)...]/[z     +c_?]
+
+*/
+
 import {
     map
 } from "./mapImage.js";

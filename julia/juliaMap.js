@@ -83,7 +83,6 @@ map.radialLimit = function(limit) {
     }
 };
 
-
 /**
  * apply limit to the map, all pixels with radius> limit will become inactive
  * complement to 255
