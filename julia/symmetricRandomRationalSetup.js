@@ -39,7 +39,7 @@ function setup() {
     output.addCursorposition();
     juliaMap.setup(gui);
     kaleidoscope.setup(gui);
-    randomRationals.setup(gui);
+    symmetricRandomRational.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid

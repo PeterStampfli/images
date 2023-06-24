@@ -22,8 +22,8 @@ symmetricRandomRational.nomPower = 2;
 symmetricRandomRational.denomPower = 0;
 symmetricRandomRational.imaginaries = true;
 symmetricRandomRational.prefactorReal = 1;
-symmetricRandomRational.prefactorImag = 1;
-symmetricRandomRational.order=5;
+symmetricRandomRational.prefactorImag = 0;
+symmetricRandomRational.order = 5;
 
 symmetricRandomRational.setup = function(gui) {
     gui.addParagraph('<strong>random rational function</strong>');
@@ -44,8 +44,8 @@ symmetricRandomRational.setup = function(gui) {
         type: 'number',
         params: symmetricRandomRational,
         property: 'order',
-        step:1,
-        min:1,
+        step: 1,
+        min: 1,
         onChange: julia.drawNewStructure
     }).add({
         type: 'boolean',
@@ -108,6 +108,14 @@ function randomKoeffs() {
         denomKoeffsImag.push(symmetricRandomRational.imaginaries ? 2 * (Math.random() - 0.5) : 0);
     }
 
+    // special rational function: constant term always equal to 1
+    // note if not redundancy with prefactor
+    // note inverse order of coefficient storage
+    nomKoeffsReal[nomKoeffsReal.length - 1] = 1;
+    nomKoeffsImag[nomKoeffsReal.length - 1] = 0;
+    denomKoeffsReal[denomKoeffsReal.length - 1] = 1;
+    denomKoeffsImag[denomKoeffsReal.length - 1] = 0;
+
     console.log(nomKoeffsReal);
     console.log(nomKoeffsImag);
     console.log(denomKoeffsReal);
@@ -119,6 +127,7 @@ function randomKoeffs() {
  * only for pixel with structure>=0 (valid pixels)
  */
 map.evaluateSymmetricRandomRationalFunction = function() {
+    console.log('ev');
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
@@ -126,19 +135,22 @@ map.evaluateSymmetricRandomRationalFunction = function() {
     const nPixels = map.xArray.length;
     const nomPower = symmetricRandomRational.nomPower;
     const denomPower = symmetricRandomRational.denomPower;
-    const prefactor = symmetricRandomRational.prefactor;
+    const prefactorReal = symmetricRandomRational.prefactorReal;
+    const prefactorImag = symmetricRandomRational.prefactorImag;
+    const order = symmetricRandomRational.order;
+    const order2 = order / 2;
     // result for infty/infty
-    var inftDivInftyX, inftDivInftyY;
-    if (nomPower > denomPower) {
-        inftDivInftyX = Infinity;
-        inftDivInftyY = Infinity;
-    } else if (nomPower === denomPower) {
+    var xInfty, yInfty;
+    if (order * nomPower + 1 > order * denomPower) {
+        xInfty = Infinity;
+        yInfty = Infinity;
+    } else if (order * nomPower + 1 === order * denomPower) {
         const factor = prefactor / (denomKoeffsReal[0] * denomKoeffsReal[0] + denomKoeffsImag[0] * denomKoeffsImag[0]);
-        inftDivInftyX = factor * (denomKoeffsReal[0] * nomKoeffsReal[0] + denomKoeffsImag[0] * denomKoeffsImag[0]);
-        inftDivInftyY = factor * (nomKoeffsImag[0] * denomKoeffsReal[0] - nomKoeffsReal[0] * denomKoeffsImag[0]);
+        xInfty = factor * (denomKoeffsReal[0] * nomKoeffsReal[0] + denomKoeffsImag[0] * denomKoeffsImag[0]);
+        yInfty = factor * (nomKoeffsImag[0] * denomKoeffsReal[0] - nomKoeffsReal[0] * denomKoeffsImag[0]);
     } else {
-        inftDivInftyX = 0;
-        inftDivInftyY = 0;
+        xInfty = 0;
+        yInfty = 0;
     }
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
@@ -148,59 +160,63 @@ map.evaluateSymmetricRandomRationalFunction = function() {
         let x = xArray[index];
         let y = yArray[index];
         // safety: check if z is finite
-        if (isFinite(x * x + y * y)) {
-            // nominator, including amplitude
-            let nomRe = nomKoeffsReal[0];
-            let nomIm = nomKoeffsImag[0];
-            for (let i = 1; i <= nomPower; i++) {
-                const h = nomRe * x - nomIm * y + nomKoeffsReal[i];
-                nomIm = nomIm * x + nomRe * y + nomKoeffsImag[i];
-                nomRe = h;
-            }
-            //denominator
-            let denRe = denomKoeffsReal[0];
-            let denIm = denomKoeffsImag[0];
-            for (let i = 1; i <= denomPower; i++) {
-                const h = denRe * x - denIm * y + denomKoeffsReal[i];
-                denIm = denIm * x + denRe * y + denomKoeffsImag[i];
-                denRe = h;
-            }
-            const denomAbs2 = denRe * denRe + denIm * denIm;
-            const nomAbs2 = nomRe * nomRe + nomIm * nomIm;
-            // problems with infinity  x=Infinity!!
-            if (isFinite(denomAbs2)) {
-                if (isFinite(nomAbs2)) {
-                    // division, avoiding div by zero
-                    // assuming that singularities and zeros are separated
-                    if (denomAbs2 > eps) {
-                        const factor = prefactor / denomAbs2;
-                        xArray[index] = factor * (nomRe * denRe + nomIm * denIm);
-                        yArray[index] = factor * (nomIm * denRe - nomRe * denIm);
-                    } else {
-                        xArray[index] = Infinity;
-                        yArray[index] = Infinity;
-                    }
-                } else {
-                    //nominator infinite, denominator finite
-                    xArray[index] = Infinity;
-                    yArray[index] = Infinity;
-                }
-            } else {
-                if (isFinite(nomAbs2)) {
-                    // finite nominator, infinite denominator
-                    xArray[index] = 0;
-                    yArray[index] = 0;
-                } else {
-                    // both infinite infty/infty
-                    xArray[index] = inftDivInftyX;
-                    yArray[index] = inftDivInftyY;
-                }
-            }
-        } else {
-            // z is infinite-> infty/infty, depending on powers
-            // valid also if no singularity
-            xArray[index] = inftDivInftyX;
-            yArray[index] = inftDivInftyY;
+        const r2 = x * x + y * y;
+        if (!isFinite(r2)) {
+            xArray[index] = xInfty;
+            yArray[index] = yInfty;
+            continue;
         }
-    }
+        // prefactor times z is always factor for nominator
+        const prefZReal = prefactorReal * x - prefactorImag * y;
+        const prefZImag = prefactorReal * y + prefactorImag * x;
+        // calculate z^order
+        const r = Math.pow(r2, order2);
+        const phi = order * Math.atan2(y, x);
+        x = r * Math.cos(phi);
+        y = r * Math.sin(phi);
+        // polynoms of z^order
+        // nominator, including prefactor*z
+        let nomReal = nomKoeffsReal[0];
+        let nomImag = nomKoeffsImag[0];
+        for (let i = 1; i <= nomPower; i++) {
+            const h = nomReal * x - nomImag * y + nomKoeffsReal[i];
+            nomImag = nomImag * x + nomReal * y + nomKoeffsImag[i];
+            nomReal = h;
+        }
+        let h = nomReal * prefZReal - nomImag * prefZImag;
+        nomImag = nomImag * prefZReal + nomReal * prefZImag;
+        nomReal = h;
+        //denominator
+        let denomReal = denomKoeffsReal[0];
+        let denomImag = denomKoeffsImag[0];
+        for (let i = 1; i <= denomPower; i++) {
+            const h = denomReal * x - denomImag * y + denomKoeffsReal[i];
+            denomImag = denomImag * x + denomReal * y + denomKoeffsImag[i];
+            denomReal = h;
+        }
+        const denom2 = denomReal * denomReal + denomImag * denomImag;
+        const nom2 = nomReal * nomReal + nomImag * nomImag;
+        if (!isFinite(nom2)) {
+            if (isFinite(denom2)) {
+                xArray[index] = Infinity;
+                yArray[index] = Infinity;
+            } else {
+                xArray[index] = xInfty;
+                yArray[index] = yInfty;
+            }
+            continue;
+        } else if (!isFinite(denom2)) {
+            xArray[index] = 0;
+            yArray[index] = 0;
+            continue;
+        }
+        if (denom2 < eps) {
+            xArray[index] = Infinity;
+            yArray[index] = Infinity;
+            continue;
+        }
+        const factor = 1 / denom2;
+         xArray[index] = factor * (nomReal * denomReal + nomImag * denomImag);
+        yArray[index] = factor * (nomImag * denomReal - nomReal * denomImag);
+     }
 };

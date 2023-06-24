@@ -29,7 +29,7 @@ universalRational.setup = function() {
 // third: imaginary part of constant term
 
 map.universalRational = function(params) {
-    const eps = 0.00001;
+    const eps = 1e-100;
     let paramsLength = params.length;
     if (paramsLength % 3 !== 0) {
         console.error('map.universalRational: params length is not multiple of 3. params:');
@@ -131,7 +131,12 @@ map.universalRational = function(params) {
             yArray[index] = 0;
             continue;
         }
-        const factor = 1 / (denom2 + eps);
+        if (denom2<eps){
+                xArray[index] = Infinity;
+                yArray[index] = Infinity;
+                continue;            
+        }
+        const factor = 1 / denom2;
         const zzReal = factor * (nomReal * denomReal + nomImag * denomImag);
         const zzImag = factor * (nomImag * denomReal - nomReal * denomImag);
         xArray[index] = amplitudeReal * zzReal - amplitudeImag * zzImag;
