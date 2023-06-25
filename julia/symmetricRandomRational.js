@@ -24,6 +24,7 @@ symmetricRandomRational.imaginaries = true;
 symmetricRandomRational.prefactorReal = 1;
 symmetricRandomRational.prefactorImag = 0;
 symmetricRandomRational.order = 5;
+symmetricRandomRational.regular = true;
 
 symmetricRandomRational.setup = function(gui) {
     gui.addParagraph('<strong>random rational function</strong>');
@@ -77,7 +78,7 @@ symmetricRandomRational.setup = function(gui) {
             julia.drawNewStructure();
         }
     });
-    gui.add({
+    const randomizeButton = gui.add({
         type: 'button',
         buttonText: 'randomize',
         onClick: function() {
@@ -85,6 +86,18 @@ symmetricRandomRational.setup = function(gui) {
             julia.drawNewStructure();
         }
     });
+    const xFactorButton=randomizeButton.add({
+        type: 'boolean',
+        params: symmetricRandomRational,
+        property: 'regular',
+        labelText: 'x-factor',
+        onClick: function() {
+            randomKoeffs();
+            julia.drawNewStructure();
+        }
+    });
+console.log(xFactorButton)
+xFactorButton.uiElement.setTexts('x','1/x');
     randomKoeffs();
     map.mapping = map.evaluateSymmetricRandomRationalFunction;
 };
@@ -157,23 +170,20 @@ map.evaluateSymmetricRandomRationalFunction = function() {
         if (structure >= 128) {
             continue;
         }
-        let x = xArray[index];
-        let y = yArray[index];
+        let x1 = xArray[index];
+        let y1 = yArray[index];
         // safety: check if z is finite
-        const r2 = x * x + y * y;
+        const r2 = x1 * x1 + y1 * y1;
         if (!isFinite(r2)) {
             xArray[index] = xInfty;
             yArray[index] = yInfty;
             continue;
         }
-        // prefactor times z is always factor for nominator
-        const prefZReal = prefactorReal * x - prefactorImag * y;
-        const prefZImag = prefactorReal * y + prefactorImag * x;
         // calculate z^order
         const r = Math.pow(r2, order2);
-        const phi = order * Math.atan2(y, x);
-        x = r * Math.cos(phi);
-        y = r * Math.sin(phi);
+        const phi = order * Math.atan2(y1, x1);
+        const x = r * Math.cos(phi);
+        const y = r * Math.sin(phi);
         // polynoms of z^order
         // nominator, including prefactor*z
         let nomReal = nomKoeffsReal[0];
@@ -183,8 +193,8 @@ map.evaluateSymmetricRandomRationalFunction = function() {
             nomImag = nomImag * x + nomReal * y + nomKoeffsImag[i];
             nomReal = h;
         }
-        let h = nomReal * prefZReal - nomImag * prefZImag;
-        nomImag = nomImag * prefZReal + nomReal * prefZImag;
+        let h = nomReal * prefactorReal - nomImag * prefactorImag;
+        nomImag = nomImag * prefactorReal + nomReal * prefactorImag;
         nomReal = h;
         //denominator
         let denomReal = denomKoeffsReal[0];
@@ -194,6 +204,16 @@ map.evaluateSymmetricRandomRationalFunction = function() {
             denomImag = denomImag * x + denomReal * y + denomKoeffsImag[i];
             denomReal = h;
         }
+        if (symmetricRandomRational.regular) {
+            h = nomReal * x1 - nomImag * y1;
+            nomImag = nomImag * x1 + nomReal * y1;
+            nomReal = h;
+        } else {
+            h = denomReal * x1 - denomImag * y1;
+            denomImag = denomImag * x1 + denomReal * y1;
+            denomReal = h;
+        }
+
         const denom2 = denomReal * denomReal + denomImag * denomImag;
         const nom2 = nomReal * nomReal + nomImag * nomImag;
         if (!isFinite(nom2)) {
@@ -216,7 +236,7 @@ map.evaluateSymmetricRandomRationalFunction = function() {
             continue;
         }
         const factor = 1 / denom2;
-         xArray[index] = factor * (nomReal * denomReal + nomImag * denomImag);
+        xArray[index] = factor * (nomReal * denomReal + nomImag * denomImag);
         yArray[index] = factor * (nomImag * denomReal - nomReal * denomImag);
-     }
+    }
 };

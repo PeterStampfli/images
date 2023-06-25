@@ -50,8 +50,10 @@ juliaMap.setup = function(gui) {
             'nothing': map.nothing,
             'julia set approximation': map.juliaSetApproximation,
             'julia set': map.juliaSet,
+            'julia all': map.juliaAll,
             'mandelbrot approximation': map.mandelbrotApproximation,
-            'mandelbrot': map.mandelbrot
+            'mandelbrot': map.mandelbrot,
+            'mandelbrot': map.mandelbrotAll
         },
         onChange: julia.drawNewStructure
     });
@@ -90,7 +92,6 @@ map.radialLimit = function(limit) {
  * no further computation for these pixels
  */
 map.set = function(limit) {
-    const limit2 = limit * limit;
     const iLimit = 1 / limit;
     const xArray = map.xArray;
     const yArray = map.yArray;
@@ -98,15 +99,42 @@ map.set = function(limit) {
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
-        const x = xArray[index];
-        const y = yArray[index];
+        const x = iLimit * xArray[index];
+        const y = iLimit * yArray[index];
         const r2 = x * x + y * y;
-        if (r2 < limit2) {
+        if (r2 < 1) {
             structureArray[index] = 0;
-            xArray[index] = x * iLimit;
-            yArray[index] = y * iLimit;
+            xArray[index] = x;
+            yArray[index] = y;
         } else {
             structureArray[index] = 128;
+        }
+    }
+};
+
+// all pixels, invert if outside
+map.all = function(limit) {
+    const iLimit = 1 / limit;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    structureArray.fill(0);
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const structure = structureArray[index];
+        const x = iLimit * xArray[index];
+        const y = iLimit * yArray[index];
+        const r2 = x * x + y * y;
+        if (!isFinite(r2)) {
+            xArray[index] = 0;
+            yArray[index] = 0;
+        }
+        else if (r2 < 1) {
+            xArray[index] = x;
+            yArray[index] = y;
+        } else {
+            xArray[index] = x/r2;
+            yArray[index] = y/r2;
         }
     }
 };
@@ -187,6 +215,14 @@ map.juliaSet = function() {
     map.set(map.limit);
 };
 
+
+map.juliaAll = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.mapping();
+    }
+    map.all(map.limit);
+};
+
 map.juliaSetApproximation = function() {
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
@@ -239,6 +275,15 @@ map.mandelbrot = function() {
         map.addInitialXY();
     }
     map.set(map.limit);
+};
+
+map.mandelbrotAll = function() {
+    map.setInitialXY();
+    for (let i = 0; i < map.iters; i++) {
+        map.mapping();
+        map.addInitialXY();
+    }
+    map.all(map.limit);
 };
 
 map.mandelbrotApproximation = function() {
