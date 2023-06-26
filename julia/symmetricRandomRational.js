@@ -53,7 +53,7 @@ symmetricRandomRational.setup = function(gui) {
         params: symmetricRandomRational,
         property: 'imaginaries',
         onChange: function() {
-            randomKoeffs();
+            symmetricRandomRational.randomKoeffs();
             julia.drawNewStructure();
         }
     });
@@ -64,7 +64,7 @@ symmetricRandomRational.setup = function(gui) {
         step: 1,
         min: 1,
         onChange: function() {
-            randomKoeffs();
+            symmetricRandomRational.randomKoeffs();
             julia.drawNewStructure();
         }
     }).add({
@@ -74,7 +74,7 @@ symmetricRandomRational.setup = function(gui) {
         step: 1,
         min: 0,
         onChange: function() {
-            randomKoeffs();
+            symmetricRandomRational.randomKoeffs();
             julia.drawNewStructure();
         }
     });
@@ -82,7 +82,7 @@ symmetricRandomRational.setup = function(gui) {
         type: 'button',
         buttonText: 'randomize',
         onClick: function() {
-            randomKoeffs();
+            symmetricRandomRational.randomKoeffs();
             julia.drawNewStructure();
         }
     });
@@ -92,13 +92,12 @@ symmetricRandomRational.setup = function(gui) {
         property: 'regular',
         labelText: 'x-factor',
         onClick: function() {
-            randomKoeffs();
+            symmetricRandomRational.randomKoeffs();
             julia.drawNewStructure();
         }
     });
-console.log(xFactorButton)
 xFactorButton.uiElement.setTexts('x','1/x');
-    randomKoeffs();
+    symmetricRandomRational.randomKoeffs();
     map.mapping = map.evaluateSymmetricRandomRationalFunction;
 };
 
@@ -107,7 +106,7 @@ let nomKoeffsImag = [];
 let denomKoeffsReal = [];
 let denomKoeffsImag = [];
 
-function randomKoeffs() {
+symmetricRandomRational.randomKoeffs=function() {
     nomKoeffsReal.length = 0;
     nomKoeffsImag.length = 0;
     denomKoeffsReal.length = 0;
@@ -133,7 +132,7 @@ function randomKoeffs() {
     console.log(nomKoeffsImag);
     console.log(denomKoeffsReal);
     console.log(denomKoeffsImag);
-}
+};
 
 /**
  * evaluate the rational function for each pixel

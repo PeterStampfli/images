@@ -77,5 +77,4 @@ julia.drawNoChange = function() {
 };
 
 setup();
-
 julia.drawNewStructure();

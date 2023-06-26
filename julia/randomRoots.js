@@ -35,7 +35,10 @@ randomRoots.setup = function(gui) {
         property: 'order',
         step: 1,
         min: 1,
-        onChange: julia.drawNewStructure
+        onChange: function() {
+            randomRoots.randomize();
+            julia.drawNewStructure();
+        }
     }).add({
         type: 'number',
         params: randomRoots,
@@ -43,7 +46,10 @@ randomRoots.setup = function(gui) {
         labelText: 'max power',
         step: 1,
         min: 1,
-        onChange: julia.drawNewStructure
+        onChange: function() {
+            randomRoots.randomize();
+            julia.drawNewStructure();
+        }
     });
     gui.add({
         type: 'number',
@@ -51,16 +57,22 @@ randomRoots.setup = function(gui) {
         property: 'nomTerms',
         labelText: 'nominator',
         step: 1,
-        min: 1,
-        onChange: julia.drawNewStructure
+        min: 0,
+        onChange: function() {
+            randomRoots.randomize();
+            julia.drawNewStructure();
+        }
     }).add({
         type: 'number',
         params: randomRoots,
         property: 'denomTerms',
         labelText: 'denom',
         step: 1,
-        min: 1,
-        onChange: julia.drawNewStructure
+        min: 0,
+        onChange: function() {
+            randomRoots.randomize();
+            julia.drawNewStructure();
+        }
     });
 
     gui.add({
@@ -74,7 +86,7 @@ randomRoots.setup = function(gui) {
         params: randomRoots,
         property: 'imaginaries',
         onChange: function() {
-            randomKoeffs();
+            randomRoots.randomize();
             julia.drawNewStructure();
         }
     });
@@ -91,12 +103,22 @@ randomRoots.setup = function(gui) {
         labelText: 'im',
         onChange: julia.drawNewStructure
     });
-
+    gui.add({
+        type: 'button',
+        buttonText: 'randomize',
+        onClick: function() {
+            randomRoots.randomize();
+            julia.drawNewStructure();
+        }
+    });
+    randomRoots.randomize();
     map.mapping = map.randomRootsUniversalRational;
 };
 
-map.randomRootsUniversalRational = function() {
-    const args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+var args;
+
+randomRoots.randomize = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
         args.push(randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random()));
         args.push(Math.random());
@@ -107,6 +129,11 @@ map.randomRootsUniversalRational = function() {
         args.push(Math.random());
         args.push(randomRoots.imaginaries ? Math.random() : 0);
     }
+};
+
+map.randomRootsUniversalRational = function() {
+    args[1] = amplitude.real;
+    args[2] = amplitude.imag;
     console.log(args);
 
     map.universalRational(args);

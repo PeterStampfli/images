@@ -17,6 +17,10 @@ import {
 } from "./kaleidoscope.js";
 
 export const juliaMap = {};
+const rosette = {};
+rosette.order = 1;
+rosette.rPower = 1;
+rosette.mirrorSymmetric = false;
 
 juliaMap.setup = function(gui) {
     map.iters = 5;
@@ -24,7 +28,29 @@ juliaMap.setup = function(gui) {
     map.mapping = function() {
         console.error('map.mapping is undefined');
     };
-    gui.addParagraph('<strong>mapping</strong>');
+    gui.addParagraph('<strong>initial rosette</strong>');
+    gui.add({
+        type: 'number',
+        params: rosette,
+        property: 'order',
+        min: 1,
+        step: 1,
+        onChange: julia.drawNewStructure
+    }).add({
+        type: 'number',
+        params: rosette,
+        property: 'rPower',
+        min: 0,
+        onChange: julia.drawNewStructure
+    }).add({
+        type: 'boolean',
+        params: rosette,
+        property: 'mirrorSymmetric',
+        labelText: 'mirror',
+        onChange: julia.drawNewStructure
+    });
+
+    gui.addParagraph('<strong>iterated mapping</strong>');
     gui.add({
         type: 'number',
         params: map,
@@ -53,10 +79,45 @@ juliaMap.setup = function(gui) {
             'julia all': map.juliaAll,
             'mandelbrot approximation': map.mandelbrotApproximation,
             'mandelbrot': map.mandelbrot,
-            'mandelbrot': map.mandelbrotAll
+            'mandelbrot all': map.mandelbrotAll
         },
         onChange: julia.drawNewStructure
     });
+};
+
+// initial rosette
+map.rosette = function() {
+    const order = rosette.order;
+    const rPower = rosette.rPower / 2;
+    const iAlpha = 1 / rosette.alpha;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const nPixels = xArray.length;
+    if (rosette.mirrorSymmetric) {
+        for (let index = 0; index < nPixels; index++) {
+            let x = xArray[index];
+            let y = yArray[index];
+            const phi = order * Math.atan2(y, x);
+            const r2 = x * x + y * y;
+            let r = Math.pow(r2, rPower);
+            xArray[index] = r * Math.cos(phi);
+            yArray[index] = r * Math.cos(phi + phi);
+        }
+    } else {
+        if (rosette.order === 1) {
+            return;
+        }
+        for (let index = 0; index < nPixels; index++) {
+            let x = xArray[index];
+            let y = yArray[index];
+            const phi = order * Math.atan2(y, x);
+            const r2 = x * x + y * y;
+            let r = Math.pow(r2, rPower);
+            xArray[index] = r * Math.cos(phi);
+            yArray[index] = r * Math.sin(phi);
+        }
+    }
+
 };
 
 /**
@@ -128,13 +189,12 @@ map.all = function(limit) {
         if (!isFinite(r2)) {
             xArray[index] = 0;
             yArray[index] = 0;
-        }
-        else if (r2 < 1) {
+        } else if (r2 < 1) {
             xArray[index] = x;
             yArray[index] = y;
         } else {
-            xArray[index] = x/r2;
-            yArray[index] = y/r2;
+            xArray[index] = x / r2;
+            yArray[index] = y / r2;
         }
     }
 };
@@ -206,9 +266,12 @@ map.scale = function(length) {
     }
 };
 
-map.nothing = function() {};
+map.nothing = function() {
+    map.rosette();
+};
 
 map.juliaSet = function() {
+    map.rosette();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
     }
@@ -217,6 +280,7 @@ map.juliaSet = function() {
 
 
 map.juliaAll = function() {
+    map.rosette();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
     }
@@ -224,6 +288,7 @@ map.juliaAll = function() {
 };
 
 map.juliaSetApproximation = function() {
+    map.rosette();
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
@@ -233,7 +298,6 @@ map.juliaSetApproximation = function() {
     map.invertSelect();
     map.scale(map.limit);
 };
-
 
 // for the pseudo mandelbrot
 // save the iinitial coordinates, and add them to the iterated function
@@ -270,6 +334,7 @@ map.addInitialXY = function() {
 
 map.mandelbrot = function() {
     map.setInitialXY();
+    map.rosette();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
         map.addInitialXY();
@@ -279,6 +344,7 @@ map.mandelbrot = function() {
 
 map.mandelbrotAll = function() {
     map.setInitialXY();
+    map.rosette();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
         map.addInitialXY();
@@ -288,6 +354,7 @@ map.mandelbrotAll = function() {
 
 map.mandelbrotApproximation = function() {
     map.setInitialXY();
+    map.rosette();
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
