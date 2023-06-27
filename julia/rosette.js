@@ -12,7 +12,7 @@ rosette.rPower = 2;
 rosette.alpha = 1;
 
 rosette.setup = function(gui) {
-    gui.addParagraph('<strong>rosette</strong>');
+    gui.addParagraph('<strong>final rosette</strong>');
     gui.add({
         type: 'number',
         params: rosette,
