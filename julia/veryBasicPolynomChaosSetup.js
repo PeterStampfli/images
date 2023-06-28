@@ -22,10 +22,6 @@ import {
     juliaMap
 } from "./juliaMap.js";
 
-import {
-    kaleidoscope
-} from "./kaleidoscope.js";
-
 function setup() {
     // base gui
     const gui = new ParamGui({
@@ -42,10 +38,8 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     juliaMap.setup(gui);
-    kaleidoscope.setup(gui);
-    veryBasicPolynom.setup(gui);
-    map.setupDrawing(gui);
-
+    veryBasicPolynomChaos.setup(gui);
+chaosTrajectory.setup(gui);
     // changing the grid
     // image pixels do not change, put on canvas, draw grid&points
     output.drawGridChanged = function() {
@@ -56,27 +50,21 @@ function setup() {
     output.drawCanvasChanged = julia.drawNewStructure;
 }
 
-// structure does not change
-// (input) image may change (other quality, input image)
-julia.drawNewImage = function() {
-    map.draw();
-    output.drawGrid();
-};
-
 // structure changes
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
     map.iteration();
-    kaleidoscope.type();
-    map.draw();
+chaosTrajectory.initialize();
+            chaosTrajectory.run();
+    chaosTrajectory.draw();
     output.drawGrid();
 };
 
 // structure and image does not change
 // grid may change, selection of points may change
 julia.drawNoChange = function() {
-    map.draw();
+    chaosTrajectory.draw();
     output.drawGrid();
 };
 

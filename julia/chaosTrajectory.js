@@ -39,14 +39,14 @@ chaosTrajectory.setup = function(gui) {
         onClick: function() {
             chaosTrajectory.initialize();
             chaosTrajectory.run();
-            chaosTrajectory.show();
+            chaosTrajectory.draw();
         }
     }).add({
         type: 'button',
         buttonText: 'more points',
         onClick: function() {
             chaosTrajectory.run();
-            chaosTrajectory.show();
+            chaosTrajectory.draw();
         }
     });
 };
@@ -85,7 +85,7 @@ map.nonemptyJuliaSet = function() {
 
 // find a random pixel in the julia set, it has to be nonempty, else infinite loop
 // returns index of pixel
-map.pixelInJuliaSet = function() {
+map.indexInJuliaSet = function() {
     const structureArray = map.structureArray;
     const nPixels = structureArray.length;
     while (true) {
@@ -126,14 +126,14 @@ map.findPosition = function(point, index) {
     point.y = coordinateTransform.shiftY + rowIndex * scale;
 };
 
-map.chaosNumbers = new UInt32Array(1);
+map.chaosNumbers = new Uint32Array(1);
 
 // mapping point.x,point.y
 // simple test circle
 chaosTrajectory.mapping = function(point) {
     const angle = 0.01;
     const h = point.x * Math.cos(angle) - point.y * Math.sin(angle);
-    point.y = point.x * Math.sin(angle) + y * Math.cos(angle);
+    point.y = point.x * Math.sin(angle) + point.y * Math.cos(angle);
 };
 
 chaosTrajectory.nonemptyJuliaSet = true;
@@ -143,14 +143,12 @@ chaosTrajectory.point = {};
 // add up the numbers
 chaosTrajectory.run = function() {
     if (chaosTrajectory.nonemptyJuliaSet) {
-        const startIndex = map.findIndex();
-        map.findPosition(point, index);
         const nRun = chaosTrajectory.nRun;
         const mapping = chaosTrajectory.mapping;
         const chaosNumbers = map.chaosNumbers;
         for (var i = 0; i < nRun; i++) {
             mapping(point);
-            const index = map.findIndex(point);
+            const index = map.findIndex(chaosTrajectory.point);
             if (index >= 0) {
                 chaosNumbers[index] += 1;
             }
@@ -188,17 +186,17 @@ chaosTrajectory.draw = function() {
 // do initial run
 chaosTrajectory.initialize = function() {
     if (map.xArray.length !== map.chaosNumbers.length) {
-        map.chaosNumbers = new UInt32Array(map.xArray.length);
+        map.chaosNumbers = new Uint32Array(map.xArray.length);
     }
     map.chaosNumbers.fill(0);
     chaosTrajectory.nonemptyJuliaSet = map.nonemptyJuliaSet();
     if (chaosTrajectory.nonemptyJuliaSet) {
-        const startIndex = map.findIndex();
-        map.findPosition(point, index);
+        const startIndex = map.indexInJuliaSet();
+        map.findPosition(chaosTrajectory.point, startIndex);
         const nInitial = chaosTrajectory.nInitial;
         const mapping = chaosTrajectory.mapping;
         for (var i = 0; i < nInitial; i++) {
-            mapping(point);
+            mapping(chaosTrajectory.point);
         }
     }
 };
