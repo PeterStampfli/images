@@ -28,7 +28,7 @@ randomRoots.maxPower = 2;
 randomRoots.imaginaries = true;
 
 randomRoots.setup = function(gui) {
-    gui.addParagraph('<strong>two roots</strong>');
+    gui.addParagraph('<strong>random roots</strong>');
     gui.add({
         type: 'number',
         params: randomRoots,
@@ -36,7 +36,7 @@ randomRoots.setup = function(gui) {
         step: 1,
         min: 1,
         onChange: function() {
-            randomRoots.randomize();
+            randomRoots.random();
             julia.drawNewStructure();
         }
     }).add({
@@ -47,7 +47,7 @@ randomRoots.setup = function(gui) {
         step: 1,
         min: 1,
         onChange: function() {
-            randomRoots.randomize();
+            randomRoots.random();
             julia.drawNewStructure();
         }
     });
@@ -59,7 +59,7 @@ randomRoots.setup = function(gui) {
         step: 1,
         min: 0,
         onChange: function() {
-            randomRoots.randomize();
+            randomRoots.random();
             julia.drawNewStructure();
         }
     }).add({
@@ -70,10 +70,11 @@ randomRoots.setup = function(gui) {
         step: 1,
         min: 0,
         onChange: function() {
-            randomRoots.randomize();
+            randomRoots.random();
             julia.drawNewStructure();
         }
     });
+    randomRoots.random = randomRoots.unitSquare;
 
     gui.add({
         type: 'number',
@@ -82,11 +83,17 @@ randomRoots.setup = function(gui) {
         step: 1,
         onChange: julia.drawNewStructure
     }).add({
-        type: 'boolean',
+        type: 'selection',
         params: randomRoots,
-        property: 'imaginaries',
+        property: 'random',
+        options: {
+            'unit circle': randomRoots.unitCircle,
+            'unit circle mirror symmetry': randomRoots.unitCircleMirrorSymmetry,
+            'unit square': randomRoots.unitSquare,
+            'unit square mirror symmetry': randomRoots.unitSquareMirrorSymmetry
+        },
         onChange: function() {
-            randomRoots.randomize();
+            randomRoots.random();
             julia.drawNewStructure();
         }
     });
@@ -107,34 +114,119 @@ randomRoots.setup = function(gui) {
         type: 'button',
         buttonText: 'randomize',
         onClick: function() {
-            randomRoots.randomize();
+            randomRoots.random();
             julia.drawNewStructure();
         }
     });
-    randomRoots.randomize();
+    randomRoots.random();
     map.mapping = map.randomRootsUniversalRational;
 };
 
 var args;
 
-randomRoots.randomize = function() {
+randomRoots.unitSquare = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        args.push(randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random()));
-        args.push(Math.random());
-        args.push(randomRoots.imaginaries ? Math.random() : 0);
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(order);
+        const x = 2 * Math.random() - 1;
+        const y = 2 * Math.random() - 1;
+        args.push(x);
+        args.push(y);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        args.push(randomRoots.order * Math.floor(-1 - randomRoots.maxPower * Math.random()));
-        args.push(Math.random());
-        args.push(randomRoots.imaginaries ? Math.random() : 0);
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(-order);
+        const x = 2 * Math.random() - 1;
+        const y = 2 * Math.random() - 1;
+        args.push(x);
+        args.push(y);
     }
+    console.log(args);
+};
+
+randomRoots.unitSquareMirrorSymmetry = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const x = 2 * Math.random() - 1;
+        const y = 2 * Math.random() - 1;
+        args.push(order);
+        args.push(x);
+        args.push(y);
+        args.push(order);
+        args.push(x);
+        args.push(-y);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const x = 2 * Math.random() - 1;
+        const y = 2 * Math.random() - 1;
+        args.push(-order);
+        args.push(x);
+        args.push(y);
+        args.push(-order);
+        args.push(x);
+        args.push(-y);
+    }
+    console.log(args);
+};
+
+randomRoots.unitCircle = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const angle = 2 * Math.PI * Math.random();
+        const x = Math.cos(angle);
+        const y = Math.sin(angle);
+        args.push(order);
+        args.push(x);
+        args.push(y);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const angle=2*Math.PI*Math.random();
+        const x = Math.cos(angle);
+        const y = Math.sin(angle);
+        args.push(-order);
+        args.push(x);
+        args.push(y);
+    }
+    console.log(args);
+};
+
+randomRoots.unitCircleMirrorSymmetry = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const angle = 2 * Math.PI * Math.random();
+        const x = Math.cos(angle);
+        const y = Math.sin(angle);
+        args.push(order);
+        args.push(x);
+        args.push(y);
+        args.push(order);
+        args.push(x);
+        args.push(-y);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const angle=2*Math.PI*Math.random();
+        const x = Math.cos(angle);
+        const y = Math.sin(angle);
+        args.push(-order);
+        args.push(x);
+        args.push(y);
+        args.push(-order);
+        args.push(x);
+        args.push(-y);
+    }
+    console.log(args);
 };
 
 map.randomRootsUniversalRational = function() {
+    // the amplitude may change, but not the roots
     args[1] = amplitude.real;
     args[2] = amplitude.imag;
-    console.log(args);
-
     map.universalRational(args);
 };
