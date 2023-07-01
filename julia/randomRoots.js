@@ -25,7 +25,6 @@ randomRoots.order = 5;
 randomRoots.nomTerms = 1;
 randomRoots.denomTerms = 0;
 randomRoots.maxPower = 2;
-randomRoots.imaginaries = true;
 
 randomRoots.setup = function(gui) {
     gui.addParagraph('<strong>random roots</strong>');
@@ -90,7 +89,8 @@ randomRoots.setup = function(gui) {
             'unit circle': randomRoots.unitCircle,
             'unit circle mirror symmetry': randomRoots.unitCircleMirrorSymmetry,
             'unit square': randomRoots.unitSquare,
-            'unit square mirror symmetry': randomRoots.unitSquareMirrorSymmetry
+            'unit square mirror symmetry': randomRoots.unitSquareMirrorSymmetry,
+            'line':randomRoots.line
         },
         onChange: function() {
             randomRoots.random();
@@ -220,6 +220,23 @@ randomRoots.unitCircleMirrorSymmetry = function() {
         args.push(-order);
         args.push(x);
         args.push(-y);
+    }
+    console.log(args);
+};
+
+randomRoots.line = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(order);
+        args.push(2*Math.random()-1);
+        args.push(0);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(-order);
+        args.push(2*Math.random()-1);
+        args.push(0);
     }
     console.log(args);
 };

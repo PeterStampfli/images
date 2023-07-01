@@ -51,13 +51,7 @@ juliaMap.setup = function(gui) {
     });
 
     gui.addParagraph('<strong>iterated mapping</strong>');
-    gui.add({
-        type: 'number',
-        params: map,
-        property: 'limit',
-        min: 0,
-        onChange: julia.drawNewStructure
-    }).add({
+map.itersController=gui.add({
         type: 'number',
         params: map,
         property: 'iters',
@@ -66,6 +60,14 @@ juliaMap.setup = function(gui) {
         max: 127,
         onChange: julia.drawNewStructure
     });
+    map.limitController = map.itersController.add({
+        type: 'number',
+        params: map,
+        property: 'limit',
+        min: 0,
+        onChange: julia.drawNewStructure
+    });
+
     map.iteration = map.juliaSet;
     // use only (piecewise) conformal mappings
     gui.add({
