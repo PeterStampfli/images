@@ -113,113 +113,101 @@ randomRootsInversionSymmetry.unitSquare = function() {
     protoRootsImag.length = 0;
     for (let i = 0; i < randomRootsInversionSymmetry.terms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
-        orders.push(order);
         const x = 2 * Math.random() - 1;
         const y = 2 * Math.random() - 1;
+        orders.push(order);
         protoRootsReal.push(x);
         protoRootsImag.push(y);
     }
 };
 
 randomRootsInversionSymmetry.unitSquareMirrorSymmetry = function() {
-    args = [randomRootsInversionSymmetry.zPower, amplitude.real, amplitude.imag];
+    orders.length = 0;
+    protoRootsReal.length = 0;
+    protoRootsImag.length = 0;
     for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
         const x = 2 * Math.random() - 1;
         const y = 2 * Math.random() - 1;
-        args.push(order);
-        args.push(x);
-        args.push(y);
-        args.push(order);
-        args.push(x);
-        args.push(-y);
+        orders.push(order);
+        protoRootsReal.push(x);
+        protoRootsImag.push(y);
+        orders.push(order);
+        protoRootsReal.push(x);
+        protoRootsImag.push(-y);
     }
-    for (let i = 0; i < randomRootsInversionSymmetry.denomTerms; i++) {
-        const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
-        const x = 2 * Math.random() - 1;
-        const y = 2 * Math.random() - 1;
-        args.push(-order);
-        args.push(x);
-        args.push(y);
-        args.push(-order);
-        args.push(x);
-        args.push(-y);
-    }
-    console.log(args);
 };
 
 randomRootsInversionSymmetry.unitCircle = function() {
-    args = [randomRootsInversionSymmetry.zPower, amplitude.real, amplitude.imag];
+    orders.length = 0;
+    protoRootsReal.length = 0;
+    protoRootsImag.length = 0;
     for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
-        args.push(order);
-        args.push(x);
-        args.push(y);
+        orders.push(order);
+        protoRootsReal.push(x);
+        protoRootsImag.push(y);
     }
-    for (let i = 0; i < randomRootsInversionSymmetry.denomTerms; i++) {
-        const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
-        const angle = 2 * Math.PI * Math.random();
-        const x = Math.cos(angle);
-        const y = Math.sin(angle);
-        args.push(-order);
-        args.push(x);
-        args.push(y);
-    }
-    console.log(args);
 };
 
 randomRootsInversionSymmetry.unitCircleMirrorSymmetry = function() {
-    args = [randomRootsInversionSymmetry.zPower, amplitude.real, amplitude.imag];
+    orders.length = 0;
+    protoRootsReal.length = 0;
+    protoRootsImag.length = 0;
     for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
-        args.push(order);
-        args.push(x);
-        args.push(y);
-        args.push(order);
-        args.push(x);
-        args.push(-y);
+        orders.push(order);
+        protoRootsReal.push(x);
+        protoRootsImag.push(y);
+        orders.push(order);
+        protoRootsReal.push(x);
+        protoRootsImag.push(-y);
     }
-    for (let i = 0; i < randomRootsInversionSymmetry.denomTerms; i++) {
-        const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
-        const angle = 2 * Math.PI * Math.random();
-        const x = Math.cos(angle);
-        const y = Math.sin(angle);
-        args.push(-order);
-        args.push(x);
-        args.push(y);
-        args.push(-order);
-        args.push(x);
-        args.push(-y);
-    }
-    console.log(args);
 };
 
 randomRootsInversionSymmetry.line = function() {
-    args = [randomRootsInversionSymmetry.zPower, amplitude.real, amplitude.imag];
+    orders.length = 0;
+    protoRootsReal.length = 0;
+    protoRootsImag.length = 0;
     for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
-        args.push(order);
-        args.push(2 * Math.random() - 1);
-        args.push(0);
+        orders.push(order);
+        protoRootsReal.push(2 * Math.random() - 1);
+        protoRootsImag.push(0);
     }
-    for (let i = 0; i < randomRootsInversionSymmetry.denomTerms; i++) {
-        const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
-        args.push(-order);
-        args.push(2 * Math.random() - 1);
-        args.push(0);
-    }
-    console.log(args);
 };
 
+// inversion symmetry via (a+z**n)/(a*z**n+1)=(1/a)*(z**n+a)/(z**n+1/a), conjugated div
+
 map.randomRootsInversionSymmetryUniversalRational = function() {
-    // the amplitude may change, but not the roots
-    args[1] = amplitude.real;
-    args[2] = amplitude.imag;
+    args = [randomRootsInversionSymmetry.zPower, 0, 0];
+    let ampReal = 1;
+    let ampImag = 0;
+    const length = orders.length;
+    for (let i = 0; i < length; i++) {
+        const order = orders[i];
+        let rootReal = randomRootsInversionSymmetry.scale * protoRootsReal[i];
+        let rootImag = randomRootsInversionSymmetry.scale * protoRootsImag[i];
+        args.push(order);
+        args.push(rootReal);
+        args.push(rootImag);
+        const denom = rootReal * rootReal + rootImag * rootImag;
+        rootReal /= denom;
+        rootImag /= denom;
+        args.push(-order);
+        args.push(rootReal);
+        args.push(rootImag);
+        const h = ampReal * rootReal - ampImag * rootImag;
+        ampImag = ampReal * rootImag + ampImag * rootReal;
+        ampReal = h;
+    }
+    args[1] = ampReal;
+    args[2] = ampImag;
     map.universalRational(args);
 };
