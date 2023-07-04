@@ -51,7 +51,7 @@ juliaMap.setup = function(gui) {
     });
 
     gui.addParagraph('<strong>iterated mapping</strong>');
-map.itersController=gui.add({
+    map.itersController = gui.add({
         type: 'number',
         params: map,
         property: 'iters',

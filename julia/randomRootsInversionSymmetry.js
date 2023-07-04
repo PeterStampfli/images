@@ -20,7 +20,7 @@ export const randomRootsInversionSymmetry = {};
 const amplitude = {};
 randomRootsInversionSymmetry.zPower = 1;
 randomRootsInversionSymmetry.order = 5;
-randomRootsInversionSymmetry.nomTerms = 1;
+randomRootsInversionSymmetry.terms = 1;
 randomRootsInversionSymmetry.maxPower = 2;
 randomRootsInversionSymmetry.scale = 1;
 
@@ -125,7 +125,7 @@ randomRootsInversionSymmetry.unitSquareMirrorSymmetry = function() {
     orders.length = 0;
     protoRootsReal.length = 0;
     protoRootsImag.length = 0;
-    for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
+    for (let i = 0; i < randomRootsInversionSymmetry.terms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
         const x = 2 * Math.random() - 1;
         const y = 2 * Math.random() - 1;
@@ -142,7 +142,7 @@ randomRootsInversionSymmetry.unitCircle = function() {
     orders.length = 0;
     protoRootsReal.length = 0;
     protoRootsImag.length = 0;
-    for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
+    for (let i = 0; i < randomRootsInversionSymmetry.terms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
@@ -157,7 +157,7 @@ randomRootsInversionSymmetry.unitCircleMirrorSymmetry = function() {
     orders.length = 0;
     protoRootsReal.length = 0;
     protoRootsImag.length = 0;
-    for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
+    for (let i = 0; i < randomRootsInversionSymmetry.terms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
@@ -175,7 +175,7 @@ randomRootsInversionSymmetry.line = function() {
     orders.length = 0;
     protoRootsReal.length = 0;
     protoRootsImag.length = 0;
-    for (let i = 0; i < randomRootsInversionSymmetry.nomTerms; i++) {
+    for (let i = 0; i < randomRootsInversionSymmetry.terms; i++) {
         const order = randomRootsInversionSymmetry.order * Math.floor(1 + randomRootsInversionSymmetry.maxPower * Math.random());
         orders.push(order);
         protoRootsReal.push(2 * Math.random() - 1);
@@ -186,6 +186,11 @@ randomRootsInversionSymmetry.line = function() {
 // inversion symmetry via (a+z**n)/(a*z**n+1)=(1/a)*(z**n+a)/(z**n+1/a), conjugated div
 
 map.randomRootsInversionSymmetryUniversalRational = function() {
+    map.limitController.setValueOnly(1);
+    console.log('orders,real,imag');
+    console.log(orders);
+    console.log(protoRootsReal);
+    console.log(protoRootsImag);
     args = [randomRootsInversionSymmetry.zPower, 0, 0];
     let ampReal = 1;
     let ampImag = 0;
@@ -209,5 +214,6 @@ map.randomRootsInversionSymmetryUniversalRational = function() {
     }
     args[1] = ampReal;
     args[2] = ampImag;
+    console.log(args);
     map.universalRational(args);
 };

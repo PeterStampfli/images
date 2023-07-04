@@ -90,7 +90,10 @@ randomRoots.setup = function(gui) {
             'unit circle mirror symmetry': randomRoots.unitCircleMirrorSymmetry,
             'unit square': randomRoots.unitSquare,
             'unit square mirror symmetry': randomRoots.unitSquareMirrorSymmetry,
-            'line':randomRoots.line
+            'octant': randomRoots.octant,
+            'octant mirror symmetry': randomRoots.octantMirrorSymmetric,
+            'line':randomRoots.line,
+            'positive line':randomRoots.positiveLine
         },
         onChange: function() {
             randomRoots.random();
@@ -141,6 +144,54 @@ randomRoots.unitSquare = function() {
         const y = 2 * Math.random() - 1;
         args.push(x);
         args.push(y);
+    }
+    console.log(args);
+};
+
+randomRoots.octant = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(order);
+        const x = Math.random();
+        const y = Math.random();
+        args.push(x);
+        args.push(y);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(-order);
+        const x = Math.random();
+        const y = Math.random();
+        args.push(x);
+        args.push(y);
+    }
+    console.log(args);
+};
+randomRoots.octantMirrorSymmetric = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const x = Math.random();
+        const y = Math.random();
+        args.push(order);
+        args.push(x);
+        args.push(y);
+        args.push(order);
+        args.push(x);
+        args.push(-y);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const x = Math.random();
+        const y = Math.random();
+        args.push(-order);
+        args.push(x);
+        args.push(y);
+        args.push(-order);
+        args.push(x);
+        args.push(-y);
+
     }
     console.log(args);
 };
@@ -225,6 +276,23 @@ randomRoots.unitCircleMirrorSymmetry = function() {
 };
 
 randomRoots.line = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(order);
+        args.push(2*Math.random()-1);
+        args.push(0);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        args.push(-order);
+        args.push(2*Math.random()-1);
+        args.push(0);
+    }
+    console.log(args);
+};
+
+randomRoots.positiveLine = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
         const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());

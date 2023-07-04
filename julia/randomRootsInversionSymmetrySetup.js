@@ -38,8 +38,6 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     juliaMap.setup(gui);
-    map.limitController.setValueOnly(1);
-    map.limitController.hide();
     kaleidoscope.setup(gui);
     randomRootsInversionSymmetry.setup(gui);
     map.setupDrawing(gui);
