@@ -80,7 +80,10 @@ randomRoots.setup = function(gui) {
         params: randomRoots,
         property: 'zPower',
         step: 1,
-        onChange: julia.drawNewStructure
+        onChange: function() {
+            randomRoots.random();
+            julia.drawNewStructure();
+        }
     }).add({
         type: 'selection',
         params: randomRoots,
@@ -92,8 +95,8 @@ randomRoots.setup = function(gui) {
             'unit square mirror symmetry': randomRoots.unitSquareMirrorSymmetry,
             'octant': randomRoots.octant,
             'octant mirror symmetry': randomRoots.octantMirrorSymmetric,
-            'line':randomRoots.line,
-            'positive line':randomRoots.positiveLine
+            'line': randomRoots.line,
+            'positive line': randomRoots.positiveLine
         },
         onChange: function() {
             randomRoots.random();
@@ -236,7 +239,7 @@ randomRoots.unitCircle = function() {
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
         const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
-        const angle=2*Math.PI*Math.random();
+        const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
         args.push(-order);
@@ -262,7 +265,7 @@ randomRoots.unitCircleMirrorSymmetry = function() {
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
         const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
-        const angle=2*Math.PI*Math.random();
+        const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
         args.push(-order);
@@ -280,13 +283,13 @@ randomRoots.line = function() {
     for (let i = 0; i < randomRoots.nomTerms; i++) {
         const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
         args.push(order);
-        args.push(2*Math.random()-1);
+        args.push(2 * Math.random() - 1);
         args.push(0);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
         const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
         args.push(-order);
-        args.push(2*Math.random()-1);
+        args.push(2 * Math.random() - 1);
         args.push(0);
     }
     console.log(args);
@@ -297,13 +300,13 @@ randomRoots.positiveLine = function() {
     for (let i = 0; i < randomRoots.nomTerms; i++) {
         const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
         args.push(order);
-        args.push(2*Math.random()-1);
+        args.push(2 * Math.random() - 1);
         args.push(0);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
         const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
         args.push(-order);
-        args.push(2*Math.random()-1);
+        args.push(2 * Math.random() - 1);
         args.push(0);
     }
     console.log(args);

@@ -7,7 +7,8 @@ import {
 from "../libgui/modules.js";
 
 import {
-    map,julia
+    map,
+    julia
 } from "./mapImage.js";
 
 export const randomRationals = {};
@@ -16,6 +17,7 @@ randomRationals.range = 1;
 randomRationals.nomPower = 2;
 randomRationals.denomPower = 0;
 randomRationals.imaginaries = true;
+randomRationals.onlyPositiveReals = false;
 randomRationals.prefactor = 1;
 randomRationals.limited = true;
 
@@ -26,16 +28,24 @@ randomRationals.setup = function(gui) {
         params: randomRationals,
         property: 'prefactor',
         onChange: julia.drawNewStructure
-    });
-    gui.add({
+    }).add({
         type: 'number',
         params: randomRationals,
         property: 'range',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    gui.add({
         type: 'boolean',
         params: randomRationals,
         property: 'imaginaries',
+        onChange: function() {
+            randomKoeffs();
+            julia.drawNewStructure();
+        }
+    }).add({
+        type: 'boolean',
+        params: randomRationals,
+        property: 'onlyPositiveReals',
         onChange: function() {
             randomKoeffs();
             julia.drawNewStructure();
@@ -65,7 +75,7 @@ randomRationals.setup = function(gui) {
     gui.add({
         type: 'boolean',
         params: randomRationals,
-        property: 'limited',
+        property: 'propto z',
         onChange: function() {
             randomKoeffs();
             julia.drawNewStructure();
@@ -94,18 +104,18 @@ function randomKoeffs() {
     denomKoeffsReal.length = 0;
     denomKoeffsImag.length = 0;
     for (let i = 0; i <= randomRationals.nomPower; i++) {
-        nomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
+        nomKoeffsReal.push(randomRationals.onlyPositiveReals ? randomRationals.range * Math.random() : 2 * randomRationals.range * (Math.random() - 0.5));
         nomKoeffsImag.push(randomRationals.imaginaries ? 2 * randomRationals.range * (Math.random() - 0.5) : 0);
     }
     for (let i = 0; i <= randomRationals.denomPower; i++) {
-        denomKoeffsReal.push(2 * randomRationals.range * (Math.random() - 0.5));
+        denomKoeffsReal.push(randomRationals.onlyPositiveReals ? randomRationals.range * Math.random() : 2 * randomRationals.range * (Math.random() - 0.5));
         denomKoeffsImag.push(randomRationals.imaginaries ? 2 * randomRationals.range * (Math.random() - 0.5) : 0);
     }
     if (randomRationals.limited) {
         nomKoeffsReal[randomRationals.nomPower] = 0;
         nomKoeffsImag[randomRationals.nomPower] = 0;
-        nomKoeffsReal[randomRationals.nomPower-1] = 1;
-        nomKoeffsImag[randomRationals.nomPower-1] = 0;
+        nomKoeffsReal[randomRationals.nomPower - 1] = 1;
+        nomKoeffsImag[randomRationals.nomPower - 1] = 0;
         denomKoeffsReal[randomRationals.denomPower] = 1;
         denomKoeffsImag[randomRationals.denomPower] = 0;
     }
