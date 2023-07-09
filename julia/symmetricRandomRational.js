@@ -21,6 +21,7 @@ export const symmetricRandomRational = {};
 symmetricRandomRational.nomPower = 2;
 symmetricRandomRational.denomPower = 0;
 symmetricRandomRational.imaginaries = true;
+symmetricRandomRational.posReal = false;
 symmetricRandomRational.prefactorReal = 1;
 symmetricRandomRational.prefactorImag = 0;
 symmetricRandomRational.order = 5;
@@ -52,6 +53,16 @@ symmetricRandomRational.setup = function(gui) {
         type: 'boolean',
         params: symmetricRandomRational,
         property: 'imaginaries',
+        labelText:'imag',
+        onChange: function() {
+            symmetricRandomRational.randomKoeffs();
+            julia.drawNewStructure();
+        }
+    }).add({
+        type: 'boolean',
+        params: symmetricRandomRational,
+        property: 'posReal',
+        labelText:'pos real',
         onChange: function() {
             symmetricRandomRational.randomKoeffs();
             julia.drawNewStructure();
@@ -88,11 +99,11 @@ symmetricRandomRational.setup = function(gui) {
     });
     gui.add({
         type: 'number',
-        params: randomRoots,
+        params: symmetricRandomRational,
         property: 'zPower',
         step: 1,
         onChange: function() {
-            randomRoots.random();
+            symmetricRandomRational.randomKoeffs();
             julia.drawNewStructure();
         }
     });
@@ -111,11 +122,11 @@ symmetricRandomRational.randomKoeffs = function() {
     denomKoeffsReal.length = 0;
     denomKoeffsImag.length = 0;
     for (let i = 0; i <= symmetricRandomRational.nomPower; i++) {
-        nomKoeffsReal.push(2 * (Math.random() - 0.5));
+        nomKoeffsReal.push(symmetricRandomRational.posReal?Math.random():2 * (Math.random() - 0.5));
         nomKoeffsImag.push(symmetricRandomRational.imaginaries ? 2 * (Math.random() - 0.5) : 0);
     }
     for (let i = 0; i <= symmetricRandomRational.denomPower; i++) {
-        denomKoeffsReal.push(2 * (Math.random() - 0.5));
+        denomKoeffsReal.push(symmetricRandomRational.posReal?Math.random():2 * (Math.random() - 0.5));
         denomKoeffsImag.push(symmetricRandomRational.imaginaries ? 2 * (Math.random() - 0.5) : 0);
     }
 
@@ -188,8 +199,8 @@ map.evaluateSymmetricRandomRationalFunction = function() {
         // calculate z^zPow
         let r = Math.pow(r2, zPow2);
         let angle = zPow * phi;
-        let x = r * Math.cos(angle);
-        let y = r * Math.sin(angle);
+        x = r * Math.cos(angle);
+        y = r * Math.sin(angle);
         //prefactor*z^zPow
         const prefZPowReal=prefactorReal*x- prefactorImag*y;
         const prefZPowImag=prefactorReal*y+prefactorImag*x;
@@ -199,15 +210,15 @@ map.evaluateSymmetricRandomRationalFunction = function() {
         x = r * Math.cos(angle);
         y = r * Math.sin(angle);
          // nominator, including prefactor*z^zPow
-        let nomReal = nomKoeffsReal[0]*prefZPowReal- nomKoeffsImag[0]*prefZPowImag;
-        let nomImag =nomKoeffsReal*prefZPowImag+ nomKoeffsImag[0]*prefZPowImag;
+        let nomReal = nomKoeffsReal[0];
+        let nomImag =nomKoeffsImag[0];
         for (let i = 1; i <= nomPower; i++) {
             const h = nomReal * x - nomImag * y + nomKoeffsReal[i];
             nomImag = nomImag * x + nomReal * y + nomKoeffsImag[i];
             nomReal = h;
         }
-        let h = nomReal * prefactorReal - nomImag * prefactorImag;
-        nomImag = nomImag * prefactorReal + nomReal * prefactorImag;
+        const h = nomReal * prefZPowReal - nomImag * prefZPowImag;
+        nomImag = nomImag * prefZPowReal + nomReal * prefZPowImag;
         nomReal = h;
         //denominator
         let denomReal = denomKoeffsReal[0];
