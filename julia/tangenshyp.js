@@ -125,20 +125,27 @@ map.evaluateTangenshyp = function() {
         //prefactor*z^zPow
         const prefZPowReal = prefactorReal * x - prefactorImag * y;
         const prefZPowImag = prefactorReal * y + prefactorImag * x;
-        // tangenshyp z^order
-        r = 2 * Math.pow(r2, order2);
+        // calculate 2* z^order
+        r = Math.pow(r2, order2);
         angle = order * phi;
         x = r * Math.cos(angle);
         y = r * Math.sin(angle);
+        // calculate exponential
         const expReal = Math.exp(x);
         if (isFinite(expReal)) {
             x = expReal * Math.cos(y);
             y = expReal * Math.sin(y);
 
-            const nomReal = x + 1;
-            const nomImag = y;
-            const denomReal = x - 1;
-            const denomImag = y;
+            let nomReal = x - 1;
+            let nomImag = y;
+            let denomReal = x + 1;
+            let denomImag = y;
+nomReal=x;
+nomImag=y;
+denomReal=x+1;
+denomImag=y;
+
+
             const denom2 = denomReal * denomReal + denomImag * denomImag;
             if (denom2 < eps) {
                 xArray[index] = Infinity;

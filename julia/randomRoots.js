@@ -117,6 +117,12 @@ randomRoots.setup = function(gui) {
         onChange: julia.drawNewStructure
     });
     gui.add({
+        type: 'boolean',
+        params: universalRational,
+        property: 'exponential',
+        onChange: julia.drawNewStructure
+    });
+    gui.add({
         type: 'button',
         buttonText: 'randomize',
         onClick: function() {

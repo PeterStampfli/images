@@ -13,6 +13,7 @@ import {
 } from "./mapImage.js";
 
 export const universalRational = {};
+universalRational.exponential = false;
 
 universalRational.setup = function() {
     map.mapping = map.universalRational;
@@ -74,72 +75,150 @@ map.universalRational = function(params) {
     const yArray = map.yArray;
     const structureArray = map.structureArray;
     const nPixels = map.xArray.length;
-    for (var index = 0; index < nPixels; index++) {
-        const structure = structureArray[index];
-        if (structure >= 128) {
-            continue;
-        }
-        let x = xArray[index];
-        let y = yArray[index];
-        // safety: check if z is finite
-        const r2 = x * x + y * y;
-        if (!isFinite(r2)) {
-            xArray[index] = xInfty;
-            yArray[index] = yInfty;
-            continue;
-        }
-        if ((r2 < eps) && zeroSingular) {
-            xArray[index] = Infinity;
-            yArray[index] = Infinity;
-            continue;
-        }
-        const phi = Math.atan2(y, x);
-        let r = Math.pow(r2, zPow2);
-        let angle = zPow * phi;
-        let nomReal = r * Math.cos(angle);
-        let nomImag = r * Math.sin(angle);
-        let denomReal = 1;
-        let denomImag = 0;
-        for (let i = 0; i < paramsLength; i++) {
-            let r = Math.pow(r2, order2[i]);
-            let angle = order[i] * phi;
-            const zOrderRealPlus = r * Math.cos(angle) + constantReal[i];
-            const zOrderImagPlus = r * Math.sin(angle) + constantImag[i];
-            if (isNominator[i]) {
-                const h = nomReal * zOrderRealPlus - nomImag * zOrderImagPlus;
-                nomImag = nomReal * zOrderImagPlus + nomImag * zOrderRealPlus;
-                nomReal = h;
-            } else {
-                const h = denomReal * zOrderRealPlus - denomImag * zOrderImagPlus;
-                denomImag = denomReal * zOrderImagPlus + denomImag * zOrderRealPlus;
-                denomReal = h;
+    if (universalRational.exponential) {
+        for (let index = 0; index < nPixels; index++) {
+            const structure = structureArray[index];
+            if (structure >= 128) {
+                continue;
             }
-        }
-        const nom2 = nomReal * nomReal + nomImag * nomImag;
-        const denom2 = denomReal * denomReal + denomImag * denomImag;
-        if (!isFinite(nom2)) {
-            if (isFinite(denom2)) {
-                xArray[index] = Infinity;
-                yArray[index] = Infinity;
-            } else {
+            let x = xArray[index];
+            let y = yArray[index];
+            // safety: check if z is finite
+            const r2 = x * x + y * y;
+            if (!isFinite(r2)) {
                 xArray[index] = xInfty;
                 yArray[index] = yInfty;
+                continue;
             }
-            continue;
-        } else if (!isFinite(denom2)) {
-            xArray[index] = 0;
-            yArray[index] = 0;
-            continue;
-        }
-        if (denom2<eps){
+            if ((r2 < eps) && zeroSingular) {
                 xArray[index] = Infinity;
                 yArray[index] = Infinity;
-                continue;            
+                continue;
+            }
+            const phi = Math.atan2(y, x);
+            let r = Math.pow(r2, zPow2);
+            let angle = zPow * phi;
+            let nomReal = r * Math.cos(angle);
+            let nomImag = r * Math.sin(angle);
+            let denomReal = 1;
+            let denomImag = 0;
+            for (let i = 0; i < paramsLength; i++) {
+                let r = Math.pow(r2, order2[i]);
+                let angle = order[i] * phi;
+// exponential
+let expX=r * Math.cos(angle);
+let expY=r * Math.sin(angle);
+r=Math.exp(expX);
+expX=r*Math.cos(expY);
+expY=r*Math.sin(expY);
+
+                const zOrderRealPlus = expX + constantReal[i];
+                const zOrderImagPlus = expY + constantImag[i];
+                if (isNominator[i]) {
+                    const h = nomReal * zOrderRealPlus - nomImag * zOrderImagPlus;
+                    nomImag = nomReal * zOrderImagPlus + nomImag * zOrderRealPlus;
+                    nomReal = h;
+                } else {
+                    const h = denomReal * zOrderRealPlus - denomImag * zOrderImagPlus;
+                    denomImag = denomReal * zOrderImagPlus + denomImag * zOrderRealPlus;
+                    denomReal = h;
+                }
+            }
+            const nom2 = nomReal * nomReal + nomImag * nomImag;
+            const denom2 = denomReal * denomReal + denomImag * denomImag;
+            if (!isFinite(nom2)) {
+                if (isFinite(denom2)) {
+                    xArray[index] = Infinity;
+                    yArray[index] = Infinity;
+                } else {
+                    xArray[index] = xInfty;
+                    yArray[index] = yInfty;
+                }
+                continue;
+            } else if (!isFinite(denom2)) {
+                xArray[index] = 0;
+                yArray[index] = 0;
+                continue;
+            }
+            if (denom2 < eps) {
+                xArray[index] = Infinity;
+                yArray[index] = Infinity;
+                continue;
+            }
+            const factor = 1 / denom2;
+            const zzReal = factor * (nomReal * denomReal + nomImag * denomImag);
+            const zzImag = factor * (nomImag * denomReal - nomReal * denomImag);
+            xArray[index] = amplitudeReal * zzReal - amplitudeImag * zzImag;
+            yArray[index] = amplitudeReal * zzImag + amplitudeImag * zzReal;
         }
-        const factor = 1 / denom2;
-        const zzReal = factor * (nomReal * denomReal + nomImag * denomImag);
-        const zzImag = factor * (nomImag * denomReal - nomReal * denomImag);
-        xArray[index] = amplitudeReal * zzReal - amplitudeImag * zzImag;
-        yArray[index] = amplitudeReal * zzImag + amplitudeImag * zzReal;
+    } else {
+        for (let index = 0; index < nPixels; index++) {
+            const structure = structureArray[index];
+            if (structure >= 128) {
+                continue;
+            }
+            let x = xArray[index];
+            let y = yArray[index];
+            // safety: check if z is finite
+            const r2 = x * x + y * y;
+            if (!isFinite(r2)) {
+                xArray[index] = xInfty;
+                yArray[index] = yInfty;
+                continue;
+            }
+            if ((r2 < eps) && zeroSingular) {
+                xArray[index] = Infinity;
+                yArray[index] = Infinity;
+                continue;
+            }
+            const phi = Math.atan2(y, x);
+            let r = Math.pow(r2, zPow2);
+            let angle = zPow * phi;
+            let nomReal = r * Math.cos(angle);
+            let nomImag = r * Math.sin(angle);
+            let denomReal = 1;
+            let denomImag = 0;
+            for (let i = 0; i < paramsLength; i++) {
+                let r = Math.pow(r2, order2[i]);
+                let angle = order[i] * phi;
+                const zOrderRealPlus = r * Math.cos(angle) + constantReal[i];
+                const zOrderImagPlus = r * Math.sin(angle) + constantImag[i];
+                if (isNominator[i]) {
+                    const h = nomReal * zOrderRealPlus - nomImag * zOrderImagPlus;
+                    nomImag = nomReal * zOrderImagPlus + nomImag * zOrderRealPlus;
+                    nomReal = h;
+                } else {
+                    const h = denomReal * zOrderRealPlus - denomImag * zOrderImagPlus;
+                    denomImag = denomReal * zOrderImagPlus + denomImag * zOrderRealPlus;
+                    denomReal = h;
+                }
+            }
+            const nom2 = nomReal * nomReal + nomImag * nomImag;
+            const denom2 = denomReal * denomReal + denomImag * denomImag;
+            if (!isFinite(nom2)) {
+                if (isFinite(denom2)) {
+                    xArray[index] = Infinity;
+                    yArray[index] = Infinity;
+                } else {
+                    xArray[index] = xInfty;
+                    yArray[index] = yInfty;
+                }
+                continue;
+            } else if (!isFinite(denom2)) {
+                xArray[index] = 0;
+                yArray[index] = 0;
+                continue;
+            }
+            if (denom2 < eps) {
+                xArray[index] = Infinity;
+                yArray[index] = Infinity;
+                continue;
+            }
+            const factor = 1 / denom2;
+            const zzReal = factor * (nomReal * denomReal + nomImag * denomImag);
+            const zzImag = factor * (nomImag * denomReal - nomReal * denomImag);
+            xArray[index] = amplitudeReal * zzReal - amplitudeImag * zzImag;
+            yArray[index] = amplitudeReal * zzImag + amplitudeImag * zzReal;
+        }
     }
 };
