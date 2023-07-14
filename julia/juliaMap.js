@@ -21,6 +21,7 @@ const rosette = {};
 rosette.order = 1;
 rosette.rPower = 1;
 rosette.mirrorSymmetric = false;
+juliaMap.expansion = 2;
 
 juliaMap.setup = function(gui) {
     map.iters = 5;
@@ -51,17 +52,26 @@ juliaMap.setup = function(gui) {
     // use only (piecewise) conformal mappings
     gui.add({
         type: 'selection',
-        params: map,
+        params: juliaMap,
         property: 'iteration',
         options: {
             'nothing': map.nothing,
             'julia set approximation': map.juliaSetApproximation,
             'julia set': map.juliaSet,
+            'julia complement': map.juliaComplement,
             'julia all': map.juliaAll,
             'mandelbrot approximation': map.mandelbrotApproximation,
             'mandelbrot': map.mandelbrot,
+            'mandelbrot complement': map.mandelbrotComplement,
             'mandelbrot all': map.mandelbrotAll
         },
+        onChange: julia.drawNewStructure
+    });
+    gui.add({
+        type: 'number',
+        params: juliaMap,
+        property: 'expansion',
+        min: 0,
         onChange: julia.drawNewStructure
     });
 };
@@ -212,13 +222,32 @@ map.scale = function(length) {
     }
 };
 
-map.nothing = function() {};
+map.expand = function(length) {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const nPixels = xArray.length;
+    const expansion = juliaMap.expansion;
+    const expansionM1 = expansion - 1;
+    for (var index = 0; index < nPixels; index++) {
+        const x = xArray[index];
+        const y = yArray[index];
+        const r = Math.hypot(x, y);
+        const factor = expansion / (1 + expansionM1 * r);
+        xArray[index] = factor * x;
+        yArray[index] = fator * y;
+    }
+};
+
+map.nothing = function() {
+    map.expand();
+};
 
 map.juliaSet = function() {
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
     }
     map.set(map.limit);
+    map.expand();
 };
 
 
@@ -227,6 +256,15 @@ map.juliaAll = function() {
         map.mapping();
     }
     map.all(map.limit);
+    map.expand();
+};
+
+map.juliaComplement = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.mapping();
+    }
+    map.complement(map.limit);
+    map.expand();
 };
 
 map.juliaSetApproximation = function() {
@@ -238,6 +276,7 @@ map.juliaSetApproximation = function() {
     }
     map.invertSelect();
     map.scale(map.limit);
+    map.expand();
 };
 
 // for the pseudo mandelbrot
@@ -280,6 +319,18 @@ map.mandelbrot = function() {
         map.addInitialXY();
     }
     map.set(map.limit);
+    map.expand();
+};
+
+
+map.mandelbrotComplement = function() {
+    map.setInitialXY();
+    for (let i = 0; i < map.iters; i++) {
+        map.mapping();
+        map.addInitialXY();
+    }
+    map.complement(map.limit);
+    map.expand();
 };
 
 map.mandelbrotAll = function() {
@@ -289,6 +340,7 @@ map.mandelbrotAll = function() {
         map.addInitialXY();
     }
     map.all(map.limit);
+    map.expand();
 };
 
 map.mandelbrotApproximation = function() {
@@ -302,4 +354,5 @@ map.mandelbrotApproximation = function() {
     }
     map.invertSelect();
     map.scale(map.limit);
+    map.expand();
 };
