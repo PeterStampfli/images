@@ -17,10 +17,6 @@ import {
 } from "./kaleidoscope.js";
 
 export const juliaMap = {};
-const rosette = {};
-rosette.order = 1;
-rosette.rPower = 1;
-rosette.mirrorSymmetric = false;
 juliaMap.expansion = 2;
 
 juliaMap.setup = function(gui) {
@@ -52,7 +48,7 @@ juliaMap.setup = function(gui) {
     // use only (piecewise) conformal mappings
     gui.add({
         type: 'selection',
-        params: juliaMap,
+        params: map,
         property: 'iteration',
         options: {
             'nothing': map.nothing,
@@ -62,7 +58,7 @@ juliaMap.setup = function(gui) {
             'julia all': map.juliaAll,
             'mandelbrot approximation': map.mandelbrotApproximation,
             'mandelbrot': map.mandelbrot,
-            'mandelbrot complement': map.mandelbrotComplement,
+           'mandelbrot complement': map.mandelbrotComplement,
             'mandelbrot all': map.mandelbrotAll
         },
         onChange: julia.drawNewStructure
@@ -169,7 +165,7 @@ map.complement = function(limit) {
         const y = yArray[index];
         const r2 = x * x + y * y;
         if (!isFinite(r2)) {
-            structureArray[index] = 128;
+            structureArray[index] = 0;
             xArray[index] = 0;
             yArray[index] = 0;
         } else if (r2 > limit2) {
@@ -232,14 +228,13 @@ map.expand = function(length) {
         const x = xArray[index];
         const y = yArray[index];
         const r = Math.hypot(x, y);
-        const factor = expansion / (1 + expansionM1 * r);
+        const factor = expansion/(1+expansionM1*r) ;
         xArray[index] = factor * x;
-        yArray[index] = fator * y;
+        yArray[index] = factor * y;
     }
 };
 
-map.nothing = function() {
-    map.expand();
+map.nothing = function() {    map.expand();
 };
 
 map.juliaSet = function() {
@@ -250,20 +245,19 @@ map.juliaSet = function() {
     map.expand();
 };
 
+map.juliaComplement = function() {
+    for (let i = 0; i < map.iters; i++) {
+        map.mapping();
+    }
+    map.complement(map.limit);
+    map.expand();
+};
 
 map.juliaAll = function() {
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
     }
     map.all(map.limit);
-    map.expand();
-};
-
-map.juliaComplement = function() {
-    for (let i = 0; i < map.iters; i++) {
-        map.mapping();
-    }
-    map.complement(map.limit);
     map.expand();
 };
 
@@ -321,7 +315,6 @@ map.mandelbrot = function() {
     map.set(map.limit);
     map.expand();
 };
-
 
 map.mandelbrotComplement = function() {
     map.setInitialXY();
