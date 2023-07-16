@@ -18,6 +18,7 @@ import {
 
 export const juliaMap = {};
 juliaMap.expansion = 2;
+juliaMap.inverted = false;
 
 juliaMap.setup = function(gui) {
     map.iters = 5;
@@ -58,7 +59,7 @@ juliaMap.setup = function(gui) {
             'julia all': map.juliaAll,
             'mandelbrot approximation': map.mandelbrotApproximation,
             'mandelbrot': map.mandelbrot,
-           'mandelbrot complement': map.mandelbrotComplement,
+            'mandelbrot complement': map.mandelbrotComplement,
             'mandelbrot all': map.mandelbrotAll
         },
         onChange: julia.drawNewStructure
@@ -69,7 +70,28 @@ juliaMap.setup = function(gui) {
         property: 'expansion',
         min: 0,
         onChange: julia.drawNewStructure
+    }).add({
+        type: 'boolean',
+        params: juliaMap,
+        property: 'inverted',
+        onChange: julia.drawNewStructure
     });
+};
+
+map.inversion = function() {
+    if (!juliaMap.inverted) {
+        return;
+    }
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        const x = xArray[index];
+        const y = yArray[index];
+        const factor = 1 / (x * x + y * y);
+        xArray[index] = factor * x;
+        yArray[index] = factor * y;
+    }
 };
 
 /**
@@ -228,16 +250,19 @@ map.expand = function(length) {
         const x = xArray[index];
         const y = yArray[index];
         const r = Math.hypot(x, y);
-        const factor = expansion/(1+expansionM1*r) ;
+        const factor = expansion / (1 + expansionM1 * r);
         xArray[index] = factor * x;
         yArray[index] = factor * y;
     }
 };
 
-map.nothing = function() {    map.expand();
+map.nothing = function() {
+    map.inversion();
+    map.expand();
 };
 
 map.juliaSet = function() {
+    map.inversion();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
     }
@@ -246,6 +271,7 @@ map.juliaSet = function() {
 };
 
 map.juliaComplement = function() {
+    map.inversion();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
     }
@@ -254,6 +280,7 @@ map.juliaComplement = function() {
 };
 
 map.juliaAll = function() {
+    map.inversion();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
     }
@@ -262,6 +289,7 @@ map.juliaAll = function() {
 };
 
 map.juliaSetApproximation = function() {
+    map.inversion();
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
@@ -307,6 +335,7 @@ map.addInitialXY = function() {
 };
 
 map.mandelbrot = function() {
+    map.inversion();
     map.setInitialXY();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
@@ -317,6 +346,7 @@ map.mandelbrot = function() {
 };
 
 map.mandelbrotComplement = function() {
+    map.inversion();
     map.setInitialXY();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
@@ -327,6 +357,7 @@ map.mandelbrotComplement = function() {
 };
 
 map.mandelbrotAll = function() {
+    map.inversion();
     map.setInitialXY();
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
@@ -337,6 +368,7 @@ map.mandelbrotAll = function() {
 };
 
 map.mandelbrotApproximation = function() {
+    map.inversion();
     map.setInitialXY();
     map.radialLimit(map.limit);
     for (let i = 0; i < map.iters; i++) {
