@@ -18,6 +18,7 @@ import {
 
 export const juliaMap = {};
 juliaMap.expansion = 2;
+juliaMap.automaticExpansion = true;
 juliaMap.inverted = false;
 
 juliaMap.setup = function(gui) {
@@ -65,6 +66,12 @@ juliaMap.setup = function(gui) {
         onChange: julia.drawNewStructure
     });
     gui.add({
+        type: 'boolean',
+        params: juliaMap,
+        property: 'inverted',
+        onChange: julia.drawNewStructure
+    });
+    gui.add({
         type: 'number',
         params: juliaMap,
         property: 'expansion',
@@ -73,7 +80,8 @@ juliaMap.setup = function(gui) {
     }).add({
         type: 'boolean',
         params: juliaMap,
-        property: 'inverted',
+        property: 'automaticExpansion',
+        labelText: 'automatic',
         onChange: julia.drawNewStructure
     });
 };
@@ -197,8 +205,6 @@ map.complement = function(limit) {
             structureArray[index] = 0;
         } else {
             structureArray[index] = 128;
-            xArray[index] = 0;
-            yArray[index] = 0;
         }
     }
 };
@@ -240,21 +246,111 @@ map.scale = function(length) {
     }
 };
 
-map.expand = function(length) {
+// expand points near origin to get a more even distribution
+// depends on expansion parameter
+map.expand = function() {
     const xArray = map.xArray;
     const yArray = map.yArray;
+    const structureArray = map.structureArray;
     const nPixels = xArray.length;
     const expansion = juliaMap.expansion;
     const expansionM1 = expansion - 1;
     for (var index = 0; index < nPixels; index++) {
-        const x = xArray[index];
-        const y = yArray[index];
-        const r = Math.hypot(x, y);
-        const factor = expansion / (1 + expansionM1 * r);
-        xArray[index] = factor * x;
-        yArray[index] = factor * y;
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            const r = Math.hypot(x, y);
+            const factor = expansion / (1 + expansionM1 * r);
+            xArray[index] = factor * x;
+            yArray[index] = factor * y;
+        }
     }
 };
+
+// automatic redistribution of points
+// density prop to r (distance from origin)
+
+const distribution = [];
+const newRadius = [];
+const distributionBins = 1000;
+distribution.length = distributionBins;
+newRadius.length = distributionBins + 1;
+
+// making the distribution
+function makeDistribution() {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const nPixels = xArray.length;
+    distribution.fill(0);
+    const distributionBinsM1 = distributionBins - 1;
+    for (let index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            const r = Math.hypot(x, y);
+            // r goes from 0 to 1
+            const bin = Math.min(Math.floor(distributionBins * r), distributionBinsM1);
+            distribution[bin] += 1;
+        }
+    }
+    // normalize
+    let sum = 0;
+    for (let i = 0; i < distributionBins; i++) {
+        sum += distribution[i];
+    }
+    const normFactor = 1 / sum;
+    for (let i = 0; i < distributionBins; i++) {
+        distribution[i] *= normFactor;
+    }
+    // determine the new radii
+    // equal distribution
+    newRadius[0] = 0;
+    for (let i = 0; i < distributionBins; i++) {
+        newRadius[i + 1] = newRadius[i] + distribution[i];
+    }
+    // density propto r
+    for (let i = 0; i <= distributionBins; i++) {
+        newRadius[i] = Math.sqrt(newRadius[i]);
+    }
+    // expand
+    const eps = 1e-5;
+    const distributionBinsMEps = distributionBins - eps;
+    for (let index = 0; index < nPixels; index++) {
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            const r = Math.hypot(x, y);
+            // no expansion at origin
+            if (r > eps) {
+                // r goes from 0 to 1
+                // use linear interpolation to get new radius
+                const position = Math.min(distributionBins * r, distributionBinsMEps);
+                const bin = Math.floor(position);
+                const fraction = position - bin;
+                const expandedRadius = newRadius[bin] * (1 - fraction) + newRadius[bin + 1] * fraction;
+                const factor = expandedRadius / r;
+                xArray[index] = factor * x;
+                yArray[index] = factor * y;
+            }
+        }
+    }
+}
+
+function logDistribution() {
+    const eps = 1e-10;
+    console.log("i,distribution,radius,density,density/radius");
+    for (let i = 0; i < 100; i++) {
+        const denom = newRadius[i + 1] - newRadius[i];
+        if (denom > eps) {
+            const density = distribution[i] / denom;
+            const radius = 0.5 * (newRadius[i] + newRadius[i + 1]);
+            console.log(i, distribution[i], radius, density, density / radius);
+        } else {
+            console.log(i);
+        }
+    }
+}
 
 map.nothing = function() {
     map.inversion();
@@ -267,7 +363,13 @@ map.juliaSet = function() {
         map.mapping();
     }
     map.set(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        makeDistribution();
+        logDistribution();
+    } else {
+        map.expand();
+    }
+
 };
 
 map.juliaComplement = function() {

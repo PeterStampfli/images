@@ -24,7 +24,6 @@ randomRoots.zPower = 1;
 randomRoots.order = 5;
 randomRoots.nomTerms = 1;
 randomRoots.denomTerms = 0;
-randomRoots.maxPower = 2;
 
 randomRoots.setup = function(gui) {
     gui.addParagraph('<strong>random roots</strong>');
@@ -32,17 +31,6 @@ randomRoots.setup = function(gui) {
         type: 'number',
         params: randomRoots,
         property: 'order',
-        step: 1,
-        min: 1,
-        onChange: function() {
-            randomRoots.random();
-            julia.drawNewStructure();
-        }
-    }).add({
-        type: 'number',
-        params: randomRoots,
-        property: 'maxPower',
-        labelText: 'max power',
         step: 1,
         min: 1,
         onChange: function() {
@@ -90,13 +78,13 @@ randomRoots.setup = function(gui) {
         property: 'random',
         options: {
             'unit circle': randomRoots.unitCircle,
-            'unit circle mirror symmetry': randomRoots.unitCircleMirrorSymmetry,
+            'unit circle conj pairs': randomRoots.unitCircleMirrorSymmetry,
             'unit square': randomRoots.unitSquare,
-            'unit square mirror symmetry': randomRoots.unitSquareMirrorSymmetry,
+            'unit square conj pairs': randomRoots.unitSquareMirrorSymmetry,
             'octant': randomRoots.octant,
             'octant mirror symmetry': randomRoots.octantMirrorSymmetric,
-            'line': randomRoots.line,
-            'positive line': randomRoots.positiveLine
+            'x-axis': randomRoots.line,
+            'positive x-axis': randomRoots.positiveLine
         },
         onChange: function() {
             randomRoots.random();
@@ -139,7 +127,7 @@ var args;
 randomRoots.unitSquare = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(order);
         const x = 2 * Math.random() - 1;
         const y = 2 * Math.random() - 1;
@@ -147,7 +135,7 @@ randomRoots.unitSquare = function() {
         args.push(y);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(-order);
         const x = 2 * Math.random() - 1;
         const y = 2 * Math.random() - 1;
@@ -160,7 +148,7 @@ randomRoots.unitSquare = function() {
 randomRoots.octant = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(order);
         const x = Math.random();
         const y = Math.random();
@@ -168,7 +156,7 @@ randomRoots.octant = function() {
         args.push(y);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(-order);
         const x = Math.random();
         const y = Math.random();
@@ -180,7 +168,7 @@ randomRoots.octant = function() {
 randomRoots.octantMirrorSymmetric = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const x = Math.random();
         const y = Math.random();
         args.push(order);
@@ -191,7 +179,7 @@ randomRoots.octantMirrorSymmetric = function() {
         args.push(-y);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const x = Math.random();
         const y = Math.random();
         args.push(-order);
@@ -208,7 +196,7 @@ randomRoots.octantMirrorSymmetric = function() {
 randomRoots.unitSquareMirrorSymmetry = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const x = 2 * Math.random() - 1;
         const y = 2 * Math.random() - 1;
         args.push(order);
@@ -219,7 +207,7 @@ randomRoots.unitSquareMirrorSymmetry = function() {
         args.push(-y);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const x = 2 * Math.random() - 1;
         const y = 2 * Math.random() - 1;
         args.push(-order);
@@ -235,7 +223,7 @@ randomRoots.unitSquareMirrorSymmetry = function() {
 randomRoots.unitCircle = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
@@ -244,7 +232,7 @@ randomRoots.unitCircle = function() {
         args.push(y);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
@@ -258,7 +246,7 @@ randomRoots.unitCircle = function() {
 randomRoots.unitCircleMirrorSymmetry = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
@@ -270,7 +258,7 @@ randomRoots.unitCircleMirrorSymmetry = function() {
         args.push(-y);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         const angle = 2 * Math.PI * Math.random();
         const x = Math.cos(angle);
         const y = Math.sin(angle);
@@ -287,13 +275,13 @@ randomRoots.unitCircleMirrorSymmetry = function() {
 randomRoots.line = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(order);
         args.push(2 * Math.random() - 1);
         args.push(0);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(-order);
         args.push(2 * Math.random() - 1);
         args.push(0);
@@ -304,13 +292,13 @@ randomRoots.line = function() {
 randomRoots.positiveLine = function() {
     args = [randomRoots.zPower, amplitude.real, amplitude.imag];
     for (let i = 0; i < randomRoots.nomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(order);
         args.push(2 * Math.random() - 1);
         args.push(0);
     }
     for (let i = 0; i < randomRoots.denomTerms; i++) {
-        const order = randomRoots.order * Math.floor(1 + randomRoots.maxPower * Math.random());
+        const order = randomRoots.order;
         args.push(-order);
         args.push(2 * Math.random() - 1);
         args.push(0);
