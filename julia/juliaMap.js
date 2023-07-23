@@ -270,52 +270,57 @@ map.expand = function() {
 // automatic redistribution of points
 // density prop to r (distance from origin)
 
-const distribution = [];
+const nPixelsInterval = [];
 const newRadius = [];
-const distributionBins = 1000;
-distribution.length = distributionBins;
-newRadius.length = distributionBins + 1;
+const nIntervals = 1000;
+nPixelsInterval.length = nIntervals;
+newRadius.length = nIntervals + 1;
 
-// making the distribution
-function makeDistribution() {
+// redistributing points
+function redistribute() {
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
     const nPixels = xArray.length;
-    distribution.fill(0);
-    const distributionBinsM1 = distributionBins - 1;
+    nPixelsInterval.fill(0);
+    const nIntervalsM1 = nIntervals - 1;
     for (let index = 0; index < nPixels; index++) {
         if (structureArray[index] < 128) {
             const x = xArray[index];
             const y = yArray[index];
             const r = Math.hypot(x, y);
             // r goes from 0 to 1
-            const bin = Math.min(Math.floor(distributionBins * r), distributionBinsM1);
-            distribution[bin] += 1;
+            const i = Math.min(Math.floor(nIntervals * r), nIntervalsM1);
+            nPixelsInterval[i] += 1;
         }
     }
-    // normalize
+    // normalize sum of pixels in intervals to 1
     let sum = 0;
-    for (let i = 0; i < distributionBins; i++) {
-        sum += distribution[i];
+    for (let i = 0; i < nIntervals; i++) {
+        sum += nPixelsInterval[i];
     }
     const normFactor = 1 / sum;
-    for (let i = 0; i < distributionBins; i++) {
-        distribution[i] *= normFactor;
+    for (let i = 0; i < nIntervals; i++) {
+        nPixelsInterval[i] *= normFactor;
     }
     // determine the new radii
-    // equal distribution
+    // changing the width of intervals and shifting positions
+    // to get a uniform distribution of pixels
+    // using that the sum of nPixelsInterval[i]=1
     newRadius[0] = 0;
-    for (let i = 0; i < distributionBins; i++) {
-        newRadius[i + 1] = newRadius[i] + distribution[i];
+    for (let i = 0; i < nIntervals; i++) {
+        newRadius[i + 1] = newRadius[i] + nPixelsInterval[i];
     }
-    // density propto r
-    for (let i = 0; i <= distributionBins; i++) {
+    // change that number of pixels in an interval is proportional to its radius
+    // by changing widths and positions of intervals
+    for (let i = 0; i <= nIntervals; i++) {
         newRadius[i] = Math.sqrt(newRadius[i]);
     }
-    // expand
+    // redistribute the pixels
+    // by moving in radial direction
+    // based on position in original interval and using linear interpolation
     const eps = 1e-5;
-    const distributionBinsMEps = distributionBins - eps;
+    const nIntervalsMEps = nIntervals - eps;
     for (let index = 0; index < nPixels; index++) {
         if (structureArray[index] < 128) {
             const x = xArray[index];
@@ -323,12 +328,13 @@ function makeDistribution() {
             const r = Math.hypot(x, y);
             // no expansion at origin
             if (r > eps) {
-                // r goes from 0 to 1
-                // use linear interpolation to get new radius
-                const position = Math.min(distributionBins * r, distributionBinsMEps);
-                const bin = Math.floor(position);
-                const fraction = position - bin;
-                const expandedRadius = newRadius[bin] * (1 - fraction) + newRadius[bin + 1] * fraction;
+                const position = Math.min(nIntervals * r, nIntervalsMEps);
+                // get original interval that contains pixel
+                const i = Math.floor(position);
+                // find relative position in original interval
+                const relative = position - i;
+                // linear interpolation
+                const expandedRadius = newRadius[i] * (1 - relative) + newRadius[i + 1] * relative;
                 const factor = expandedRadius / r;
                 xArray[index] = factor * x;
                 yArray[index] = factor * y;
@@ -339,13 +345,13 @@ function makeDistribution() {
 
 function logDistribution() {
     const eps = 1e-10;
-    console.log("i,distribution,radius,density,density/radius");
+    console.log("i,nPixelsInterval,radius,density,density/radius");
     for (let i = 0; i < 100; i++) {
         const denom = newRadius[i + 1] - newRadius[i];
         if (denom > eps) {
-            const density = distribution[i] / denom;
+            const density = nPixelsInterval[i] / denom;
             const radius = 0.5 * (newRadius[i] + newRadius[i + 1]);
-            console.log(i, distribution[i], radius, density, density / radius);
+            console.log(i, nPixelsInterval[i], radius, density, density / radius);
         } else {
             console.log(i);
         }
@@ -354,7 +360,12 @@ function logDistribution() {
 
 map.nothing = function() {
     map.inversion();
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
 
 map.juliaSet = function() {
@@ -364,12 +375,11 @@ map.juliaSet = function() {
     }
     map.set(map.limit);
     if (juliaMap.automaticExpansion) {
-        makeDistribution();
+        redistribute();
         logDistribution();
     } else {
         map.expand();
     }
-
 };
 
 map.juliaComplement = function() {
@@ -378,7 +388,12 @@ map.juliaComplement = function() {
         map.mapping();
     }
     map.complement(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
 
 map.juliaAll = function() {
@@ -387,7 +402,12 @@ map.juliaAll = function() {
         map.mapping();
     }
     map.all(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
 
 map.juliaSetApproximation = function() {
@@ -400,7 +420,12 @@ map.juliaSetApproximation = function() {
     }
     map.invertSelect();
     map.scale(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
 
 // for the pseudo mandelbrot
@@ -444,7 +469,12 @@ map.mandelbrot = function() {
         map.addInitialXY();
     }
     map.set(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
 
 map.mandelbrotComplement = function() {
@@ -455,7 +485,12 @@ map.mandelbrotComplement = function() {
         map.addInitialXY();
     }
     map.complement(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
 
 map.mandelbrotAll = function() {
@@ -466,7 +501,12 @@ map.mandelbrotAll = function() {
         map.addInitialXY();
     }
     map.all(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
 
 map.mandelbrotApproximation = function() {
@@ -481,5 +521,10 @@ map.mandelbrotApproximation = function() {
     }
     map.invertSelect();
     map.scale(map.limit);
-    map.expand();
+    if (juliaMap.automaticExpansion) {
+        redistribute();
+        logDistribution();
+    } else {
+        map.expand();
+    }
 };
