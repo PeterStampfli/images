@@ -84,7 +84,8 @@ randomRoots.setup = function(gui) {
             'octant': randomRoots.octant,
             'octant mirror symmetry': randomRoots.octantMirrorSymmetric,
             'x-axis': randomRoots.line,
-            'positive x-axis': randomRoots.positiveLine
+            'positive x-axis': randomRoots.positiveLine,
+            'units (1 nom,-1 denom)':randomRoots.units
         },
         onChange: function() {
             randomRoots.random();
@@ -301,6 +302,23 @@ randomRoots.positiveLine = function() {
         const order = randomRoots.order;
         args.push(-order);
         args.push(2 * Math.random() - 1);
+        args.push(0);
+    }
+    console.log(args);
+};
+
+randomRoots.units = function() {
+    args = [randomRoots.zPower, amplitude.real, amplitude.imag];
+    for (let i = 0; i < randomRoots.nomTerms; i++) {
+        const order = randomRoots.order;
+        args.push(order);
+        args.push(1);
+        args.push(0);
+    }
+    for (let i = 0; i < randomRoots.denomTerms; i++) {
+        const order = randomRoots.order;
+        args.push(-order);
+        args.push(-1);
         args.push(0);
     }
     console.log(args);

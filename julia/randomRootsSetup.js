@@ -10,6 +10,10 @@ import {
 } from "./randomRoots.js";
 
 import {
+    rosette
+} from "./rosette.js";
+
+import {
     map,
     julia
 } from "./mapImage.js";
@@ -39,6 +43,7 @@ function setup() {
     output.addCursorposition();
     juliaMap.setup(gui);
     kaleidoscope.setup(gui);
+    rosette.setup(gui);
     randomRoots.setup(gui);
     map.setupDrawing(gui);
 
@@ -65,6 +70,7 @@ julia.drawNewStructure = function() {
     map.init();
     map.iteration();
     kaleidoscope.type();
+    rosette.type();
     map.draw();
     output.drawGrid();
 };

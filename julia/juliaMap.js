@@ -272,7 +272,7 @@ map.expand = function() {
 
 const nPixelsInterval = [];
 const newRadius = [];
-const nIntervals = 1000;
+const nIntervals = 10000;
 nPixelsInterval.length = nIntervals;
 newRadius.length = nIntervals + 1;
 
@@ -326,8 +326,11 @@ function redistribute() {
             const x = xArray[index];
             const y = yArray[index];
             const r = Math.hypot(x, y);
+            if (r > 1) {
+                structureArray[index] = 128;
+            }
             // no expansion at origin
-            if (r > eps) {
+            else if (r > eps) {
                 const position = Math.min(nIntervals * r, nIntervalsMEps);
                 // get original interval that contains pixel
                 const i = Math.floor(position);
