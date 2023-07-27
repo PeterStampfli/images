@@ -33,7 +33,7 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     kaleidoscope.setup(gui);
-    // setup polygon
+    polygon.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid

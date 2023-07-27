@@ -5,7 +5,8 @@ export const polygon = {};
 
 // basic polygon data
 polygon.nFold = 5;
-polygon.starRadius = 0.5;
+polygon.extra = 0.5;
+polygon.winding = 1;
 
 // corner coordinates, first corner is repeated
 let nCorners = 0;
@@ -20,7 +21,6 @@ const sidesUnitX = [];
 const sidesUnitY = [];
 const sidesHeight = [];
 let perimeter = 0;
-let winding = 1;
 
 // results for a given point, mapping to the circle
 polygon.isInside = true;
@@ -29,11 +29,44 @@ polygon.angle = 0;
 
 const eps = 0.001;
 
+polygon.setup = function(gui) {
+    gui.addParagraph('<strong>polygon</strong>');
+    gui.add({
+        type: 'number',
+        params: polygon,
+        property: 'nFold',
+        step: 1,
+        min: 1,
+        onChange: function() {
+            julia.drawNewStructure();
+        }
+    }).add({
+        type: 'number',
+        params: polygon,
+        property: 'extra',
+        onChange: function() {
+            julia.drawNewStructure();
+        }
+    });
+    polygon.type = polygon.nothing;
+    gui.add({
+        type: 'selection',
+        params: polygon,
+        property: 'type',
+        options: {
+            nothing: polygon.nothing,
+            regular:polygon.regular
+        },
+        onChange: function() {
+            julia.drawNewStructure();
+        }
+    });
+};
+
 // define a polgon with its corners as pairs of coordinates
 // the "convex" center lies at the origin
 // corners defined in positive winding sense, counterclockwise
 polygon.setCorners = function(corners) {
-    winding = 1;
     const length = corners.length;
     cornersX.length = 0;
     cornersY.length = 0;
@@ -69,10 +102,6 @@ polygon.setCorners = function(corners) {
         // unit vector perpendicular to side and going out is (sidesUnitY,-sidesUnitX)
         sidesHeight[i] = sidesUnitY[i] * cornersX[i] - sidesUnitX[i] * cornersY[i];
     }
-};
-
-polygon.setWinding = function(n) {
-    winding = n;
 };
 
 polygon.log = function() {
@@ -120,18 +149,20 @@ polygon.analyzePoint = function(pointX, pointY) {
     const scaledY = relativePointHeight * cornersY[i];
     // part of perimeter from scaled corner point to given point
     let perimeterPart = sidesUnitX[i] * (pointX - scaledX) + sidesUnitY[i] * (pointY - scaledY);
-    console.log(perimeterPart, cornersPerimeter[i], winding);
+    console.log(perimeterPart, cornersPerimeter[i]);
     // converting to angle in cirle using total part of perimeter
     console.log('part perimeter');
     // partial perimeter projected to outline of polygon
     perimeterPart /= relativePointHeight;
     const perimeterFraction = (cornersPerimeter[i] + perimeterPart) / perimeter;
-    polygon.angle = 2 * Math.PI * winding * perimeterFraction;
+    polygon.angle = 2 * Math.PI * polygon.winding * perimeterFraction;
 
     console.log('point', pointX, pointY);
     console.log(relativePointHeight, scaledX, scaledY);
     console.log('isInside,radius,angle', polygon.isInside, polygon.radius, polygon.angle);
 };
+
+polygon.nothing = function() {};
 
 polygon.regular = function() {
     const nCorners = polygon.nFold;
@@ -141,7 +172,9 @@ polygon.regular = function() {
         corners.push(Math.cos(i * dAngle));
         corners.push(Math.sin(i * dAngle));
     }
-    return corners;
+    polygon.setCorners(corners);
+    polygon.log();
+    polygon.analyzePoint(0, 0.2);
 };
 
 polygon.star = function() {
@@ -151,8 +184,8 @@ polygon.star = function() {
     for (let i = 0; i < nCorners; i++) {
         corners.push(Math.cos(i * dAngle));
         corners.push(Math.sin(i * dAngle));
-        corners.push(polygon.starRadius * Math.cos((i + 0.5) * dAngle));
-        corners.push(polygon.starRadius * Math.sin((i + 0.5) * dAngle));
+        corners.push(polygon.extra * Math.cos((i + 0.5) * dAngle));
+        corners.push(polygon.extra * Math.sin((i + 0.5) * dAngle));
     }
     return corners;
 };
@@ -193,7 +226,7 @@ polygon.cross = function() {
     corners.push(-1);
     corners.push(-1);
     corners.push(-x);
-    
+
     corners.push(1);
     corners.push(-x);
     corners.push(1);
@@ -202,12 +235,3 @@ polygon.cross = function() {
     corners.push(-1);
     return corners;
 };
-
-//const p = polygon.regular(5);
-polygon.nFold = 4;
-polygon.starRadius = 0.5;
-const p = polygon.star();
-console.log(p);
-polygon.setCorners(p);
-polygon.log();
-polygon.analyzePoint(0, 0.2);
