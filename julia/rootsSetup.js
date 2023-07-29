@@ -6,22 +6,30 @@ import {
 } from "../libgui/modules.js";
 
 import {
+    roots
+} from "./roots.js";
+
+import {
+    rosette
+} from "./rosette.js";
+
+import {
     map,
     julia
 } from "./mapImage.js";
 
 import {
-    kaleidoscope
-} from "./kaleidoscope.js";
+    juliaMap
+} from "./juliaMap.js";
 
 import {
-    polygon
-} from "./polygon.js";
+    kaleidoscope
+} from "./kaleidoscope.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'two roots',
+        name: 'roots',
         closed: false
     });
 
@@ -32,8 +40,10 @@ function setup() {
     output.grid.interval = 0.1;
     output.addGrid();
     output.addCursorposition();
+    juliaMap.setup(gui);
     kaleidoscope.setup(gui);
-    polygon.setup(gui);
+    rosette.setup(gui);
+    roots.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid
@@ -57,8 +67,9 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    polygon.type();
+    map.iteration();
     kaleidoscope.type();
+    rosette.type();
     map.draw();
     output.drawGrid();
 };
