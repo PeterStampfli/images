@@ -25,6 +25,8 @@ randomRoots.order = 5;
 randomRoots.nomTerms = 1;
 randomRoots.denomTerms = 0;
 
+randomRoots.text = '';
+
 randomRoots.setup = function(gui) {
     gui.addParagraph('<strong>random roots</strong>');
     gui.add({
@@ -85,7 +87,7 @@ randomRoots.setup = function(gui) {
             'octant mirror symmetry': randomRoots.octantMirrorSymmetric,
             'x-axis': randomRoots.line,
             'positive x-axis': randomRoots.positiveLine,
-            'units (1 nom,-1 denom)':randomRoots.units
+            'units (1 nom,-1 denom)': randomRoots.units
         },
         onChange: function() {
             randomRoots.random();
@@ -106,19 +108,25 @@ randomRoots.setup = function(gui) {
         onChange: julia.drawNewStructure
     });
     gui.add({
-        type: 'boolean',
-        params: universalRational,
-        property: 'exponential',
-        onChange: julia.drawNewStructure
-    });
-    gui.add({
         type: 'button',
         buttonText: 'randomize',
         onClick: function() {
             randomRoots.random();
             julia.drawNewStructure();
         }
+    }).add({
+        type: 'boolean',
+        params: universalRational,
+        property: 'exponential',
+        onChange: julia.drawNewStructure
     });
+    randomRoots.textArea = gui.add({
+        type: 'textArea',
+        params: randomRoots,
+        property: 'text'
+    });
+    randomRoots.textArea.uiElement.setColumns(40);
+    randomRoots.textArea.uiElement.setRows(10);
     randomRoots.random();
     map.mapping = map.randomRootsUniversalRational;
 };
@@ -328,5 +336,17 @@ map.randomRootsUniversalRational = function() {
     // the amplitude may change, but not the roots
     args[1] = amplitude.real;
     args[2] = amplitude.imag;
+    let text = '';
+    for (let i = 3; i < args.length; i += 3) {
+        if (args[i] > 0) {
+            text += 'nom';
+        } else {
+            text += 'den';
+        }
+        text += ': r ' + Math.hypot(args[i + 1], args[i + 2]).toPrecision(4);
+        const angle = atan2(args[i + 2], args[i + 1]) / 2 / Math.PI;
+        text += ', a ' + angle.toPrecision(4) + '\n';
+    }
+    randomRoots.textArea.setValueOnly(text);
     map.universalRational(args);
 };

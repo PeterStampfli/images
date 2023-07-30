@@ -79,7 +79,8 @@ roots.setup = function(gui) {
     }).add({
         type: 'boolean',
         params: universalRational,
-        property: 'expo',
+        property: 'exponential',
+        labelText:'expo',
         onChange: julia.drawNewStructure
     });
     gui.addParagraph('nominator');
