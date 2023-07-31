@@ -8,7 +8,7 @@ import {
 export const polygon = {};
 
 // basic polygon data
-polygon.nFold = 4;
+polygon.nFold = 5;
 polygon.extra = 0.5;
 polygon.winding = 1;
 
@@ -59,21 +59,23 @@ polygon.setup = function(gui) {
         type: 'number',
         params: polygon,
         property: 'winding',
-        step: 1,
-        min: 1,
         onChange: function() {
             console.log(polygon.type);
             julia.drawNewStructure();
         }
     });
-    polygon.type = polygon.nothing;
+    polygon.type = polygon.regular;
     gui.add({
         type: 'selection',
         params: polygon,
         property: 'type',
         options: {
             nothing: polygon.nothing,
-            regular: polygon.regular
+            regular: polygon.regular,
+            star: polygon.star,
+            'basic star': polygon.basicStar,
+            cross:polygon.cross,
+            oval:polygon.oval
         },
         onChange: function() {
             julia.drawNewStructure();
@@ -241,6 +243,9 @@ polygon.process = function() {
         // the "radius" of a point is the fraction of the height to this side
         // resulting in a mapping of parallels of the side to concentric circle sectors
         const radius = pointHeight / sidesHeight[i];
+        if (radius>1){
+            structureArray[index]=128;
+        }
         if (radius < eps) {
             xArray[index] = 0;
             yArray[index] = 0;
@@ -277,8 +282,6 @@ polygon.regular = function() {
         corners.push(Math.sin(i * dAngle));
     }
     polygon.setCorners(corners);
-    polygon.log();
-    polygon.analyzePoint(-0.2, -0.2);
     polygon.process();
 };
 
@@ -292,7 +295,8 @@ polygon.star = function() {
         corners.push(polygon.extra * Math.cos((i + 0.5) * dAngle));
         corners.push(polygon.extra * Math.sin((i + 0.5) * dAngle));
     }
-    return corners;
+    polygon.setCorners(corners);
+    polygon.process();
 };
 
 polygon.basicStar = function() {
@@ -306,37 +310,58 @@ polygon.basicStar = function() {
         corners.push(starRadius * Math.cos((i + 0.5) * dAngle));
         corners.push(starRadius * Math.sin((i + 0.5) * dAngle));
     }
-    return corners;
+    polygon.setCorners(corners);
+    polygon.process();
 };
 
 polygon.cross = function() {
-    const x = 2.2;
+    const x = 1+polygon.extra;
+    const corners=[];
     corners.push(x);
-    corners.push(1);
-    corners.push(1);
-    corners.push(1);
-    corners.push(1);
+    corners.push(0.5);
+    corners.push(0.5);
+    corners.push(0.5);
+    corners.push(0.5);
     corners.push(x);
 
-    corners.push(-1);
+    corners.push(-0.5);
     corners.push(x);
-    corners.push(-1);
-    corners.push(1);
+    corners.push(-0.5);
+    corners.push(0.5);
     corners.push(-x);
-    corners.push(1);
+    corners.push(0.5);
 
     corners.push(-x);
-    corners.push(-1);
-    corners.push(-1);
-    corners.push(-1);
-    corners.push(-1);
+    corners.push(-0.5);
+    corners.push(-0.5);
+    corners.push(-0.5);
+    corners.push(-0.5);
     corners.push(-x);
 
-    corners.push(1);
+    corners.push(0.5);
     corners.push(-x);
-    corners.push(1);
-    corners.push(-1);
+    corners.push(0.5);
+    corners.push(-0.5);
     corners.push(x);
-    corners.push(-1);
-    return corners;
+    corners.push(-0.5);
+    polygon.setCorners(corners);
+    polygon.process();
+};
+
+polygon.oval = function() {
+    const nCorners = polygon.nFold;
+    const corners = [];
+    const extra=polygon.extra;
+    const dAngle = Math.PI / nCorners;
+    for (let i = 0; i <= nCorners; i++) {
+        corners.push(extra+Math.cos(i * dAngle-Math.PI/2));
+        corners.push(Math.sin(i * dAngle-Math.PI/2));       
+    }
+        for (let i = 0; i <= nCorners; i++) {
+        corners.push(-extra+Math.cos(i * dAngle+Math.PI/2));
+        corners.push(Math.sin(i * dAngle+Math.PI/2));       
+    }
+    console.log(corners);
+    polygon.setCorners(corners);
+    polygon.process();
 };

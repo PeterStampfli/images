@@ -18,6 +18,10 @@ import {
     polygon
 } from "./polygon.js";
 
+import {
+    rosette
+} from "./rosette.js";
+
 function setup() {
     // base gui
     const gui = new ParamGui({
@@ -33,6 +37,7 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     kaleidoscope.setup(gui);
+    rosette.setup(gui);
     polygon.setup(gui);
     map.setupDrawing(gui);
 
@@ -59,6 +64,7 @@ julia.drawNewStructure = function() {
     map.init();
     polygon.type();
     kaleidoscope.type();
+    rosette.type();
     map.draw();
     output.drawGrid();
 };
