@@ -11,6 +11,7 @@ export const polygon = {};
 polygon.nFold = 5;
 polygon.extra = 0.5;
 polygon.winding = 1;
+polygon.rotation = 0;
 
 // corner coordinates, first corner is repeated
 let nCorners = 0;
@@ -39,6 +40,7 @@ const eps = 0.001;
 
 polygon.setup = function(gui) {
     gui.addParagraph('<strong>polygon</strong>');
+    polygon.type = polygon.regular;
     gui.add({
         type: 'number',
         params: polygon,
@@ -49,6 +51,22 @@ polygon.setup = function(gui) {
             julia.drawNewStructure();
         }
     }).add({
+        type: 'selection',
+        params: polygon,
+        property: 'type',
+        options: {
+            nothing: polygon.nothing,
+            regular: polygon.regular,
+            star: polygon.star,
+            'basic star': polygon.basicStar,
+            cross: polygon.cross,
+            oval: polygon.oval
+        },
+        onChange: function() {
+            julia.drawNewStructure();
+        }
+    });
+    gui.add({
         type: 'number',
         params: polygon,
         property: 'extra',
@@ -60,27 +78,17 @@ polygon.setup = function(gui) {
         params: polygon,
         property: 'winding',
         onChange: function() {
-            console.log(polygon.type);
             julia.drawNewStructure();
         }
-    });
-    polygon.type = polygon.regular;
-    gui.add({
-        type: 'selection',
+    }).add({
+        type: 'number',
         params: polygon,
-        property: 'type',
-        options: {
-            nothing: polygon.nothing,
-            regular: polygon.regular,
-            star: polygon.star,
-            'basic star': polygon.basicStar,
-            cross:polygon.cross,
-            oval:polygon.oval
-        },
+        property: 'rotation',
         onChange: function() {
             julia.drawNewStructure();
         }
     });
+
 };
 
 // define a polgon with its corners as pairs of coordinates
@@ -127,85 +135,11 @@ polygon.setCorners = function(corners) {
     }
 };
 
-polygon.log = function() {
-    console.log('======================================');
-    console.log('i, cornerX, cornerY, angle');
-    for (let i = 0; i <= nCorners; i++) {
-        console.log(i, cornersX[i], cornersY[i], cornersAngle[i]);
-    }
-    console.log('======================================');
-    console.log('i, sidesUnitX,sidesUnitY,sidesLength,cornersPerimeter');
-    for (let i = 0; i < nCorners; i++) {
-        console.log(i, sidesUnitX[i], sidesUnitY[i], sidesLength[i], cornersPerimeter[i]);
-    }
-    console.log('======================================');
-};
-
-// find index to a side from coordinates of a point
-// simple search for a small number of points
-function findSideLog(pointX, pointY) {
-    var i;
-    // Math.atan2(0,0)=0
-    const angle = Math.atan2(pointY, pointX);
-    // search for sector/side that contains the point
-    console.log('find side:angle point', angle);
-    for (i = 0; i < nCorners; i++) {
-        console.log(i, sidesAngle1[i], sidesAngle2[i], sidesAcrossCut[i]);
-        if (sidesAcrossCut[i]) {
-            //above cut
-            if (angle > 0) {
-                if (angle > sidesAngle1[i]) {
-                    break;
-                }
-            } else {
-                if (angle < sidesAngle2[i]) {
-                    break;
-                }
-            }
-        } else {
-            if ((sidesAngle1[i] < angle) && (sidesAngle2[i] > angle)) {
-                break;
-            }
-        }
-    }
-    console.log('index', i);
-    return i;
-}
-
-// find perimeter fraction going from first corner to given point
-// and radial fraction (height fraction)
-polygon.analyzePoint = function(pointX, pointY) {
-    const i = findSideLog(pointX, pointY);
-    const pointHeight = sidesUnitY[i] * pointX - sidesUnitX[i] * pointY;
-    // the "radius" of a point is the fraction of the height to this side
-    // resulting in a mapping of parallels of the side to concentric circle sectors
-    const relativePointHeight = pointHeight / sidesHeight[i];
-    polygon.isInside = (relativePointHeight <= 1);
-    polygon.radius = relativePointHeight;
-    // the "angle" of the point is its fraction of the perimeter times the winding number
-    // the scaled back corner point
-    const scaledX = relativePointHeight * cornersX[i];
-    const scaledY = relativePointHeight * cornersY[i];
-    // part of perimeter from scaled corner point to given point
-    let perimeterPart = sidesUnitX[i] * (pointX - scaledX) + sidesUnitY[i] * (pointY - scaledY);
-    console.log(perimeterPart, cornersPerimeter[i]);
-    // converting to angle in cirle using total part of perimeter
-    console.log('part perimeter');
-    // partial perimeter projected to outline of polygon
-    perimeterPart /= relativePointHeight;
-    const perimeterFraction = (cornersPerimeter[i] + perimeterPart) / perimeter;
-    polygon.angle = 2 * Math.PI * polygon.winding * perimeterFraction;
-
-    console.log('point', pointX, pointY);
-    console.log(relativePointHeight, scaledX, scaledY);
-    console.log('isInside,radius,angle', polygon.isInside, polygon.radius, polygon.angle);
-};
-
 polygon.process = function() {
-    console.log('proceessinfg');
     var i;
     const eps = 0.0001;
     const winding = polygon.winding;
+    const rotation=polygon.rotation;
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
@@ -243,8 +177,8 @@ polygon.process = function() {
         // the "radius" of a point is the fraction of the height to this side
         // resulting in a mapping of parallels of the side to concentric circle sectors
         const radius = pointHeight / sidesHeight[i];
-        if (radius>1){
-            structureArray[index]=128;
+        if (radius > 1) {
+            structureArray[index] = 128;
         }
         if (radius < eps) {
             xArray[index] = 0;
@@ -261,7 +195,7 @@ polygon.process = function() {
         // partial perimeter projected to outline of polygon
         perimeterPart /= radius;
         const perimeterFraction = (cornersPerimeter[i] + perimeterPart) / perimeter;
-        angle = 2 * Math.PI * winding * perimeterFraction;
+        angle = 2 * Math.PI * winding * perimeterFraction+rotation;
         xArray[index] = radius * Math.cos(angle);
         yArray[index] = radius * Math.sin(angle);
         xArray[index] = radius * Math.cos(angle);
@@ -315,8 +249,8 @@ polygon.basicStar = function() {
 };
 
 polygon.cross = function() {
-    const x = 1+polygon.extra;
-    const corners=[];
+    const x = 1 + polygon.extra;
+    const corners = [];
     corners.push(x);
     corners.push(0.5);
     corners.push(0.5);
@@ -351,15 +285,15 @@ polygon.cross = function() {
 polygon.oval = function() {
     const nCorners = polygon.nFold;
     const corners = [];
-    const extra=polygon.extra;
+    const extra = polygon.extra;
     const dAngle = Math.PI / nCorners;
     for (let i = 0; i <= nCorners; i++) {
-        corners.push(extra+Math.cos(i * dAngle-Math.PI/2));
-        corners.push(Math.sin(i * dAngle-Math.PI/2));       
+        corners.push(extra + Math.cos(i * dAngle - Math.PI / 2));
+        corners.push(Math.sin(i * dAngle - Math.PI / 2));
     }
-        for (let i = 0; i <= nCorners; i++) {
-        corners.push(-extra+Math.cos(i * dAngle+Math.PI/2));
-        corners.push(Math.sin(i * dAngle+Math.PI/2));       
+    for (let i = 0; i <= nCorners; i++) {
+        corners.push(-extra + Math.cos(i * dAngle + Math.PI / 2));
+        corners.push(Math.sin(i * dAngle + Math.PI / 2));
     }
     console.log(corners);
     polygon.setCorners(corners);

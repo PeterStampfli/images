@@ -27,7 +27,7 @@ kaleidoscope.setup = function(gui) {
         step: 1,
         onChange: julia.drawNewStructure
     });
-    kaleidoscope.type = kaleidoscope.nothing;
+    kaleidoscope.type = kaleidoscope.regular;
     gui.add({
         type: 'selection',
         params: kaleidoscope,
