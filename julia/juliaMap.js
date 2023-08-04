@@ -365,7 +365,7 @@ map.nothing = function() {
     map.inversion();
     if (juliaMap.automaticExpansion) {
         redistribute();
-        logDistribution();
+      //  logDistribution();
     } else {
         map.expand();
     }
@@ -379,7 +379,7 @@ map.juliaSet = function() {
     map.set(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-        logDistribution();
+       // logDistribution();
     } else {
         map.expand();
     }
@@ -393,7 +393,7 @@ map.juliaComplement = function() {
     map.complement(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-        logDistribution();
+      //  logDistribution();
     } else {
         map.expand();
     }
@@ -407,7 +407,7 @@ map.juliaAll = function() {
     map.all(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-        logDistribution();
+     //   logDistribution();
     } else {
         map.expand();
     }
@@ -425,7 +425,7 @@ map.juliaSetApproximation = function() {
     map.scale(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-        logDistribution();
+       // logDistribution();
     } else {
         map.expand();
     }

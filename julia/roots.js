@@ -18,8 +18,8 @@ import {
 export const roots = {};
 
 const amplitude = {};
-amplitude.real = 1;
-amplitude.imag = 0;
+amplitude.radius = 1;
+amplitude.angle = 0;
 roots.zPower = 1;
 roots.order = 5;
 // root position and switch
@@ -67,14 +67,13 @@ roots.setup = function(gui) {
     gui.add({
         type: 'number',
         params: amplitude,
-        property: 'real',
-        labelText: 'amplitude re',
+        property: 'radius',
+        labelText: 'amplitude radius',
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
         params: amplitude,
-        property: 'imag',
-        labelText: 'im',
+        property: 'angle',
         onChange: julia.drawNewStructure
     }).add({
         type: 'boolean',
@@ -202,14 +201,15 @@ roots.setup = function(gui) {
     map.mapping = roots.mapping;
 };
 
-
 roots.mapping = function() {
     var x, y, angle, radius;
     // setup parameters
     const args = [];
     args.push(roots.zPower);
-    args.push(amplitude.real);
-    args.push(amplitude.imag);
+    angle=2*Math.PI/roots.order*amplitude.angle;
+    args.push(amplitude.radius*Math.cos(angle));
+    args.push(amplitude.radius*Math.sin(angle));
+    console.log(args[1],args[2]);
     if (roots.nom1On) {
         args.push(roots.order);
         radius = roots.nom1Radius;

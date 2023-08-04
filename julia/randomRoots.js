@@ -18,8 +18,8 @@ import {
 export const randomRoots = {};
 
 const amplitude = {};
-amplitude.real = 1;
-amplitude.imag = 0;
+amplitude.radius = 1;
+amplitude.angle = 0;
 randomRoots.zPower = 1;
 randomRoots.order = 5;
 randomRoots.nomTerms = 1;
@@ -97,14 +97,13 @@ randomRoots.setup = function(gui) {
     gui.add({
         type: 'number',
         params: amplitude,
-        property: 'real',
-        labelText: 'amplitude re',
+        property: 'radius',
+        labelText: 'amplitude radius',
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
         params: amplitude,
-        property: 'imag',
-        labelText: 'im',
+        property: 'angle',
         onChange: julia.drawNewStructure
     });
     gui.add({
@@ -334,8 +333,9 @@ randomRoots.units = function() {
 
 map.randomRootsUniversalRational = function() {
     // the amplitude may change, but not the roots
-    args[1] = amplitude.real;
-    args[2] = amplitude.imag;
+  const  angle=2*Math.PI/randomRoots.order*amplitude.angle;
+    args[1] = amplitude.radius*Math.cos(angle);
+    args[2] = amplitude.radius*Math.sin(angle);
     let text = '';
     for (let i = 3; i < args.length; i += 3) {
         if (args[i] > 0) {
@@ -344,7 +344,7 @@ map.randomRootsUniversalRational = function() {
             text += 'den';
         }
         text += ': r ' + Math.hypot(args[i + 1], args[i + 2]).toPrecision(4);
-        const angle = atan2(args[i + 2], args[i + 1]) / 2 / Math.PI;
+        const angle = Math.atan2(args[i + 2], args[i + 1]) / 2 / Math.PI;
         text += ', a ' + angle.toPrecision(4) + '\n';
     }
     randomRoots.textArea.setValueOnly(text);
