@@ -38,7 +38,7 @@ bulatov.setup = function(gui) {
         property:'yDrift',
         labelText:'y',
         onChange:julia.drawNewStructure
-    })
+    });
 };
 
 bulatov.nothing = function() {
@@ -126,8 +126,8 @@ bulatov.drift = function() {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
             const r=Math.hypot(x,y);
-            xArray[index] += xDrift*r;
-            yArray[index] += yDrift*r;
+            xArray[index] -= xDrift*y;
+            yArray[index] += xDrift*x;
             index += 1;
             x += scale;
         }

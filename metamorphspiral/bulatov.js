@@ -12,13 +12,13 @@ import {
 export const bulatov = {};
 bulatov.xDrift = 0;
 bulatov.yDrift = 0;
-bulatov.xDrift2 = 0;
-bulatov.yDrift2 = 0;
+bulatov.spiral = true;
+bulatov.slope = 1;
 
 
 bulatov.setup = function(gui) {
     gui.addParagraph('<strong>bulatov</strong>');
-    bulatov.type = bulatov.nothing;
+    bulatov.type = bulatov.map;
     gui.add({
         type: 'selection',
         params: bulatov,
@@ -35,26 +35,24 @@ bulatov.setup = function(gui) {
         type: 'number',
         params: bulatov,
         property: 'xDrift',
-        labelText: 'drift x lin',
+        labelText: 'drift x',
         onChange: julia.drawNewStructure
     }).add({
-        type: 'number',
-        params: bulatov,
-        property: 'xDrift2',
-        labelText: 'sq',
-        onChange: julia.drawNewStructure
-    });
-    gui.add({
         type: 'number',
         params: bulatov,
         property: 'yDrift',
-        labelText: 'drift y lin',
+        labelText: 'y',
+        onChange: julia.drawNewStructure
+    });
+    gui.add({
+        type: 'boolean',
+        params: bulatov,
+        property: 'spiral',
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
         params: bulatov,
-        property: 'yDrift2',
-        labelText: 'sq',
+        property: 'slope',
         onChange: julia.drawNewStructure
     });
 };
@@ -99,11 +97,35 @@ function getBulatovPeriod() {
     }
 }
 
+bulatov.spiralize = function() {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const structureArray = map.structureArray;
+    const shiftArray = map.shiftArray;
+    const nPixels = xArray.length;
+    for (var index = 0; index < nPixels; index++) {
+        let x = xArray[index];
+        let y = yArray[index];
+        let angle = Math.atan2(y, x);
+        let lnr = 0.5 * Math.log(x * x + y * y);
+        let lnrCorr = lnr - angle / Math.PI * bulatov.slope;
+        let n = Math.floor(0.5 * lnrCorr);
+        y = lnrCorr - 2 * n - 1;
+        x = angle + 2 * Math.PI * n;
+        xArray[index] = x;
+        shiftArray[index] = angle + 2 * Math.PI * n/bulatov.slope;
+        yArray[index] = y;
+    }
+};
+
 // the simple band transform using periodicity
 bulatov.map = function() {
     getBulatovPeriod();
     if (bulatov.period < 0) {
         return;
+    }
+    if (bulatov.spiral) {
+        bulatov.spiralize();
     }
     const period = bulatov.period;
     const a = 1;
@@ -133,18 +155,18 @@ bulatov.map = function() {
 bulatov.drift = function() {
     const xDrift = bulatov.xDrift;
     const yDrift = bulatov.yDrift;
-    const xDrift2 = bulatov.xDrift2;
-    const yDrift2 = bulatov.yDrift2;
     let scale = 2 / map.height;
     let shiftX = -0.5 * map.width * scale;
     let index = 0;
     const xArray = map.xArray;
     const yArray = map.yArray;
+    const shiftArray = map.shiftArray;
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
-            xArray[index] += (xDrift2 * x + xDrift) * x;
-            yArray[index] += (yDrift2 * x + yDrift) * x;
+            const shift = shiftArray[index];
+            xArray[index] += xDrift * shift;
+            yArray[index] += yDrift * shift;
             index += 1;
             x += scale;
         }

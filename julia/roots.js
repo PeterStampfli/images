@@ -43,6 +43,12 @@ roots.denom3Radius = 1;
 roots.denom3Angle = 0;
 roots.denom3On = false;
 
+var nom1RadiusController, nom2RadiusController, nom3RadiusController;
+var denom1RadiusController, denom2RadiusController, denom3RadiusController;
+
+var nom1AngleController, nom2AngleController, nom3AngleController;
+var denom1AngleController, denom2AngleController, denom3AngleController;
+
 roots.setup = function(gui) {
     gui.addParagraph('<strong>random roots</strong>');
     gui.add({
@@ -79,61 +85,67 @@ roots.setup = function(gui) {
         type: 'boolean',
         params: universalRational,
         property: 'exponential',
-        labelText:'expo',
+        labelText: 'expo',
         onChange: julia.drawNewStructure
     });
     gui.addParagraph('nominator');
-    gui.add({
+    nom1RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'nom1Radius',
         labelText: 'radius 1',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    nom1AngleController = nom1RadiusController.add({
         type: 'number',
         params: roots,
         property: 'nom1Angle',
         labelText: 'angle',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    nom1AngleController.add({
         type: 'boolean',
         params: roots,
         property: 'nom1On',
         labelText: 'on',
         onChange: julia.drawNewStructure
     });
-    gui.add({
+    nom2RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'nom2Radius',
         labelText: 'radius 2',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    nom2AngleController = nom2RadiusController.add({
         type: 'number',
         params: roots,
         property: 'nom2Angle',
         labelText: 'angle',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    nom2AngleController.add({
         type: 'boolean',
         params: roots,
         property: 'nom2On',
         labelText: 'on',
         onChange: julia.drawNewStructure
     });
-    gui.add({
+    nom3RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'nom3Radius',
         labelText: 'radius 3',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    nom3AngleController = nom3RadiusController.add({
         type: 'number',
         params: roots,
         property: 'nom3Angle',
         labelText: 'angle',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    nom3AngleController.add({
         type: 'boolean',
         params: roots,
         property: 'nom3On',
@@ -141,75 +153,167 @@ roots.setup = function(gui) {
         onChange: julia.drawNewStructure
     });
     gui.addParagraph('denominator');
-    gui.add({
+    denom1RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'denom1Radius',
         labelText: 'radius 1',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    denom1AngleController = denom1RadiusController.add({
         type: 'number',
         params: roots,
         property: 'denom1Angle',
         labelText: 'angle',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    denom1AngleController.add({
         type: 'boolean',
         params: roots,
         property: 'denom1On',
         labelText: 'on',
         onChange: julia.drawNewStructure
     });
-    gui.add({
+    denom2RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'denom2Radius',
         labelText: 'radius 2',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    denom2AngleController = denom2RadiusController.add({
         type: 'number',
         params: roots,
         property: 'denom2Angle',
         labelText: 'angle',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    denom2AngleController.add({
         type: 'boolean',
         params: roots,
         property: 'denom2On',
         labelText: 'on',
         onChange: julia.drawNewStructure
     });
-    gui.add({
+    denom3RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'denom3Radius',
         labelText: 'radius 3',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    denom3AngleController = denom3RadiusController.add({
         type: 'number',
         params: roots,
         property: 'denom3Angle',
         labelText: 'angle',
         onChange: julia.drawNewStructure
-    }).add({
+    });
+    denom3AngleController.add({
         type: 'boolean',
         params: roots,
         property: 'denom3On',
         labelText: 'on',
         onChange: julia.drawNewStructure
     });
+    gui.add({
+        type: 'button',
+        buttonText: 'randomize',
+        onClick: randomize
+    }).add({
+        type: 'button',
+        buttonText: 'circle',
+        onClick: circle
+    }).add({
+        type: 'button',
+        buttonText: 'line',
+        onClick: line
+    }).add({
+        type: 'button',
+        buttonText: 'pairs',
+        onClick: pairs
+    });
     map.mapping = roots.mapping;
 };
+
+function randomize() {
+    nom1RadiusController.setValueOnly(Math.random());
+    nom2RadiusController.setValueOnly(Math.random());
+    nom3RadiusController.setValueOnly(Math.random());
+    nom1AngleController.setValueOnly(Math.random());
+    nom2AngleController.setValueOnly(Math.random());
+    nom3AngleController.setValueOnly(Math.random());
+    denom1RadiusController.setValueOnly(Math.random());
+    denom2RadiusController.setValueOnly(Math.random());
+    denom3RadiusController.setValueOnly(Math.random());
+    denom1AngleController.setValueOnly(Math.random());
+    denom2AngleController.setValueOnly(Math.random());
+    denom3AngleController.setValueOnly(Math.random());
+    julia.drawNewStructure();
+}
+
+function pairs() {
+    let r = Math.random();
+    nom1RadiusController.setValueOnly(r);
+    nom2RadiusController.setValueOnly(r);
+    nom3RadiusController.setValueOnly(Math.random());
+    r = Math.random();
+    nom1AngleController.setValueOnly(r);
+    nom2AngleController.setValueOnly(-r);
+    nom3AngleController.setValueOnly(Math.random());
+    r = Math.random();
+    denom1RadiusController.setValueOnly(r);
+    denom2RadiusController.setValueOnly(r);
+    denom3RadiusController.setValueOnly(Math.random());
+    r = Math.random();
+    denom1AngleController.setValueOnly(r);
+    denom2AngleController.setValueOnly(-r);
+    denom3AngleController.setValueOnly(Math.random());
+    julia.drawNewStructure();
+}
+
+function line() {
+    nom1RadiusController.setValueOnly(Math.random());
+    nom2RadiusController.setValueOnly(Math.random());
+    nom3RadiusController.setValueOnly(Math.random());
+    nom1AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
+    nom2AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
+    nom3AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
+    denom1RadiusController.setValueOnly(Math.random());
+    denom2RadiusController.setValueOnly(Math.random());
+    denom3RadiusController.setValueOnly(Math.random());
+    denom1AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
+    denom2AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
+    denom3AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
+    julia.drawNewStructure();
+}
+
+
+function circle() {
+    nom1RadiusController.setValueOnly(1);
+    nom2RadiusController.setValueOnly(1);
+    nom3RadiusController.setValueOnly(1);
+    nom1AngleController.setValueOnly(Math.random());
+    nom2AngleController.setValueOnly(Math.random());
+    nom3AngleController.setValueOnly(Math.random());
+    denom1RadiusController.setValueOnly(1);
+    denom2RadiusController.setValueOnly(1);
+    denom3RadiusController.setValueOnly(1);
+    denom1AngleController.setValueOnly(Math.random());
+    denom2AngleController.setValueOnly(Math.random());
+    denom3AngleController.setValueOnly(Math.random());
+    julia.drawNewStructure();
+}
 
 roots.mapping = function() {
     var x, y, angle, radius;
     // setup parameters
     const args = [];
     args.push(roots.zPower);
-    angle=2*Math.PI/roots.order*amplitude.angle;
-    args.push(amplitude.radius*Math.cos(angle));
-    args.push(amplitude.radius*Math.sin(angle));
-    console.log(args[1],args[2]);
+    angle = 2 * Math.PI / roots.order * amplitude.angle;
+    args.push(amplitude.radius * Math.cos(angle));
+    args.push(amplitude.radius * Math.sin(angle));
+    console.log(args[1], args[2]);
     if (roots.nom1On) {
         args.push(roots.order);
         radius = roots.nom1Radius;

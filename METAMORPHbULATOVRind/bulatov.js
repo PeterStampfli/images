@@ -9,11 +9,20 @@ import {
     kaleidoscope
 } from "./kaleidoscope.js";
 
+import {
+    Pixels,
+    output,
+    CoordinateTransform,
+    MouseEvents,
+    keyboard
+} from "../libgui/modules.js";
+
 export const bulatov = {};
 bulatov.xDrift = 0;
 bulatov.yDrift = 0;
 bulatov.xDrift2 = 0;
 bulatov.yDrift2 = 0;
+bulatov.n = 5;
 
 
 bulatov.setup = function(gui) {
@@ -31,6 +40,14 @@ bulatov.setup = function(gui) {
             julia.drawNewStructure();
         }
     });
+
+    gui.add({
+        type: 'number',
+        params: bulatov,
+        property: 'n',
+        onChange: julia.drawNewStructure
+    });
+
     gui.add({
         type: 'number',
         params: bulatov,
@@ -107,6 +124,9 @@ bulatov.map = function() {
     }
     const period = bulatov.period;
     const a = 1;
+    const angFactor = bulatov.n / 2 / Math.PI * period;
+    console.log('angFactor', angFactor);
+    const e = Math.exp(1);
 
     const piA2 = Math.PI * a / 2;
     const iTanPiA4 = 1.0 / Math.tan(Math.PI * a / 4);
@@ -118,35 +138,48 @@ bulatov.map = function() {
     for (var index = 0; index < nPixels; index++) {
         const structure = structureArray[index];
         let x = xArray[index];
-        const nPeriods = Math.floor(x / period);
-        x = piA2 * (x - period * nPeriods);
-        const y = piA2 * yArray[index];
+        let y = yArray[index];
+        //ring to band
+        const h = angFactor * Math.atan2(y, x);
+        y = angFactor * Math.log(Math.hypot(x, y)) + 1;
+        x = h;
 
-        const exp2x = Math.exp(x);
-        const base = iTanPiA4 / (exp2x + 1.0 / exp2x + 2 * Math.cos(y));
-        xArray[index] = (exp2x - 1.0 / exp2x) * base;
-        yArray[index] = 2 * Math.sin(y) * base;
+        // bulatovband
+        if ((y > -1) && (y < 1)) {
+            const nPeriods = Math.floor(x / period);
+            x = piA2 * (x - period * nPeriods);
+            y = piA2 * y;
 
+            const exp2x = Math.exp(x);
+            const base = iTanPiA4 / (exp2x + 1.0 / exp2x + 2 * Math.cos(y));
+            xArray[index] = (exp2x - 1.0 / exp2x) * base;
+            yArray[index] = 2 * Math.sin(y) * base;
+        } else {
+            structureArray[index] = 200;
+        }
     }
 };
+
 
 bulatov.drift = function() {
     const xDrift = bulatov.xDrift;
     const yDrift = bulatov.yDrift;
-    const xDrift2 = bulatov.xDrift2;
-    const yDrift2 = bulatov.yDrift2;
-    let scale = 2 / map.height;
-    let shiftX = -0.5 * map.width * scale;
+    let scale = output.coordinateTransform.totalScale;
+    let shiftX = output.coordinateTransform.shiftX;
+    let shiftY = output.coordinateTransform.shiftY;
     let index = 0;
     const xArray = map.xArray;
     const yArray = map.yArray;
+    let y = shiftY;
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
-            xArray[index] += (xDrift2 * x + xDrift) * x;
-            yArray[index] += (yDrift2 * x + yDrift) * x;
+            const r = Math.hypot(x, y);
+            xArray[index] -= xDrift * y;
+            yArray[index] += xDrift * x;
             index += 1;
             x += scale;
         }
+        y += scale;
     }
 };
