@@ -65,6 +65,7 @@ julia.drawNewStructure = function() {
     polygon.type();
     kaleidoscope.type();
     rosette.type();
+    polygon.drift();
     map.draw();
     output.drawGrid();
 };

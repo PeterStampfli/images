@@ -5,6 +5,10 @@ import {
     julia
 } from "./mapImage.js";
 
+import {
+    output
+} from "../libgui/modules.js";
+
 export const polygon = {};
 
 // basic polygon data
@@ -12,6 +16,8 @@ polygon.nFold = 5;
 polygon.extra = 0.5;
 polygon.winding = 1;
 polygon.rotation = 0;
+
+polygon.d=0;
 
 // corner coordinates, first corner is repeated
 let nCorners = 0;
@@ -88,7 +94,13 @@ polygon.setup = function(gui) {
             julia.drawNewStructure();
         }
     });
-
+    gui.add({
+        type:'number',
+        params:polygon,
+        property:'d',
+        labelText:"drift",
+        onChange:julia.drawNewStructure
+    });
 };
 
 // define a polgon with its corners as pairs of coordinates
@@ -298,4 +310,27 @@ polygon.oval = function() {
     console.log(corners);
     polygon.setCorners(corners);
     polygon.process();
+};
+
+
+polygon.drift = function() {
+    const d=polygon.d;
+    let scale = output.coordinateTransform.totalScale;
+    let shiftX = output.coordinateTransform.shiftX;
+    let shiftY = output.coordinateTransform.shiftY;
+    let index = 0;
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    let y = shiftY;
+    for (var j = 0; j < map.height; j++) {
+        let x = shiftX;
+        for (var i = 0; i < map.width; i++) {
+            const r=Math.hypot(x,y);
+            xArray[index] -= d*y;
+            yArray[index] += d*x;
+            index += 1;
+            x += scale;
+        }
+        y += scale;
+    }
 };

@@ -20,8 +20,8 @@ map.height = 1;
 // the mapped coordinates
 map.xArray = new Float32Array(1);
 map.yArray = new Float32Array(1);
-map.driftXArray = new Float32Array(1);
-map.driftYArray = new Float32Array(1);
+map.initialXArray = new Float32Array(1);
+map.initialYArray = new Float32Array(1);
 
 // structure info
 // for julia set structure of inversion, 0 or 1
@@ -41,8 +41,7 @@ map.inputTransformValid = false;
  * update pixels
  * if the mapping determines the "pixel sizes": set map.needsSizeArrayUpdate = false afterwards
  * and we need a value for the ranges of the mapping
- * fixes scale and offset outmatically
- * height=2, from -1 to +1, center ids origin
+ * * initialize the map positions and structure
  * @method map.startDrawing
  */
 map.init = function() {
@@ -58,15 +57,12 @@ map.init = function() {
         const size = map.width * map.height;
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
-        map.driftXArray = new Float32Array(size);
-        map.driftYArray = new Float32Array(size);
         map.structureArray = new Uint8Array(size);
         map.sizeArray = new Float32Array(size);
     }
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;
     let shiftY = output.coordinateTransform.shiftY;
-
     let index = 0;
     const xArray = map.xArray;
     const yArray = map.yArray;

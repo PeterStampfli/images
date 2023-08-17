@@ -58,7 +58,6 @@ roots.setup = function(gui) {
         step: 1,
         min: 1,
         onChange: function() {
-            roots.random();
             julia.drawNewStructure();
         }
     }).add({
