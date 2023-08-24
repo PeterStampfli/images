@@ -312,7 +312,6 @@ roots.mapping = function() {
     angle = 2 * Math.PI / roots.order * amplitude.angle;
     args.push(amplitude.radius * Math.cos(angle));
     args.push(amplitude.radius * Math.sin(angle));
-    console.log(args[1], args[2]);
     if (roots.nom1On) {
         args.push(roots.order);
         radius = roots.nom1Radius;

@@ -440,8 +440,6 @@ map.addInitialXY = function() {
 map.mandelbrot = function() {
     map.inversion();
     map.setInitialXY();
-    console.log(map.initialXArray);
-    console.log(map.xArray);
     for (let i = 0; i < map.iters; i++) {
         map.mapping();
         map.addInitialXY();

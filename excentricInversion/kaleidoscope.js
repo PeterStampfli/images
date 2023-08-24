@@ -8,7 +8,7 @@ import {
 export const kaleidoscope = {};
 
 kaleidoscope.k = 5;
-kaleidoscope.m = 2;
+kaleidoscope.m = 4;
 
 kaleidoscope.setup = function(gui) {
     gui.addParagraph('<strong>kaleidoscope</strong>');
@@ -278,7 +278,9 @@ kaleidoscope.basic = function() {
     }
 };
 
+
 kaleidoscope.regular = function() {
+    console.log('regular');
     kaleidoscope.basic();
 };
 
