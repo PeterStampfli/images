@@ -20,7 +20,8 @@ map.height = 1;
 // the mapped coordinates
 map.xArray = new Float32Array(1);
 map.yArray = new Float32Array(1);
-map.shiftArray = new Float32Array(1);
+map.initialXArray = new Float32Array(1);
+map.initialYArray = new Float32Array(1);
 
 // structure info
 // for julia set structure of inversion, 0 or 1
@@ -48,7 +49,7 @@ map.init = function() {
     // initialize map
     map.sizesValid = false;
     map.rangeValid = false;
-   // map.inputTransformValid = false;
+    // map.inputTransformValid = false;
     output.pixels.update();
     output.isDrawing = true;
     if ((map.width !== output.canvas.width) || (map.height !== output.canvas.height)) {
@@ -57,7 +58,6 @@ map.init = function() {
         const size = map.width * map.height;
         map.xArray = new Float32Array(size);
         map.yArray = new Float32Array(size);
-        map.shiftArray = new Float32Array(size);
         map.structureArray = new Uint8Array(size);
         map.sizeArray = new Float32Array(size);
     }
@@ -79,7 +79,19 @@ map.init = function() {
         y += scale;
     }
     map.structureArray.fill(0);
-    map.shiftArray.fill(0);
+};
+
+// for drifts, storing initial or intermediate values
+map.addInitialXYArrays = function() {
+    const length = map.xArray.length;
+    if ((map.xArray.length !== map.initialXArray.length)) {
+        map.initialXArray = new Float32Array(length);
+        map.initialYArray = new Float32Array(length);
+    }
+    for (var index = 0; index < length; index++) {
+        initialXArray[index] = xArray[index];
+        initialYArray[index] = yArray[index];
+    }
 };
 
 //  making images
@@ -222,7 +234,7 @@ map.setupDrawing = function(gui) {
     };
     // resetting the input transform means adjusting the image to range
     map.inputTransform.resetButton.callback = function() {
-        map.inputTransformValid =false;
+        map.inputTransformValid = false;
         julia.drawNewImage();
     };
     map.inputTransform.resetButton.addHelp('Above you see the input image and its parts used for the kaleidoscopic image. Unused pixels are greyed out. You can change this using mouse drag on the image for translation, mouse wheel to zoom and shift-mouse wheel to rotate. The current mouse position is the center for zoom and rotation.');

@@ -9,7 +9,7 @@ export const kaleidoscope = {};
 
 kaleidoscope.k = 5;
 kaleidoscope.m = 4;
-kaleidoscope.offset = 0.1;
+kaleidoscope.offset = 0;
 
 kaleidoscope.setup = function(gui) {
     gui.addParagraph('<strong>kaleidoscope</strong>');
@@ -33,8 +33,40 @@ kaleidoscope.setup = function(gui) {
         params: kaleidoscope,
         property: 'offset',
         onChange: julia.drawNewStructure
-    })
+    });
 };
+
+
+/**
+ * solve quadratic equation ax**2+bx+c=0
+ * only for real solutions
+ * solutions are in Fast.xLow and Fast.xHigh
+ * @method Fast.quadraticEquation
+ * @param {float} a - has to be diffferent from zero, check before !!!
+ * @param {float} b
+ * @param {float} c
+ * solutions in lowerSolution<higherSolution
+ * @return {boolean} true if there are real solutions
+ */
+var lowerSolution, higherSolution;
+
+function quadratic(a, b, c) {
+    const rootArg = b * b - 4 * a * c;
+    if (rootArg < 0) {
+        lowerSolution = 0;
+        higherSolution = 0;
+        return false;
+    }
+    if (b > 0) {
+        lowerSolution = 0.5 * (-b - Math.sqrt(rootArg)) / a;
+        higherSolution = c / a / lowerSolution;
+    } else {
+        higherSolution = 0.5 * (-b + Math.sqrt(rootArg)) / a;
+        lowerSolution = c / a / higherSolution;
+    }
+    return true;
+}
+
 
 kaleidoscope.basic = function() {
     const m = kaleidoscope.m;
@@ -69,10 +101,10 @@ kaleidoscope.basic = function() {
         return;
     }
 
-
     /* define the inverting center*/
     /* calculation of center with distance 1 between inversion center and third corner*/
     const inversionCenter = Math.cos(beta) / Math.sin(gamma);
+    const inversionCenter2 = inversionCenter * inversionCenter;
 
     let inversionRadius2 = 1;
 
@@ -85,7 +117,9 @@ kaleidoscope.basic = function() {
     const thirdCornerX = thirdCornerDistance * Math.cos(gamma);
     const thirdCornerY = thirdCornerDistance * Math.sin(gamma);
     const circleRadius2 = (thirdCornerX - circleCenter) * (thirdCornerX - circleCenter) + thirdCornerY * thirdCornerY;
-
+    const circleCenter2mr2 = circleCenter * circleCenter - circleRadius2;
+    // distance between inversion center and circle for points directly above or below inversion center
+    const d2Vertical = circleRadius2 - (circleCenter - inversionCenter) * (circleCenter - inversionCenter);
 
     for (let index = 0; index < nPixels; index++) {
         let structure = structureArray[index];
@@ -93,11 +127,8 @@ kaleidoscope.basic = function() {
         if (structure < 128) {
             let x = xArray[index];
             let y = yArray[index];
-            /* invalid if outside of poincare disc for hyperbolic kaleidoscope*/
-            if ((x * x + y * y >= 1)) {
-                structureArray[index] = 128 + structure;
-                continue;
-            } else if (!isFinite(x * x + y * y)) {
+            // with offset we do not have a poincare disc
+            if (!isFinite(x * x + y * y)) {
                 structureArray[index] = 128;
                 continue;
             }
@@ -118,17 +149,45 @@ kaleidoscope.basic = function() {
             let iterations = 0;
             while ((!success) && (iterations < maxIterations)) {
 
-                /* inversion inside-out at circle*/
+                /* inversion inside-out of points inside circle*/
                 /* if no mapping we have finished*/
-                let dx = x - inversionCenter;
-                let d2 = dx * dx + y * y;
-                /* d2 always larger than zero, because only points inside th Poincare disc*/
-                /* are considered, center of inverting sphere lies outside */
-                if (d2 < inversionRadius2) {
+                let dx = x - circleCenter;
+                if (dx * dx + y * y < circleRadius2) {
                     structure = 1 - structure;
-                    const factor = inversionRadius2 / d2;
-                    x = inversionCenter + factor * dx;
-                    y = factor * y;
+                    // inversion at extra inversion center
+                    // determine distance from inversion center to intersection between circle and
+                    // line from inversion center to point
+                    const m = y / dx;
+                    const m2 = m * m;
+                    var d2;
+                    // be careful, in case of vertical line
+                    if (isFinite(m2)) {
+                        const a = m2 + 1;
+                        const b = -2 * (m2 * inversionCenter + circleCenter);
+                        const c = m2 * inversionCenter2 + circleCenter2mr2;
+                        quadratic(a, b, c);
+                        // solution will be distance between inversion center to projection of the
+                        // intersection point to the x-axis
+                        // get value at the same side of inversion center as given point
+                       let solution = (dx > 0) ? higherSolution : lowerSolution;
+                        solution -= inversionCenter;
+                        // calculate the distance along the line
+                        d2 = (1 + m2) * solution * solution;
+                    } else {
+                        d2 = d2Vertical;
+                    }
+
+                    // the imaging factor, always greater than 1
+                    let factor = d2 / (y * y + dx * dx);
+                    // if singular, give x,y a great value, will not be part of structure, stop calculation
+                    if (isFinite(factor)) {
+                        x = inversionCenter + factor * dx;
+                        y = factor * y;
+                    } else {
+                        success = true;
+                        x = 1e10;
+                        y = 1e10;
+                    }
                 } else {
                     success = true;
                 }

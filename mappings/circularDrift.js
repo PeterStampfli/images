@@ -1,5 +1,9 @@
 /* jshint esversion:6 */
 
+// drifting as a rotation around the origin
+// depending on coordinates of pixels, which are calculated
+// apply to the final image map
+
 import {
     map,
     julia
@@ -17,20 +21,21 @@ import {
     kaleidoscope
 } from "./kaleidoscope.js";
 
-export const bulatov = {};
-bulatov.drift=0;
+export const circularDrift = {};
+circularDrift.strength=0;
 
-bulatov.setup = function(gui) {    
+circularDrift.setup = function(gui) {  
+gui.addParagraph('<strong>circular drift<\strong>');  
     gui.add({
         type:'number',
-        params:bulatov,
-        property:'drift',
+        params:circularDrift,
+        property:'strength',
         onChange:julia.drawNewStructure
     });
 };
 
-bulatov.drift = function() {
-    const drift=bulatov.drift;
+circularDrift.make = function() {
+    const strength=circularDrift.strength;
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;
     let shiftY = output.coordinateTransform.shiftY;
@@ -41,9 +46,8 @@ bulatov.drift = function() {
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
-            const r=Math.hypot(x,y);
-            xArray[index] -= drift*y;
-            yArray[index] += drift*x;
+            xArray[index] -= strength*y;
+            yArray[index] += strength*x;
             index += 1;
             x += scale;
         }

@@ -177,7 +177,6 @@ excentricTest.map = function() {
             // the imaging factor
             let factor = (d2 + eps) / (y * y + dx * dx + eps);
 
-            factor = (circleRadius2 + eps) / (y * y + x * x + eps);
             xArray[index] = inversionCenter + factor * dx;
             xArray[index] = factor * x;
             yArray[index] = factor * y;

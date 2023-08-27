@@ -21,7 +21,7 @@ import {
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'metamorp',
+        name: 'metamorp poincare',
         closed: false
     });
 
@@ -54,9 +54,9 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    bulatov.type();
+    bulatov.cartioid();
     kaleidoscope.type();
-    bulatov.drift();
+    bulatov.makeDrift();
     map.draw();
     output.drawGrid();
 };

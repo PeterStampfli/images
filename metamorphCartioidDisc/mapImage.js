@@ -60,6 +60,8 @@ map.init = function() {
         map.yArray = new Float32Array(size);
         map.structureArray = new Uint8Array(size);
         map.sizeArray = new Float32Array(size);
+        map.initialXArray = new Float32Array(size);
+        map.initialYArray = new Float32Array(size);
     }
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;

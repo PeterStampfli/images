@@ -8,15 +8,15 @@ import {
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     kaleidoscope
-} from "./kaleidoscope.js";
+} from "../mappings/kaleidoscope.js";
 
 import {
-    bulatov
-} from "./bulatov.js";
+    circularDrift
+} from "../mappings/circularDrift.js";
 
 function setup() {
     // base gui
@@ -30,7 +30,7 @@ function setup() {
     output.setInitialCoordinates(0, 0, 2);
     output.createPixels();
     kaleidoscope.setup(gui);
-    bulatov.setup(gui);
+    circularDrift.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid
@@ -55,7 +55,7 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     map.init();
     kaleidoscope.type();
-    bulatov.drift();
+    circularDrift.make();
     map.draw();
     output.drawGrid();
 };

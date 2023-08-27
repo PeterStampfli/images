@@ -189,9 +189,6 @@ polygon.process = function() {
         // the "radius" of a point is the fraction of the height to this side
         // resulting in a mapping of parallels of the side to concentric circle sectors
         const radius = pointHeight / sidesHeight[i];
-        if (radius > 1) {
-            structureArray[index] = 128;
-        }
         if (radius < eps) {
             xArray[index] = 0;
             yArray[index] = 0;
@@ -215,11 +212,9 @@ polygon.process = function() {
     }
 };
 
-
 polygon.nothing = function() {};
 
 polygon.regular = function() {
-    console.log('regpolyg');
     const nCorners = polygon.nFold;
     const corners = [];
     const dAngle = 2 * Math.PI / nCorners;
