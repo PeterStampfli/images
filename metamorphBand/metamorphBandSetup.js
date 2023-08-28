@@ -8,20 +8,24 @@ import {
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     kaleidoscope
-} from "./kaleidoscope.js";
+} from "../mappings/kaleidoscope.js";
 
 import {
     bulatov
-} from "./bulatov.js";
+} from "../mappings/bulatov.js";
+
+import {
+    xDrift
+} from "../mappings/xDrift.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'metamorp',
+        name: 'metamorph band',
         closed: false
     });
 
@@ -31,6 +35,7 @@ function setup() {
     output.createPixels();
     kaleidoscope.setup(gui);
     bulatov.setup(gui);
+    xDrift.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid
@@ -54,9 +59,9 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    bulatov.type();
+    bulatov.map();
     kaleidoscope.type();
-    bulatov.drift();
+    xDrift.make();
     map.draw();
     output.drawGrid();
 };
