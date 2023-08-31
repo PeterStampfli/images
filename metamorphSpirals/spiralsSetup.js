@@ -8,20 +8,20 @@ import {
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     kaleidoscope
-} from "./kaleidoscope.js";
+} from "../mappings/kaleidoscope.js";
 
 import {
     bulatov
-} from "./bulatov.js";
+} from "./spirals.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'metamorp poincare',
+        name: 'metamorp',
         closed: false
     });
 
@@ -54,9 +54,10 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    bulatov.cartioid();
+    map.makeDriftArrays();
+    bulatov.map();
     kaleidoscope.type();
-    bulatov.makeDrift();
+    map.addDrift();
     map.draw();
     output.drawGrid();
 };

@@ -3,11 +3,11 @@
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     kaleidoscope
-} from "./kaleidoscope.js";
+} from "../mappings/kaleidoscope.js";
 
 import {
     Pixels,
@@ -26,20 +26,8 @@ bulatov.m = 1;
 
 
 bulatov.setup = function(gui) {
-    gui.addParagraph('<strong>bulatov</strong>');
-    bulatov.type = bulatov.map;
-    gui.add({
-        type: 'selection',
-        params: bulatov,
-        property: 'type',
-        options: {
-            nothing: bulatov.nothing,
-            map: bulatov.map
-        },
-        onChange: function() {
-            julia.drawNewStructure();
-        }
-    });
+    gui.addParagraph('<strong>spirals</strong>');
+    
 
     gui.add({
         type: 'number',
@@ -57,20 +45,15 @@ bulatov.setup = function(gui) {
         type: 'number',
         params: bulatov,
         property: 'xDrift',
-        labelText: 'drift x',
+        labelText: 'drifts',
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
         params: bulatov,
         property: 'yDrift',
-        labelText: 'y',
+        labelText: '',
         onChange: julia.drawNewStructure
     });
-};
-
-bulatov.nothing = function() {
-    getBulatovPeriod();
-    console.log(bulatov.period);
 };
 
 // calculate width of Bulatov Oval depending on the
@@ -119,14 +102,12 @@ bulatov.map = function() {
     const nTimesPeriod=bulatov.n*period;
     const phiToY = -bulatov.m / Math.PI;
     const m = bulatov.m;
-
     const a = 1;
     const e = Math.exp(1);
     const piA2 = Math.PI * a / 2;
     const iTanPiA4 = 1.0 / Math.tan(Math.PI * a / 4);
     const xDrift = bulatov.xDrift;
     const yDrift = bulatov.yDrift;
-
     const xArray = map.xArray;
     const yArray = map.yArray;
     const driftXArray = map.driftXArray;
@@ -144,7 +125,6 @@ bulatov.map = function() {
         // scale and rotate
         x = phiToX * phi - phiToY * lnr;
         y = phiToY * phi + phiToX * lnr;
-
         // bulatovband,periodic, reduce to y=-1...+1
         // index to the repeated bulatov bands
         const bandIndex = Math.floor(0.5 * (y + 1));
@@ -161,23 +141,5 @@ bulatov.map = function() {
         const base = iTanPiA4 / (exp2x + 1.0 / exp2x + 2 * Math.cos(y));
         xArray[index] = (exp2x - 1.0 / exp2x) * base;
         yArray[index] = 2 * Math.sin(y) * base;
-    }
-};
-
-
-bulatov.drift = function() {
-    const xDrift = bulatov.xDrift;
-    const yDrift = bulatov.yDrift;
-    let scale = output.coordinateTransform.totalScale;
-    let shiftX = output.coordinateTransform.shiftX;
-    let shiftY = output.coordinateTransform.shiftY;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const driftXArray = map.driftXArray;
-    const driftYArray = map.driftYArray;
-    const length = xArray.length;
-    for (let index = 0; index < length; index++) {
-        xArray[index] -= driftXArray[index];
-        yArray[index] += driftYArray[index];
     }
 };

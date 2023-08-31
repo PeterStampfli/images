@@ -22,6 +22,10 @@ import {
     circularDrift
 } from "../mappings/circularDrift.js";
 
+const more = {};
+more.shift = 0.3;
+more.square = true;
+
 function setup() {
     // base gui
     const gui = new ParamGui({
@@ -36,6 +40,18 @@ function setup() {
     kaleidoscope.setup(gui);
     bulatov.setup(gui);
     bulatov.setupPeriods(gui);
+    gui.add({
+        type: 'number',
+        params: more,
+        property: 'shift',
+        onChange: julia.drawNewStructure
+    });
+    gui.add({
+        type: 'boolean',
+        params: more,
+        property: 'square',
+        onChange: julia.drawNewStructure
+    });
     circularDrift.setup(gui);
     map.setupDrawing(gui);
 
@@ -60,6 +76,10 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
+    if (more.square){
+        map.square();
+    }
+    map.xTranslation(-more.shift);
     bulatov.ringMap();
     kaleidoscope.type();
     circularDrift.make();

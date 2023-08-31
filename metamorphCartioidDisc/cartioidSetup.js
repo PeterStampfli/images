@@ -8,20 +8,28 @@ import {
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     kaleidoscope
-} from "./kaleidoscope.js";
+} from "../mappings/kaleidoscope.js";
+
+import {
+    cartioid
+} from "../mappings/cartioid.js";
 
 import {
     bulatov
-} from "./bulatov.js";
+} from "../mappings/bulatov.js";
+
+import {
+    circularDrift
+} from "../mappings/circularDrift.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'metamorp',
+        name: 'metamorp cartioid',
         closed: false
     });
 
@@ -30,7 +38,10 @@ function setup() {
     output.setInitialCoordinates(0, 0, 2);
     output.createPixels();
     kaleidoscope.setup(gui);
+    cartioid.setup(gui);
     bulatov.setup(gui);
+    bulatov.setupPeriods(gui);
+    circularDrift.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid
@@ -54,9 +65,10 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    bulatov.type();
+    cartioid.map();
+    bulatov.ringMap();
     kaleidoscope.type();
-    bulatov.drift();
+    circularDrift.make();
     map.draw();
     output.drawGrid();
 };

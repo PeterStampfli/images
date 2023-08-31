@@ -1,11 +1,10 @@
 /* jshint esversion:6 */
 
 import {
-    Pixels,
     output,
+    Pixels,
     CoordinateTransform,
-    MouseEvents,
-    keyboard
+    MouseEvents
 } from "../libgui/modules.js";
 
 export const julia = {};
@@ -20,8 +19,8 @@ map.height = 1;
 // the mapped coordinates
 map.xArray = new Float32Array(1);
 map.yArray = new Float32Array(1);
-map.initialXArray = new Float32Array(1);
-map.initialYArray = new Float32Array(1);
+map.driftXArray = new Float32Array(1);
+map.driftYArray = new Float32Array(1);
 
 // structure info
 // for julia set structure of inversion, 0 or 1
@@ -82,15 +81,45 @@ map.init = function() {
 };
 
 // for drifts, storing initial or intermediate values
-map.addInitialXYArrays = function() {
+map.makeDriftArrays = function() {
     const length = map.xArray.length;
-    if ((map.xArray.length !== map.initialXArray.length)) {
-        map.initialXArray = new Float32Array(length);
-        map.initialYArray = new Float32Array(length);
+    if ((map.xArray.length !== map.driftXArray.length)) {
+        map.driftXArray = new Float32Array(length);
+        map.driftYArray = new Float32Array(length);
     }
-    for (var index = 0; index < length; index++) {
-        initialXArray[index] = xArray[index];
-        initialYArray[index] = yArray[index];
+};
+
+map.addDrift = function() {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const driftXArray = map.driftXArray;
+    const driftYArray = map.driftYArray;
+    const length = xArray.length;
+    for (let index = 0; index < length; index++) {
+        xArray[index] -= driftXArray[index];
+        yArray[index] += driftYArray[index];
+    }
+};
+
+//================================================= small transforms
+
+map.xTranslation = function(amount) {
+    const xArray = map.xArray;
+    const length = xArray.length;
+    for (let index = 0; index < length; index++) {
+        xArray[index] += amount;
+    }
+};
+
+map.square = function() {
+    const xArray = map.xArray;
+    const yArray = map.yArray;
+    const length = xArray.length;
+    for (let index = 0; index < length; index++) {
+        let x=xArray[index];
+        let y=yArray[index];
+        xArray[index]=x*x-y*y;
+        yArray[index]=2*x*y;
     }
 };
 

@@ -220,9 +220,11 @@ kaleidoscope.basic = function() {
             }
             /* fail after doing maximum repetitions*/
             if (success) {
-                /* be safe: do not get points outside the hyperbolic triangle*/
+                /* be safe: invert points outside the hyperbolic triangle*/
                 if ((x * x + y * y >= thirdCornerDistance2)) {
-                    structure += 128;
+                    const factor=1/(x*x+y*y);
+                    x*=factor;
+                    y*=factor;
                 }
             } else {
                 structure += 128;
