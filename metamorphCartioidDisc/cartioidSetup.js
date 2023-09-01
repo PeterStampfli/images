@@ -26,6 +26,9 @@ import {
     circularDrift
 } from "../mappings/circularDrift.js";
 
+const more = {};
+more.shift = 0.3;
+
 function setup() {
     // base gui
     const gui = new ParamGui({
@@ -39,6 +42,12 @@ function setup() {
     output.createPixels();
     kaleidoscope.setup(gui);
     cartioid.setup(gui);
+    gui.add({
+        type: 'number',
+        params: more,
+        property: 'shift',
+        onChange: julia.drawNewStructure
+    });
     bulatov.setup(gui);
     bulatov.setupPeriods(gui);
     circularDrift.setup(gui);
@@ -66,6 +75,7 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     map.init();
     cartioid.map();
+    map.yTranslation(more.shift);
     bulatov.ringMap();
     kaleidoscope.type();
     circularDrift.make();

@@ -8,11 +8,11 @@ import {
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     kaleidoscope
-} from "./kaleidoscope.js";
+} from "../mappings/kaleidoscope.js";
 
 import {
     polygon
@@ -20,7 +20,7 @@ import {
 
 import {
     rosette
-} from "./rosette.js";
+} from "../mappings/rosette.js";
 
 function setup() {
     // base gui

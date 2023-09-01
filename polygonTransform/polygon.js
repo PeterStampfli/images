@@ -3,7 +3,7 @@
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     output

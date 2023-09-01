@@ -111,6 +111,14 @@ map.xTranslation = function(amount) {
     }
 };
 
+map.yTranslation = function(amount) {
+    const yArray = map.yArray;
+    const length = yArray.length;
+    for (let index = 0; index < length; index++) {
+        yArray[index] += amount;
+    }
+};
+
 map.square = function() {
     const xArray = map.xArray;
     const yArray = map.yArray;
