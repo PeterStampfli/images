@@ -103,7 +103,30 @@ map.addDrift = function() {
 
 //================================================= small transforms
 
-map.xTranslation = function(amount) {
+map.translation = 0;
+map.doSquare = true;
+
+map.setup1Translation = function(gui) {
+    gui.add({
+        type: 'number',
+        params: map,
+        property: 'translation',
+        onChange: julia.drawNewStructure
+    });
+};
+
+map.setupSquare = function(gui) {
+    gui.add({
+        type: 'boolean',
+        params: map,
+        property: 'doSquare',
+        labelText: 'square',
+        onChange: julia.drawNewStructure
+    });
+};
+
+map.xTranslation = function() {
+    const amount = map.translation;
     const xArray = map.xArray;
     const length = xArray.length;
     for (let index = 0; index < length; index++) {
@@ -111,7 +134,8 @@ map.xTranslation = function(amount) {
     }
 };
 
-map.yTranslation = function(amount) {
+map.yTranslation = function() {
+    const amount = map.translation;
     const yArray = map.yArray;
     const length = yArray.length;
     for (let index = 0; index < length; index++) {
@@ -120,14 +144,16 @@ map.yTranslation = function(amount) {
 };
 
 map.square = function() {
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const length = xArray.length;
-    for (let index = 0; index < length; index++) {
-        let x=xArray[index];
-        let y=yArray[index];
-        xArray[index]=x*x-y*y;
-        yArray[index]=2*x*y;
+    if (map.doSquare) {
+        const xArray = map.xArray;
+        const yArray = map.yArray;
+        const length = xArray.length;
+        for (let index = 0; index < length; index++) {
+            let x = xArray[index];
+            let y = yArray[index];
+            xArray[index] = x * x - y * y;
+            yArray[index] = 2 * x * y;
+        }
     }
 };
 

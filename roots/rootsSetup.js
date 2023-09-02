@@ -11,12 +11,12 @@ import {
 
 import {
     rosette
-} from "./rosette.js";
+} from "../mappings/rosette.js";
 
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     juliaMap
@@ -24,7 +24,15 @@ import {
 
 import {
     kaleidoscope
-} from "./kaleidoscope.js";
+} from "../mappings/kaleidoscope.js";
+
+import {
+    bulatov
+} from "../mappings/bulatov.js";
+
+import {
+    circularDrift
+} from "../mappings/circularDrift.js";
 
 function setup() {
     // base gui
@@ -41,8 +49,11 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     juliaMap.setup(gui);
+    bulatov.setup(gui);
+    bulatov.setupPeriods(gui);
     kaleidoscope.setup(gui);
     rosette.setup(gui);
+    circularDrift.setup(gui);
     roots.setup(gui);
     map.setupDrawing(gui);
 
@@ -68,8 +79,10 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     map.init();
     map.iteration();
+    bulatov.ringMap();
     kaleidoscope.type();
     rosette.type();
+    circularDrift.make();
     map.draw();
     output.drawGrid();
 };

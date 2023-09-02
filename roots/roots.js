@@ -9,7 +9,7 @@ from "../libgui/modules.js";
 import {
     map,
     julia
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 import {
     universalRational

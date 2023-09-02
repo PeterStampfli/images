@@ -19,12 +19,12 @@ import {
 } from "../mappings/bulatov.js";
 
 import {
+    rosette
+} from "../mappings/rosette.js";
+
+import {
     circularDrift
 } from "../mappings/circularDrift.js";
-
-const more = {};
-more.shift = 0.3;
-more.square = true;
 
 function setup() {
     // base gui
@@ -38,20 +38,12 @@ function setup() {
     output.setInitialCoordinates(0, 0, 2);
     output.createPixels();
     kaleidoscope.setup(gui);
+    rosette.type();
+    rosette.setup(gui);
     bulatov.setup(gui);
     bulatov.setupPeriods(gui);
-    gui.add({
-        type: 'number',
-        params: more,
-        property: 'shift',
-        onChange: julia.drawNewStructure
-    });
-    gui.add({
-        type: 'boolean',
-        params: more,
-        property: 'square',
-        onChange: julia.drawNewStructure
-    });
+    map.setup1Translation(gui);
+    map.setupSquare(gui);
     circularDrift.setup(gui);
     map.setupDrawing(gui);
 
@@ -76,10 +68,8 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    if (more.square){
-        map.square();
-    }
-    map.xTranslation(-more.shift);
+    map.square();
+    map.xTranslation();
     bulatov.ringMap();
     kaleidoscope.type();
     circularDrift.make();

@@ -10,7 +10,7 @@ f(z)=z  * prefactor *[(z    +c_1)...]/[z     +c_?]
 
 import {
     map
-} from "./mapImage.js";
+} from "../mappings/mapImage.js";
 
 export const universalRational = {};
 universalRational.exponential = false;

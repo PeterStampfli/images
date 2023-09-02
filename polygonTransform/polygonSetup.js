@@ -22,6 +22,10 @@ import {
     rosette
 } from "../mappings/rosette.js";
 
+import {
+    bulatov
+} from "../mappings/bulatov.js";
+
 function setup() {
     // base gui
     const gui = new ParamGui({
@@ -36,7 +40,9 @@ function setup() {
     output.grid.interval = 0.1;
     output.addGrid();
     output.addCursorposition();
-    kaleidoscope.setup(gui);
+    bulatov.setup(gui);
+    bulatov.setupPeriods(gui);
+        kaleidoscope.setup(gui);
     rosette.setup(gui);
     polygon.setup(gui);
     map.setupDrawing(gui);
@@ -63,6 +69,7 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     map.init();
     polygon.type();
+    bulatov.ringMap();
     kaleidoscope.type();
     rosette.type();
     polygon.drift();
