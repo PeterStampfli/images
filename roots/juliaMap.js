@@ -405,6 +405,9 @@ map.juliaSetApproximation = function() {
 // save the iinitial coordinates, and add them to the iterated function
 // set initial coordinate to zero
 
+map.initialXArray = new Float32Array(1);
+map.initialYArray = new Float32Array(1);
+
 map.setInitialXY = function() {
     const xArray = map.xArray;
     const yArray = map.yArray;
