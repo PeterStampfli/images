@@ -65,3 +65,18 @@ from "./mapImage.js";
     generalBulatov
  }
  from "./generalBulatov.js";
+
+ export{
+    cayley
+ }
+ from "./cayley.js";
+
+ export{
+    spirals
+ }
+ from "./spirals.js";
+
+ export{
+    flipXY
+ }
+ from "./flipXY.js";

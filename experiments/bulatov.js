@@ -15,7 +15,6 @@ export const bulatov = {};
 bulatov.on = true;
 
 bulatov.setup = function() {
-    base.maps.push(bulatov);
     base.gui.addParagraph('<strong>bulatov</strong>');
     base.gui.add({
         type: 'boolean',

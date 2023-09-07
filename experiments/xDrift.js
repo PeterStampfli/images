@@ -14,7 +14,6 @@ export const xDrift = {};
 xDrift.strength = 0;
 
 xDrift.setup = function(gui) {
-    base.maps.push(xDrift);
     base.gui.add({
         type: 'number',
         params: xDrift,

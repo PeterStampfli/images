@@ -4,7 +4,7 @@ import {
     output,
     Pixels,
     CoordinateTransform,
-    MouseEvents
+    MouseEvents,keyboard
 } from "../libgui/modules.js";
 
 export const julia = {};
@@ -82,6 +82,7 @@ map.init = function() {
 
 // for drifts, storing initial or intermediate values
 map.makeDriftArrays = function() {
+    map.addDrift=true;
     const length = map.xArray.length;
     if ((map.xArray.length !== map.driftXArray.length)) {
         map.driftXArray = new Float32Array(length);
@@ -89,7 +90,9 @@ map.makeDriftArrays = function() {
     }
 };
 
-map.addDrift = function() {
+map.addDrift=false;
+map.addDriftMap = function() {
+    if (map.addDrift){
     const xArray = map.xArray;
     const yArray = map.yArray;
     const driftXArray = map.driftXArray;
@@ -99,6 +102,9 @@ map.addDrift = function() {
         xArray[index] -= driftXArray[index];
         yArray[index] += driftYArray[index];
     }
+    driftXArray.fill(0);
+    driftYArray.fill(0);
+}
 };
 
 //  making images

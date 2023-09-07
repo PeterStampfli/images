@@ -12,7 +12,6 @@ rosette.rPower = 2;
 rosette.alpha = 1;
 
 rosette.setup = function() {
-    base.maps.push(rosette);
     const gui=base.gui;
     gui.addParagraph('<strong>rosette</strong>');
     gui.add({

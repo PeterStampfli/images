@@ -8,7 +8,6 @@ export const xTranslation={};
 xTranslation.translation=0;
 
 xTranslation.setup = function() {
-    base.maps.push(xTranslation);
     base.gui.add({
         type: 'number',
         params: xTranslation,

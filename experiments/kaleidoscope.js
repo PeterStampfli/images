@@ -11,7 +11,6 @@ kaleidoscope.k = 5;
 kaleidoscope.m = 4;
 
 kaleidoscope.setup = function() {
-    base.maps.push(kaleidoscope);
     const gui=base.gui;
     gui.addParagraph('<strong>kaleidoscope</strong>');
     gui.add({

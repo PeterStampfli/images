@@ -10,7 +10,6 @@ cartioid.power = 0.5;
 cartioid.scale = 2;
 
 cartioid.setup = function(gui) {
-    base.maps.push(cartioid);
     base.gui.add({
         type: 'number',
         params: cartioid,

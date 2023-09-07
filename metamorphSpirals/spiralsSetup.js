@@ -15,7 +15,7 @@ import {
 } from "../mappings/kaleidoscope.js";
 
 import {
-    bulatov
+    spirals
 } from "./spirals.js";
 
 function setup() {
@@ -30,7 +30,7 @@ function setup() {
     output.setInitialCoordinates(0, 0, 2);
     output.createPixels();
     kaleidoscope.setup(gui);
-    bulatov.setup(gui);
+    spirals.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid
@@ -54,8 +54,7 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    map.makeDriftArrays();
-    bulatov.map();
+    spirals.map();
     kaleidoscope.type();
     map.addDrift();
     map.draw();

@@ -11,7 +11,6 @@ bulatovRing.on=true;
 bulatovRing.nRepeats = 5;
 
 bulatovRing.setup = function() {
-    base.maps.push(bulatovRing);
     base.gui.add({
         type: 'boolean',
         params: bulatovRing,

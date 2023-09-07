@@ -16,7 +16,6 @@ export const circularDrift = {};
 circularDrift.strength=0;
 
 circularDrift.setup = function(gui) {  
-    base.maps.push(circularDrift);
     base.gui.add({
         type:'number',
         params:circularDrift,

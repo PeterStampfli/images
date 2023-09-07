@@ -10,7 +10,6 @@ export const yTranslation = {};
 yTranslation.translation = 0;
 
 yTranslation.setup = function() {
-    base.maps.push(yTranslation);
     base.gui.add({
         type: 'number',
         params: yTranslation,

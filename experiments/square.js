@@ -8,7 +8,6 @@ export const square={};
 square.on = true;
 
 square.setup = function(gui) {
-    base.maps.push(square);
     base.gui.add({
         type: 'boolean',
         params: square,

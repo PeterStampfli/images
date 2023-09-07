@@ -18,7 +18,8 @@ import {
     bulatov,
     bulatovRing,
     square,
-    generalBulatov
+    generalBulatov,
+    cayley,spirals,flipXY
 } from "./modules.js";
 
 export const base = {};
@@ -40,17 +41,26 @@ function setup() {
     // her come the tools/modules
     //=======================================================
     //  cartioid.setup();
-    square.setup();
-  //  bulatov.setup();
+    //  square.setup();
+    //  bulatov.setup();
     //bulatovRing.setup();
-    generalBulatov.setup();
-    xTranslation.setup();
-    yTranslation.setup();
-    kaleidoscope.setup();
-    rosette.setup();
-    circularDrift.setup();
-    xDrift.setup();
+    //  generalBulatov.setup();
+    //   xTranslation.setup();
+    //   yTranslation.setup();
+    //   kaleidoscope.setup();
+    //   rosette.setup();
+    //  circularDrift.setup();
+    //  xDrift.setup();
+
+    base.maps.push(
+        flipXY,
+        generalBulatov,
+        kaleidoscope
+        );
     //====================================================
+
+
+    base.maps.forEach(map => map.setup());
     map.setupDrawing(gui);
 
     // changing the grid
@@ -77,6 +87,7 @@ julia.drawNewStructure = function() {
     for (let i = 0; i < base.maps.length; i++) {
         base.maps[i].map();
     }
+    map.addDriftMap();
     map.draw();
     output.drawGrid();
 };
