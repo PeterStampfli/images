@@ -19,7 +19,11 @@ import {
     bulatovRing,
     square,
     generalBulatov,
-    cayley,spirals,flipXY
+    cayley,
+    spirals,
+    flipXY,
+    polygon,
+    dihedral
 } from "./modules.js";
 
 export const base = {};
@@ -29,7 +33,7 @@ function setup() {
     base.maps.length = 0;
     // base gui
     const gui = new ParamGui({
-        name: 'metamorp cartioid',
+        name: 'experimental',
         closed: false
     });
     base.gui = gui;
@@ -53,10 +57,9 @@ function setup() {
     //  xDrift.setup();
 
     base.maps.push(
-        flipXY,
-        generalBulatov,
-        kaleidoscope
-        );
+        polygon,
+        kaleidoscope,
+        rosette);
     //====================================================
 
 

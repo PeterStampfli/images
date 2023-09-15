@@ -11,6 +11,7 @@ import {
 export const spirals = {};
 spirals.xDrift = 0;
 spirals.yDrift = 0;
+spirals.armDrift=0;
 
 spirals.n = 5;
 spirals.m = 1;
@@ -36,15 +37,20 @@ spirals.setup = function() {
         type: 'number',
         params: spirals,
         property: 'xDrift',
-        labelText: 'drifts',
         onChange: julia.drawNewStructure
     }).add({
         type: 'number',
         params: spirals,
         property: 'yDrift',
-        labelText: '',
         onChange: julia.drawNewStructure
     });
+
+    gui.add({
+        type: 'number',
+        params: spirals,
+        property: 'armDrift',
+        onChange: julia.drawNewStructure
+    })
 };
 
 spirals.map = function() {
@@ -63,6 +69,7 @@ spirals.map = function() {
     const iTanPiA4 = 1.0 / Math.tan(Math.PI * a / 4);
     const xDrift = spirals.xDrift;
     const yDrift = spirals.yDrift;
+    const armDrift = spirals.armDrift;
     const xArray = map.xArray;
     const yArray = map.yArray;
     const driftXArray = map.driftXArray;
@@ -87,8 +94,8 @@ spirals.map = function() {
         // calculate arm and total length
         const turns = Math.floor(bandIndex / m);
         const arm = bandIndex - m * turns;
-        driftXArray[index] = xDrift*(x+turns*nTimesPeriod);
-        driftYArray[index] = yDrift * arm;
+        driftXArray[index] = xDrift*(x+turns*nTimesPeriod)+yDrift*y;
+        driftYArray[index] = armDrift * arm;
         const nPeriod = Math.floor(x / period);
         x = piA2 * (x - period * nPeriod);
         y = piA2 * y;

@@ -21,8 +21,9 @@ generalBulatov.m=3;
 generalBulatov.n = 6;
 
 generalBulatov.setup = function() {
-    base.gui.addParagraph('<strong>generalBulatov</strong>');
-    base.gui.add({
+    const gui=base.gui;
+    gui.addParagraph('<strong>generalBulatov</strong>');
+    gui.add({
         type: 'boolean',
         params: generalBulatov,
         property: 'on',
@@ -35,7 +36,7 @@ generalBulatov.setup = function() {
         property: 'a',
         onChange: julia.drawNewStructure
     });
-    base.gui.add({
+    gui.add({
         type: 'boolean',
         params: generalBulatov,
         property: 'outside',
@@ -60,7 +61,7 @@ generalBulatov.setup = function() {
         step:1,
         onChange: julia.drawNewStructure
     });
-    base.gui.add({
+    gui.add({
         type: 'boolean',
         params: generalBulatov,
         property: 'ring',

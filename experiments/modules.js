@@ -80,3 +80,13 @@ from "./mapImage.js";
     flipXY
  }
  from "./flipXY.js";
+
+ export{
+    polygon
+ }
+ from "./polygon.js";
+
+ export{
+    dihedral
+ }
+ from "./dihedral.js";
