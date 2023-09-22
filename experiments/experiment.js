@@ -57,7 +57,11 @@ function setup() {
     //  xDrift.setup();
 
     base.maps.push(
-        polygon,
+        //   bulatovRing,
+                   cartioid,
+                   cartioid,
+                   bulatovRing,
+       //dihedral,
         kaleidoscope,
         rosette);
     //====================================================

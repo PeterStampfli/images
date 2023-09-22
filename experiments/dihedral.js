@@ -16,7 +16,8 @@ dihedral.setup = function() {
     gui.add({
         type: 'number',
         params: dihedral,
-        property: 'dihedral k',
+        property: 'k',
+        labelText:'dihedral',
         max: 100,
         min: 1,
         step: 1,
