@@ -74,10 +74,8 @@ spirals.map = function() {
     const yArray = map.yArray;
     const driftXArray = map.driftXArray;
     const driftYArray = map.driftYArray;
-    const structureArray = map.structureArray;
     const nPixels = xArray.length;
     for (var index = 0; index < nPixels; index++) {
-        const structure = structureArray[index];
         let x = xArray[index];
         let y = yArray[index];
         // spiralize

@@ -15,6 +15,7 @@ const gui = new ParamGui({
 SVG.makeGui(gui);
 SVG.init();
 SVG.setMinViewWidthHeight(200, 200);
+var SCADtext;
 
 const saveSCADButton = gui.add({
     type: "button",
@@ -22,7 +23,7 @@ const saveSCADButton = gui.add({
     minLabelWidth: 20,
     onClick: function() {
         makeSCAD();
-        guiUtils.saveTextAsFile(Circle.SCADtext, SCADsaveName.getValue(), 'scad');
+        guiUtils.saveTextAsFile(SCADtext, SCADsaveName.getValue(), 'scad');
     }
 });
 const SCADsaveName = saveSCADButton.add({
@@ -47,10 +48,7 @@ gui.add({
     params: main,
     property: 'size',
     min: 0,
-    onChange: function() {
-        create();
-        draw();
-    }
+    onChange: createDraw
 });
 
 gui.add({
@@ -58,40 +56,39 @@ gui.add({
     params: main,
     property: 'imageColor',
     labelText: 'line',
-    onChange: function() {
-        draw();
-    }
+    onChange: createDraw
 }).add({
     type: 'number',
     params: main,
     min: 0,
     property: 'lineWidth',
-    labelText:'width',
-    onChange: function() {
-        draw();
-    }
+    labelText: 'width',
+    onChange: createDraw
 });
 
 // rotation angles
-main.beta=0;
-main.gamma=0;
+main.beta = 0;
+main.gamma = 0;
+main.alpha = 0;
 
+// rotating final points (endpoints of lines, make this a function)
+// 3d rotation
+// rotation in x,y then x,z then x,y
 gui.add({
     type: 'number',
     params: main,
     property: 'beta',
-    onChange: function() {
-        create();
-        draw();
-    }
+    onChange: createDraw
 }).add({
     type: 'number',
     params: main,
     property: 'gamma',
-    onChange: function() {
-        create();
-        draw();
-    }
+    onChange: createDraw
+}).add({
+    type: 'number',
+    params: main,
+    property: 'alpha',
+    onChange: createDraw
 });
 
 var basicVertices = [];
@@ -99,10 +96,8 @@ var polyhedronEdges = [];
 var truncationFactor;
 
 function basicVertex(x, y, z) {
-    // rotate
-
-    // normalize to unit sphere
-    const factor = 1 / Math.sqrt(x * x + y * y + z * z);
+    // normalize to sphere of given size
+    const factor = main.size / Math.sqrt(x * x + y * y + z * z);
     basicVertices.push([factor * x, factor * y, factor * z]);
 }
 
@@ -183,10 +178,7 @@ gui.add({
         ikosahedron: ikosahedron,
         dodecahedron: dodecahedron
     },
-    onChange: function() {
-        create();
-        draw();
-    }
+    onChange: createDraw
 }).add({
     type: 'selection',
     params: main,
@@ -196,10 +188,7 @@ gui.add({
         rectified: rectifiedPolyhedron,
         truncated: truncatedPolyhedron
     },
-    onChange: function() {
-        create();
-        draw();
-    }
+    onChange: createDraw
 });
 
 // square of distance between two points a and b (arrays of [x,y,z])
@@ -223,6 +212,7 @@ function minD2(points) {
 }
 
 // create lines of given square length
+// use relative lengths
 // between points of an array
 // return an array of endpoints a-b
 function makeLines(d2, points) {
@@ -231,7 +221,7 @@ function makeLines(d2, points) {
     let result = [];
     for (let i = 0; i < length - 1; i++) {
         for (let j = i + 1; j < length; j++) {
-            if (Math.abs(d2 - d2Between(points[i], points[j])) < eps) {
+            if (Math.abs(d2Between(points[i], points[j]) / d2 - 1) < eps) {
                 result.push(points[i]);
                 result.push(points[j]);
             }
@@ -240,28 +230,32 @@ function makeLines(d2, points) {
     return result;
 }
 
+function interpolate(t, a, b) {
+    const x = t * b[0] + (1 - t) * a[0];
+    const y = t * b[1] + (1 - t) * a[1];
+    const z = t * b[2] + (1 - t) * a[2];
+    return [x, y, z];
+}
+
 // make midpoints of edges -> rectfied solid
 function midpoints(lines) {
     const points = [];
     const length = lines.length;
     for (let i = 0; i < length; i += 2) {
-        const a = lines[i];
-        const b = lines[i + 1];
-        points.push([0.5 * (a[0] + b[0]), 0.5 * (a[1] + b[1]), 0.5 * (a[2] + b[2])]);
+        points.push(interpolate(0.5, lines[i], lines[i + 1]));
     }
     return points;
 }
 
 // interpolate at both end -> truncated solid
-function interpolate(lines) {
+function truncate(lines) {
     const points = [];
-    const x = truncationFactor;
     const length = lines.length;
     for (let i = 0; i < length; i += 2) {
         const a = lines[i];
         const b = lines[i + 1];
-        points.push([x * a[0] + (1 - x) * b[0], x * a[1] + (1 - x) * b[1], x * a[2] + (1 - x) * b[2]]);
-        points.push([x * b[0] + (1 - x) * a[0], x * b[1] + (1 - x) * a[1], x * b[2] + (1 - x) * a[2]]);
+        points.push(interpolate(truncationFactor, a, b));
+        points.push(interpolate(truncationFactor, b, a));
     }
     return points;
 }
@@ -275,19 +269,63 @@ function rectifiedPolyhedron() {
     let d2 = minD2(basicVertices);
     const regularEdges = makeLines(d2, basicVertices);
     const rectifiedVertices = midpoints(regularEdges);
-    d2 = minD2(basicVertices);
+    d2 = minD2(rectifiedVertices);
     polyhedronEdges = makeLines(d2, rectifiedVertices);
 }
 
 function truncatedPolyhedron() {
     let d2 = minD2(basicVertices);
     const regularEdges = makeLines(d2, basicVertices);
-    const truncatedVertices = interpolate(regularEdges);
+    const truncatedVertices = truncate(regularEdges);
     d2 = minD2(truncatedVertices);
     polyhedronEdges = makeLines(d2, truncatedVertices);
 }
 
-function create() {
+// creation does not take much time, do all in one
+
+// rotating the points of lines, or whatever
+
+function rotate(points) {
+    const cosAlpha = Math.cos(main.alpha);
+    const sinAlpha = Math.sin(main.alpha);
+    const cosBeta = Math.cos(main.beta);
+    const sinBeta = Math.sin(main.beta);
+    const cosGamma = Math.cos(main.gamma);
+    const sinGamma = Math.sin(main.gamma);
+    const length = points.length;
+    for (let i = 0; i < length; i++) {
+        const point = points[i];
+        let x = point[0];
+        let y = point[1];
+        let z = point[2];
+        // rotate xy
+        let h = cosBeta * x - sinBeta * y;
+        y = sinBeta * x + cosBeta * y;
+        x = h;
+        //rotate xz
+        h = cosGamma * x + sinGamma * z;
+        z = -sinGamma * x + cosGamma * z;
+        x = h;
+        // rotate xy
+        h = cosAlpha * x - sinAlpha * y;
+        y = sinAlpha * x + cosAlpha * y;
+        x = h;
+        point[0] = x;
+        point[1] = y;
+        point[2] = z;
+    }
+}
+
+function drawLines(lines) {
+    const length = lines.length;
+    for (let i = 0; i < length; i += 2) {
+        const a = lines[i];
+        const b = lines[i + 1];
+        SVG.createPolyline([a[0], a[1], b[0], b[1]]);
+    }
+}
+
+function createDraw() {
     basicVertices.length = 0;
     main.geometry();
     main.polyhedron();
@@ -295,41 +333,42 @@ function create() {
     console.log(polyhedronEdges);
     console.log(midpoints(polyhedronEdges));
 
+    rotate(polyhedronEdges);
 
-}
-
-function makeSCAD() {
-    Circle.SCADtext = 'imageCircles=[';
-    Circle.first = true;
-    const mapLength = mappingCircles.length;
-    for (let i = 0; i < mapLength; i++) {
-        const images = mappingCircles[i].images;
-        for (let gen = 0; gen < main.generations; gen++) {
-            images[gen].forEach(image => image.writeSCAD());
-        }
-    }
-    Circle.SCADtext += '\n];\n';
-    Circle.SCADtext += 'mappingCircles=[';
-    Circle.first = true;
-    mappingCircles.forEach(circle => circle.writeSCAD());
-    Circle.SCADtext += '\n];';
-}
-
-function draw() {
     SVG.begin();
     SVG.attributes = {
         transform: 'scale(1 -1)',
         fill: 'none',
+        stroke: main.imageColor,
         'stroke-width': main.lineWidth,
         'stroke-linecap': 'round',
         'stroke-linejoin': 'round'
     };
     SVG.createGroup(SVG.attributes);
-
-
+    drawLines(polyhedronEdges);
     SVG.terminate();
 }
 
-SVG.draw = draw;
-create();
-draw();
+
+function prec(x) {
+    return x.toPrecision(4);
+}
+
+function makeSCAD() {
+    SCADtext = 'lines=[';
+
+    const length = polyhedronEdges.length;
+    for (let i = 0; i < length; i += 2) {
+        const a = polyhedronEdges[i];
+        const b = polyhedronEdges[i + 1];
+        SCADtext += '[' + prec(a[0]) + ',' + prec(a[1]) + ',' + prec(a[2]) + '],';
+        SCADtext += '[' + prec(b[0]) + ',' + prec(b[1]) + ',' + prec(b[2]) + ']';
+        if (i < length - 2) {
+            SCADtext += ',\n';
+        }
+    }
+    SCADtext += '\n]';
+}
+
+SVG.draw = createDraw;
+createDraw();

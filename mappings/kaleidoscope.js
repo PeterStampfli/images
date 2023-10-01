@@ -280,7 +280,6 @@ kaleidoscope.basic = function() {
 
 
 kaleidoscope.regular = function() {
-    console.log('regular');
     kaleidoscope.basic();
 };
 

@@ -90,3 +90,28 @@ from "./mapImage.js";
     dihedral
  }
  from "./dihedral.js";
+
+ export{
+    powers
+ }
+ from "./powers.js";
+
+ export{
+    scale
+ }
+ from "./scale.js";
+
+ export{
+    inversion
+ }
+ from "./inversion.js";
+
+ export{
+    insideOutside
+ }
+ from "./insideOutside.js";
+
+ export{
+    mandelbrot
+ }
+ from "./mandelbrot.js";

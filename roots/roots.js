@@ -22,7 +22,6 @@ amplitude.radius = 1;
 amplitude.angle = 0;
 roots.zPower = 1;
 roots.order = 5;
-roots.mirror = false;
 // root position and switch
 // angle related to 2PI/order, angle of the cyclic group
 roots.nom1Radius = 1;
@@ -81,12 +80,8 @@ roots.setup = function(gui) {
         params: amplitude,
         property: 'angle',
         onChange: julia.drawNewStructure
-    }).add({
-        type: 'boolean',
-        params: universalRational,
-        property: 'mirror',
-        onChange: julia.drawNewStructure
     });
+    
     gui.addParagraph('nominator');
     nom1RadiusController = gui.add({
         type: 'number',
@@ -314,40 +309,40 @@ roots.mapping = function() {
     const amplitudeReal = amplitude.radius * Math.cos(angle);
     const amplitudeImag = amplitude.radius * Math.sin(angle);
     if (roots.nom1On) {
-        radius = Math.pow(roots.nom1Radius,roots.order);
+        radius = Math.pow(roots.nom1Radius, roots.order);
         angle = 2 * Math.PI * roots.nom1Angle;
         nomReal.push(radius * Math.cos(angle));
-        nomReal.push(radius * Math.sin(angle));
+        nomImag.push(radius * Math.sin(angle));
     }
     if (roots.nom2On) {
-       radius = Math.pow(roots.nom2Radius,roots.order);
+        radius = Math.pow(roots.nom2Radius, roots.order);
         angle = 2 * Math.PI * roots.nom2Angle;
         nomReal.push(radius * Math.cos(angle));
-        nomReal.push(radius * Math.sin(angle));
+        nomImag.push(radius * Math.sin(angle));
     }
     if (roots.nom3On) {
-  radius = Math.pow(roots.nom3Radius,roots.order);
+        radius = Math.pow(roots.nom3Radius, roots.order);
         angle = 2 * Math.PI * roots.nom3Angle;
         nomReal.push(radius * Math.cos(angle));
-        nomReal.push(radius * Math.sin(angle));
+        nomImag.push(radius * Math.sin(angle));
     }
     if (roots.denom1On) {
-      radius = Math.pow(roots.denom1Radius,roots.order);
+        radius = Math.pow(roots.denom1Radius, roots.order);
         angle = 2 * Math.PI * roots.denom1Angle;
         denReal.push(radius * Math.cos(angle));
         denImag.push(radius * Math.sin(angle));
     }
     if (roots.denom2On) {
-      radius = Math.pow(roots.denom2Radius,roots.order);
+        radius = Math.pow(roots.denom2Radius, roots.order);
         angle = 2 * Math.PI * roots.denom2Angle;
         denReal.push(radius * Math.cos(angle));
         denImag.push(radius * Math.sin(angle));
     }
     if (roots.denom3On) {
-        radius = Math.pow(roots.denom3Radius,roots.order);
+        radius = Math.pow(roots.denom3Radius, roots.order);
         angle = 2 * Math.PI * roots.denom3Angle;
         denReal.push(radius * Math.cos(angle));
         denImag.push(radius * Math.sin(angle));
     }
-    map.universalRational(universalRational.mirror, universalRational.zPower, amplitudeReal,amplitudeImag,nomReal,nomImag,denReal,denImag);
+    map.universalRational(roots.zPower, roots.order, amplitudeReal, amplitudeImag, nomReal, nomImag, denReal, denImag);
 };

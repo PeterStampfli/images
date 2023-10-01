@@ -23,7 +23,12 @@ import {
     spirals,
     flipXY,
     polygon,
-    dihedral
+    dihedral,
+    powers,
+    scale,
+    inversion,
+    insideOutside,
+    mandelbrot
 } from "./modules.js";
 
 export const base = {};
@@ -44,24 +49,14 @@ function setup() {
     output.createPixels();
     // her come the tools/modules
     //=======================================================
-    //  cartioid.setup();
-    //  square.setup();
-    //  bulatov.setup();
-    //bulatovRing.setup();
-    //  generalBulatov.setup();
-    //   xTranslation.setup();
-    //   yTranslation.setup();
-    //   kaleidoscope.setup();
-    //   rosette.setup();
-    //  circularDrift.setup();
-    //  xDrift.setup();
-
+    
     base.maps.push(
         //   bulatovRing,
-                   cartioid,
-                   cartioid,
-                   bulatovRing,
+                 //  powers,
+                  mandelbrot,
+                 //  bulatovRing,
        //dihedral,
+      // scale,
         kaleidoscope,
         rosette);
     //====================================================

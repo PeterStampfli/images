@@ -43,7 +43,5 @@ cartioid.map = function() {
         yArray[index] = 1-scale *r * Math.cos(phi);
         xArray[index] = scale *r * Math.cos(phi)-1;
         yArray[index] = scale *r * Math.sin(phi); 
-               xArray[index] = x*x-y*y-1;
-        yArray[index] = 2*x*y;
     }
 };

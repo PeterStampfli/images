@@ -16,14 +16,12 @@ export const universalRational = {};
 
 // universal rational function defined by a params-array
 
-map.universalRational = function(mirror, zPow, order, amplitudeReal, amplitudeImag, nomRootsReal, nomRootsImag, denomRootsReal, denomRootsImag) {
+map.universalRational = function( zPow, order, amplitudeReal, amplitudeImag, nomRootsReal, nomRootsImag, denomRootsReal, denomRootsImag) {
     const eps = 1e-100;
-    const zPow2 = zPow / 2;
-    const order2 = order / 2;
     const totalPower = zPow + order * (nomRootsReal.length - denomRootsReal.length);
     // supposing that roots are not zero: Is z=0 a singularity?
     const zeroSingular = (zPow < -eps);
-//result for infinite z, or very large z
+    //result for infinite z, or very large z
     var xInfty, yInfty;
     if (totalPower > eps) {
         xInfty = Infinity;
@@ -37,8 +35,6 @@ map.universalRational = function(mirror, zPow, order, amplitudeReal, amplitudeIm
         yInfty = 0;
     }
 
-    const xArrayInput = mirror ? map.yArray : map.xArray;
-    const yArrayInput = mirror ? map.xArray : map.yArray;
     const xArray = map.xArray;
     const yArray = map.yArray;
     const structureArray = map.structureArray;
@@ -49,10 +45,11 @@ map.universalRational = function(mirror, zPow, order, amplitudeReal, amplitudeIm
         if (structure >= 128) {
             continue;
         }
-        let x = xArrayInput[index];
-        let y = yArrayInput[index];
+        let x = xArray[index];
+        let y = yArray[index];
+        let r2 = x * x + y * y;
+
         // safety: check if z is finite
-        const r2 = x * x + y * y;
         if (!isFinite(r2)) {
             xArray[index] = xInfty;
             yArray[index] = yInfty;
@@ -66,14 +63,15 @@ map.universalRational = function(mirror, zPow, order, amplitudeReal, amplitudeIm
         }
         // power of z as prefactor, initialize nominator and denominator
         const phi = Math.atan2(y, x);
-        let r = Math.pow(r2, zPow2);
+        const lnr=0.5*Math.log(r2);
+        let r = Math.exp(lnr*zPow);
         let angle = zPow * phi;
         let nomReal = r * Math.cos(angle);
         let nomImag = r * Math.sin(angle);
         let denReal = 1;
         let denImag = 0;
         // z to power of order
-        r = Math.pow(r2, order2);
+        r = Math.exp(lnr* order);
         angle = order * phi;
         x = r * Math.cos(angle);
         y = r * Math.sin(angle);
@@ -94,7 +92,7 @@ map.universalRational = function(mirror, zPow, order, amplitudeReal, amplitudeIm
             denImag = denReal * factorImag + denImag * factorReal;
             denReal = h;
         }
-// division, take care of overflows
+        // division, take care of overflows
         const nom2 = nomReal * nomReal + nomImag * nomImag;
         const denom2 = denReal * denReal + denImag * denImag;
         if (!isFinite(nom2)) {

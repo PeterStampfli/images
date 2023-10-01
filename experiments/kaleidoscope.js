@@ -2,7 +2,8 @@
 
 import {
     map,
-    julia, base
+    julia,
+    base
 } from "./modules.js";
 
 export const kaleidoscope = {};
@@ -11,7 +12,7 @@ kaleidoscope.k = 5;
 kaleidoscope.m = 4;
 
 kaleidoscope.setup = function() {
-    const gui=base.gui;
+    const gui = base.gui;
     gui.addParagraph('<strong>kaleidoscope</strong>');
     gui.add({
         type: 'number',
@@ -160,12 +161,13 @@ kaleidoscope.basic = function() {
             let x = xArray[index];
             let y = yArray[index];
             /* invalid if outside of poincare disc for hyperbolic kaleidoscope*/
-            if ((geometry === hyperbolic) && (x * x + y * y >= 1)) {
+            const r2 = x * x + y * y;
+            if (!isFinite(r2)) {
                 structureArray[index] = 128 + structure;
                 continue;
-            } else if (!isFinite(x * x + y * y)) {
-                xArray[index] = 0;
-                yArray[index] = 0;
+            }
+            if ((geometry === hyperbolic) && (r2 >= 1)) {
+                structureArray[index] = 128 + structure;
                 continue;
             }
             /* make dihedral map to put point in first sector*/

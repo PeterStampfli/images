@@ -27,10 +27,6 @@ import {
 } from "../mappings/kaleidoscope.js";
 
 import {
-    bulatov
-} from "../mappings/bulatov.js";
-
-import {
     circularDrift
 } from "../mappings/circularDrift.js";
 
@@ -49,8 +45,6 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     juliaMap.setup(gui);
-    bulatov.setup(gui);
-    bulatov.setupPeriods(gui);
     kaleidoscope.setup(gui);
     rosette.setup(gui);
     circularDrift.setup(gui);
@@ -79,7 +73,6 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     map.init();
     map.iteration();
-    bulatov.ringMap();
     kaleidoscope.type();
     rosette.type();
     circularDrift.make();

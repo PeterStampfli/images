@@ -96,8 +96,8 @@ module drawLine(a, b, weight = 1){
     cylinder(h = norm(v), r = weight / 2);
 }
 
-// draw lines of a given length between points
-module drawLines(points, length, weight = 1, eps = 0.001){
+// draw all lines of a given length between points
+module drawAllLines(points, length, weight = 1, eps = 0.001){
     for (i = [0 : len(points)-2]){
         pointI = points[i];
         for (j = [i + 1 : len(points)-1]){
@@ -106,6 +106,16 @@ module drawLines(points, length, weight = 1, eps = 0.001){
                 drawLine(pointI, pointJ, weight);
             }
         }
+    }
+}
+
+// draw lines between pairs of points
+module drawLines(points, weight = 1){
+    stop=len(points)-2;
+    for (i = [0 : stop : 2]){
+        pointI = points[i];
+        pointJ = points[i+1];
+        drawLine(pointI, pointJ, weight);
     }
 }
 
