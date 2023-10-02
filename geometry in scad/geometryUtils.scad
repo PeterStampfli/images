@@ -112,7 +112,7 @@ module drawAllLines(points, length, weight = 1, eps = 0.001){
 // draw lines between pairs of points
 module drawLines(points, weight = 1){
     stop=len(points)-2;
-    for (i = [0 : stop : 2]){
+    for (i = [0 : 2 : stop]){
         pointI = points[i];
         pointJ = points[i+1];
         drawLine(pointI, pointJ, weight);
