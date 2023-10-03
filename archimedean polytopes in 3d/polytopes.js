@@ -94,40 +94,105 @@ gui.add({
 var basicVertices = [];
 var polytopeEdges = [];
 var truncationFactor;
+// rotate direction to north pole, for stereographic projection
+var northpole = [0, 0, 0, 1];
 
-function basicVertex(x, y, z,w) {
-    // normalize to hypersphere of given size
-    console.log(x,y,z,w);
-    console.log(x * x + y * y + z * z+w*w);
-    const factor = main.size / Math.sqrt(x * x + y * y + z * z+w*w);
-    basicVertices.push([factor * x, factor * y, factor * z,factor*w]);
+function basicVertex(x, y, z, w) {
+    // rotation, to move the northpole vector to [0,0,0,1]
+    const eps = 0.01;
+    const nx = northpole[0];
+    const ny = northpole[1];
+    const nz = northpole[2];
+    const nw = northpole[3];
+    const nxy = Math.sqrt(nx * nx + ny * ny);
+    if (Math.abs(nx) > eps) {
+        // rotation in xy to make nx=0
+        const h = (x * ny - y * nx) / nxy;
+        y = (x * nx + y * ny) / nxy;
+        x = h;
+    }
+    // northpole now at [0,nxy,nz,nw]
+    const nxyz = Math.sqrt(nxy * nxy + nz * nz);
+    if (Math.abs(nxy) > eps) {
+        const h = (y * nz - z * nxy) / nxyz;
+        z = (y * nxy + z * nz) / nxyz;
+        y = h;
+    }
+    // northpole at [0,0,nxyz,nw]
+    const nxyzw = Math.sqrt(nxyz * nxyz + nw * nw);
+    if (Math.abs(nxyz) > eps) {
+        const h = (z * nw - w * nxyz) / nxyzw;
+        w = (z * nxyz + w * nw) / nxyzw;
+        z = h;
+    }
+    // nortpole now at [0,0,0,nxyzw]
+    // normalization to the unit sphere, scaling later after stereographic projection
+    const factor = 1 / Math.sqrt(x * x + y * y + z * z + w * w);
+    basicVertices.push([factor * x, factor * y, factor * z, factor * w]);
 }
 
+northpole = [1, 1, 1, 1];
+basicVertex(1, 1, 1, 1);
+console.log(basicVertices[0]);
+
 // hypertetrahedron, 4 symplex
-function symplex(){
-    basicVertex(0,0,0,-1);
-    const r3=Math.sqrt(15/16);
-    basicVertex(0,0,-r3,0.25);
-    const r2=r3*Math.sqrt(8/9);
-    basicVertex(0,-r2,r3/3,0.25);
-    const r1=r2*Math.sqrt(3/4);
-    basicVertex(-r1,r2/2,r3/3,0.25);
-    basicVertex(r1,r2/2,r3/3,0.25);
+function symplex() {
+    truncationFactor = 0.33333;
+    northpole = [0, 0, 0, 1];
+    basicVertex(0, 0, 0, -1);
+    const r3 = Math.sqrt(15 / 16);
+    basicVertex(0, 0, -r3, 0.25);
+    const r2 = r3 * Math.sqrt(8 / 9);
+    basicVertex(0, -r2, r3 / 3, 0.25);
+    const r1 = r2 * Math.sqrt(3 / 4);
+    basicVertex(-r1, r2 / 2, r3 / 3, 0.25);
+    basicVertex(r1, r2 / 2, r3 / 3, 0.25);
+}
+
+function cube() {
+    truncationFactor = 0.33333;
+    northpole = [0, 0, 0, 1];
+    basicVertex(1, 1, 1, 1);
+    basicVertex(1, 1, 1, -1);
+    basicVertex(1, 1, -1, 1);
+    basicVertex(1, 1, -1, -1);
+    basicVertex(1, -1, 1, 1);
+    basicVertex(1, -1, 1, -1);
+    basicVertex(1, -1, -1, 1);
+    basicVertex(1, -1, -1, -1);
+    basicVertex(-1, 1, 1, 1);
+    basicVertex(-1, 1, 1, -1);
+    basicVertex(-1, 1, -1, 1);
+    basicVertex(-1, 1, -1, -1);
+    basicVertex(-1, -1, 1, 1);
+    basicVertex(-1, -1, 1, -1);
+    basicVertex(-1, -1, -1, 1);
+    basicVertex(-1, -1, -1, -1);
+}
+
+function cross() {
+    truncationFactor = 0.2929;
+    northpole = [1, 1, 1, 1];
+    basicVertex(1, 0, 0, 0);
+    basicVertex(-1, 0, 0, 0);
+    basicVertex(0, 1, 0, 0);
+    basicVertex(0, -1, 0, 0);
+    basicVertex(0, 0, 1, 0);
+    basicVertex(0, 0, -1, 0);
+    basicVertex(0, 0, 0, 1);
+    basicVertex(0, 0, 0, -1);
 }
 
 main.geometry = symplex;
 
-/*
 gui.add({
     type: 'selection',
     params: main,
     property: 'geometry',
     options: {
         symplex: symplex,
-        octahedron: octahedron,
-        cube: cube,
-        ikosahedron: ikosahedron,
-        dodecahedron: dodecahedron
+        cross: cross,
+        cube: cube
     },
     onChange: createDraw
 }).add({
@@ -140,15 +205,16 @@ gui.add({
         truncated: truncatedPolytope
     },
     onChange: createDraw
-});
-*/
+}); *
+/
 
 // square of distance between two points a and b (arrays of [x,y,z])
 function d2Between(a, b) {
     const dx = a[0] - b[0];
     const dy = a[1] - b[1];
     const dz = a[2] - b[2];
-    return dx * dx + dy * dy + dz * dz;
+    const dw = a[3] - b[3];
+    return dx * dx + dy * dy + dz * dz + dw * dw;
 }
 
 // minimum sqaure distance between points in an array
@@ -186,7 +252,8 @@ function interpolate(t, a, b) {
     const x = t * b[0] + (1 - t) * a[0];
     const y = t * b[1] + (1 - t) * a[1];
     const z = t * b[2] + (1 - t) * a[2];
-    return [x, y, z];
+    const w = t * b[3] + (1 - t) * a[3];
+    return [x, y, z, w];
 }
 
 // make midpoints of edges -> rectfied solid
@@ -210,6 +277,31 @@ function truncate(lines) {
         points.push(interpolate(truncationFactor, b, a));
     }
     return points;
+}
+
+// stereographic projection of array of points/lines
+// normaliize the points
+function stereographic(points) {
+    const length = points.length;
+    const r2 = 2;
+    for (let i = 0; i < length; i++) {
+        const point = points[i];
+        let x = point[0];
+        let y = point[1];
+        let z = point[2];
+        let w = point[3];
+        let factor = 1 / Math.sqrt(x * x + y * y + z * z + w * w);
+        x *= factor;
+        y *= factor;
+        z *= factor;
+        w *= factor;
+        const dw = w - 1;
+        factor = r2 / (x * x + y * y + z * z + dw * dw);
+        point[0] = factor * x;
+        point[1] = factor * y;
+        point[2] = factor * z;
+        point[3] = 1 + factor * dw;
+    }
 }
 
 function regularPolytope() {
@@ -262,9 +354,10 @@ function rotate(points) {
         h = cosAlpha * x - sinAlpha * y;
         y = sinAlpha * x + cosAlpha * y;
         x = h;
-        point[0] = x;
-        point[1] = y;
-        point[2] = z;
+        // inflate
+        point[0] = main.size * x;
+        point[1] = main.size * y;
+        point[2] = main.size * z;
     }
 }
 
@@ -281,11 +374,10 @@ function createDraw() {
     basicVertices.length = 0;
     main.geometry();
 
-    /*
+
     main.polyhedron();
 
-    console.log(polyhedronEdges);
-    console.log(midpoints(polyhedronEdges));
+    stereographic(polyhedronEdges);
 
     rotate(polyhedronEdges);
 
@@ -301,7 +393,7 @@ function createDraw() {
     SVG.createGroup(SVG.attributes);
     drawLines(polyhedronEdges);
     SVG.terminate();
-    */
+
 }
 
 
