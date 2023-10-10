@@ -92,6 +92,7 @@ gui.add({
 });
 
 var basicVertices = [];
+var polytopeVertices = [];
 var polytopeEdges = [];
 var truncationFactor;
 // rotate direction to north pole, for stereographic projection
@@ -127,16 +128,16 @@ function basicVertex(x, y, z, w) {
     }
     // nortpole now at [0,0,0,nxyzw]
     // normalization to the unit sphere, scaling later after stereographic projection
-    const factor = 1 / Math.sqrt(x * x + y * y + z * z + w * w);
-    basicVertices.push([factor * x, factor * y, factor * z, factor * w]);
+    let factor = 1 / Math.sqrt(x * x + y * y + z * z + w * w);
+    factor=1;
+    const vertex = [factor * x, factor * y, factor * z, factor * w];
+    console.log(basicVertices.length,factor,x,y,z,w);
+        basicVertices.push(vertex);
+
 }
 
-northpole = [1, 1, 1, 1];
-basicVertex(1, 1, 1, 1);
-console.log(basicVertices[0]);
-
-// hypertetrahedron, 4 symplex
 function symplex() {
+    basicVertices.length = 0;
     truncationFactor = 0.33333;
     northpole = [0, 0, 0, 1];
     basicVertex(0, 0, 0, -1);
@@ -149,30 +150,32 @@ function symplex() {
     basicVertex(r1, r2 / 2, r3 / 3, 0.25);
 }
 
-function cube() {
-    truncationFactor = 0.33333;
-    northpole = [0, 0, 0, 1];
-    basicVertex(1, 1, 1, 1);
-    basicVertex(1, 1, 1, -1);
-    basicVertex(1, 1, -1, 1);
-    basicVertex(1, 1, -1, -1);
-    basicVertex(1, -1, 1, 1);
-    basicVertex(1, -1, 1, -1);
-    basicVertex(1, -1, -1, 1);
-    basicVertex(1, -1, -1, -1);
-    basicVertex(-1, 1, 1, 1);
-    basicVertex(-1, 1, 1, -1);
-    basicVertex(-1, 1, -1, 1);
-    basicVertex(-1, 1, -1, -1);
-    basicVertex(-1, -1, 1, 1);
-    basicVertex(-1, -1, 1, -1);
-    basicVertex(-1, -1, -1, 1);
-    basicVertex(-1, -1, -1, -1);
+function basicCube(s) {
+    basicVertex(s, s, s, s);
+    basicVertex(s, s, s, -s);
+    basicVertex(s, s, -s, s);
+    basicVertex(s, s, -s, -s);
+    basicVertex(s, -s, s, s);
+    basicVertex(s, -s, s, -s);
+    basicVertex(s, -s, -s, s);
+    basicVertex(s, -s, -s, -s);
+    basicVertex(-s, s, s, s);
+    basicVertex(-s, s, s, -s);
+    basicVertex(-s, s, -s, s);
+    basicVertex(-s, s, -s, -s);
+    basicVertex(-s, -s, s, s);
+    basicVertex(-s, -s, s, -s);
+    basicVertex(-s, -s, -s, s);
+    basicVertex(-s, -s, -s, -s);
 }
 
-function cross() {
+function cube() {
     truncationFactor = 0.2929;
-    northpole = [1, 1, 1, 1];
+    northpole = [0, 0, 0, 1];
+    basicCube(1);
+}
+
+function basicCross() {
     basicVertex(1, 0, 0, 0);
     basicVertex(-1, 0, 0, 0);
     basicVertex(0, 1, 0, 0);
@@ -183,7 +186,77 @@ function cross() {
     basicVertex(0, 0, 0, -1);
 }
 
+function cross() {
+    truncationFactor = 0.3333;
+    northpole = [1, 1, 1, 1];
+    basicCross();
+}
+
+function the24Cell() {
+    truncationFactor = 0.3333;
+    northpole = [1, 1, 1, 1];
+    basicVertex(1, 1, 0, 0);
+    basicVertex(1, -1, 0, 0);
+    basicVertex(-1, 1, 0, 0);
+    basicVertex(-1, -1, 0, 0);
+    basicVertex(1, 0, 1, 0);
+    basicVertex(1, 0, -1, 0);
+    basicVertex(-1, 0, 1, 0);
+    basicVertex(-1, 0, -1, 0);
+    basicVertex(1, 0, 0, 1);
+    basicVertex(1, 0, 0, -1);
+    basicVertex(-1, 0, 0, 1);
+    basicVertex(-1, 0, 0, -1);
+    basicVertex(0, 1, 1, 0);
+    basicVertex(0, 1, -1, 0);
+    basicVertex(0, -1, 1, 0);
+    basicVertex(0, -1, -1, 0);
+    basicVertex(0, 1, 0, 1);
+    basicVertex(0, 1, 0, -1);
+    basicVertex(0, -1, 0, 1);
+    basicVertex(0, -1, 0, -1);
+    basicVertex(0, 0, 1, 1);
+    basicVertex(0, 0, 1, -1);
+    basicVertex(0, 0, -1, 1);
+    basicVertex(0, 0, -1, -1);
+}
+
+function even3(a,b,c,d){
+     basicVertex(a, b, c, d);
+    basicVertex(a, c, d, b);
+    basicVertex(a, d, b, c);
+}
+
+function evenPermutation(a, b, c, d) {
+    even3(a, b, c, d);
+    even3(b,a,d,c);
+    even3(c,d,a,b);
+    even3(d,c,b,a);
+}
+
+function the600Cell() {
+    basicVertices.length = 0;
+    const phi = 1.618;
+    const iPhi = phi - 1;
+    truncationFactor = 0.33333;
+    northpole = [0, 1 / 3, 0, (1 + phi) / 3];
+    northpole = [0, 0,0,1];
+  //  basicCross();
+  //  basicCube(0.5);
+    evenPermutation(0, 0.5, iPhi / 2, phi / 2);
+  //  evenPermutation(0, 0.5, iPhi / 2, -phi / 2);
+  //  evenPermutation(0, 0.5, -iPhi / 2, phi / 2);
+  //  evenPermutation(0, 0.5, -iPhi / 2, -phi / 2);
+  //  evenPermutation(0, -0.5, iPhi / 2, phi / 2);
+  //  evenPermutation(0, -0.5, iPhi / 2, -phi / 2);
+  //  evenPermutation(0, -0.5, -iPhi / 2, phi / 2);
+   // evenPermutation(0, -0.5, -iPhi / 2, -phi / 2);
+   console.log(basicVertices);
+}
+
 main.geometry = symplex;
+main.geometry = the600Cell;
+main.polytope = regularPolytope;
 
 gui.add({
     type: 'selection',
@@ -192,37 +265,49 @@ gui.add({
     options: {
         symplex: symplex,
         cross: cross,
-        cube: cube
+        cube: cube,
+        '24 cell': the24Cell,
+        '600 cell':the600Cell
     },
     onChange: createDraw
 }).add({
     type: 'selection',
     params: main,
-    property: 'polyhedron',
+    property: 'polytope',
     options: {
         regular: regularPolytope,
         rectified: rectifiedPolytope,
         truncated: truncatedPolytope
     },
     onChange: createDraw
-}); *
-/
+});
 
 // square of distance between two points a and b (arrays of [x,y,z])
 function d2Between(a, b) {
+    const min2=0.617*0.617;
     const dx = a[0] - b[0];
     const dy = a[1] - b[1];
     const dz = a[2] - b[2];
     const dw = a[3] - b[3];
+    const d2=dx * dx + dy * dy + dz * dz + dw * dw;
+    if (d2<min2){
+        console.log(dx,dy,dz,dw,Math.sqrt(d2));
+        console.log(a[0],a[1],a[2],a[3]);
+        console.log(b[0],b[1],b[2],b[3]);
+    }
     return dx * dx + dy * dy + dz * dz + dw * dw;
 }
 
 // minimum sqaure distance between points in an array
 function minD2(points) {
     const length = points.length;
+    const min2=0.617*0.617;
     let result = 1e10;
     for (let i = 0; i < length - 1; i++) {
         for (let j = i + 1; j < length; j++) {
+            if (min2>d2Between(points[i], points[j])){
+            console.log(i,j,Math.sqrt(d2Between(points[i], points[j])));
+        }
             result = Math.min(result, d2Between(points[i], points[j]));
         }
     }
@@ -304,25 +389,37 @@ function stereographic(points) {
     }
 }
 
+function logbv(n){
+    const p=basicVertices[n];
+    console.log(n,'-',p[0],p[1],p[2],p[3]);
+}
+
 function regularPolytope() {
+    console.log('regular');
+     logbv(3);
+    logbv(8);
     const d2 = minD2(basicVertices);
-    polyhedronEdges = makeLines(d2, basicVertices);
+    console.log('bv')
+    logbv(3);
+    logbv(8);
+    polytopeVertices = basicVertices;
+    polytopeEdges = makeLines(d2, basicVertices);
 }
 
 function rectifiedPolytope() {
     let d2 = minD2(basicVertices);
     const regularEdges = makeLines(d2, basicVertices);
-    const rectifiedVertices = midpoints(regularEdges);
-    d2 = minD2(rectifiedVertices);
-    polyhedronEdges = makeLines(d2, rectifiedVertices);
+    polytopeVertices = midpoints(regularEdges);
+    d2 = minD2(polytopeVertices);
+    polytopeEdges = makeLines(d2, polytopeVertices);
 }
 
 function truncatedPolytope() {
     let d2 = minD2(basicVertices);
     const regularEdges = makeLines(d2, basicVertices);
-    const truncatedVertices = truncate(regularEdges);
-    d2 = minD2(truncatedVertices);
-    polyhedronEdges = makeLines(d2, truncatedVertices);
+    polytopeVertices = truncate(regularEdges);
+    d2 = minD2(polytopeVertices);
+    polytopeEdges = makeLines(d2, polytopeVertices);
 }
 
 // creation does not take much time, do all in one
@@ -373,13 +470,9 @@ function drawLines(lines) {
 function createDraw() {
     basicVertices.length = 0;
     main.geometry();
-
-
-    main.polyhedron();
-
-    stereographic(polyhedronEdges);
-
-    rotate(polyhedronEdges);
+    main.polytope();
+//   stereographic(polytopeVertices);
+ //   rotate(polytopeVertices);
 
     SVG.begin();
     SVG.attributes = {
@@ -391,11 +484,9 @@ function createDraw() {
         'stroke-linejoin': 'round'
     };
     SVG.createGroup(SVG.attributes);
-    drawLines(polyhedronEdges);
+    drawLines(polytopeEdges);
     SVG.terminate();
-
 }
-
 
 function prec(x) {
     return x.toPrecision(4);
@@ -403,18 +494,27 @@ function prec(x) {
 
 function makeSCAD() {
     SCADtext = 'lines=[';
-
-    const length = polyhedronEdges.length;
+    let length = polytopeEdges.length;
     for (let i = 0; i < length; i += 2) {
-        const a = polyhedronEdges[i];
-        const b = polyhedronEdges[i + 1];
+        const a = polytopeEdges[i];
+        const b = polytopeEdges[i + 1];
         SCADtext += '[' + prec(a[0]) + ',' + prec(a[1]) + ',' + prec(a[2]) + '],';
         SCADtext += '[' + prec(b[0]) + ',' + prec(b[1]) + ',' + prec(b[2]) + ']';
         if (i < length - 2) {
             SCADtext += ',\n';
         }
     }
-    SCADtext += '\n]';
+    SCADtext += '\n];\n';
+    SCADtext += 'points=[';
+    length = polytopeVertices.length;
+    for (let i = 0; i < length; i++) {
+        const a = polytopeVertices[i];
+        SCADtext += '[' + prec(a[0]) + ',' + prec(a[1]) + ',' + prec(a[2]) + ']';
+        if (i < length - 1) {
+            SCADtext += ',\n';
+        }
+    }
+    SCADtext += '\n];';
 }
 
 SVG.draw = createDraw;

@@ -92,6 +92,7 @@ gui.add({
 });
 
 var basicVertices = [];
+var polyhedronVertices=[];
 var polyhedronEdges = [];
 var truncationFactor;
 
@@ -262,23 +263,24 @@ function truncate(lines) {
 
 function regularPolyhedron() {
     const d2 = minD2(basicVertices);
+    polyhedronVertices=basicVertices;
     polyhedronEdges = makeLines(d2, basicVertices);
 }
 
 function rectifiedPolyhedron() {
     let d2 = minD2(basicVertices);
     const regularEdges = makeLines(d2, basicVertices);
-    const rectifiedVertices = midpoints(regularEdges);
-    d2 = minD2(rectifiedVertices);
-    polyhedronEdges = makeLines(d2, rectifiedVertices);
+    polyhedronVertices = midpoints(regularEdges);
+    d2 = minD2(polyhedronVertices);
+    polyhedronEdges = makeLines(d2, polyhedronVertices);
 }
 
 function truncatedPolyhedron() {
     let d2 = minD2(basicVertices);
     const regularEdges = makeLines(d2, basicVertices);
-    const truncatedVertices = truncate(regularEdges);
-    d2 = minD2(truncatedVertices);
-    polyhedronEdges = makeLines(d2, truncatedVertices);
+    polyhedronVertices = truncate(regularEdges);
+    d2 = minD2(polyhedronVertices);
+    polyhedronEdges = makeLines(d2, polyhedronVertices);
 }
 
 // creation does not take much time, do all in one
@@ -329,11 +331,7 @@ function createDraw() {
     basicVertices.length = 0;
     main.geometry();
     main.polyhedron();
-
-    console.log(polyhedronEdges);
-    console.log(midpoints(polyhedronEdges));
-
-    rotate(polyhedronEdges);
+    rotate(polyhedronVertices);
 
     SVG.begin();
     SVG.attributes = {
@@ -356,8 +354,7 @@ function prec(x) {
 
 function makeSCAD() {
     SCADtext = 'lines=[';
-
-    const length = polyhedronEdges.length;
+    let length = polyhedronEdges.length;
     for (let i = 0; i < length; i += 2) {
         const a = polyhedronEdges[i];
         const b = polyhedronEdges[i + 1];
@@ -367,7 +364,17 @@ function makeSCAD() {
             SCADtext += ',\n';
         }
     }
-    SCADtext += '\n]';
+    SCADtext += '\n];\n';
+    SCADtext += 'points=[';
+     length = polyhedronVertices.length;
+    for (let i = 0; i < length; i++) {
+        const a = polyhedronVertices[i];
+        SCADtext += '[' + prec(a[0]) + ',' + prec(a[1]) + ',' + prec(a[2]) + ']';
+        if (i < length - 1) {
+            SCADtext += ',\n';
+        }
+    }
+    SCADtext += '\n];';
 }
 
 SVG.draw = createDraw;

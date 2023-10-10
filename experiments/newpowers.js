@@ -40,7 +40,6 @@ powers.setup = function() {
         type: 'number',
         params: powers,
         property: 'cutoff',
-        step: 1,
         onChange: julia.drawNewStructure
     });
 };
