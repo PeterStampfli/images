@@ -47,7 +47,6 @@ function setup() {
     juliaMap.setup(gui);
     kaleidoscope.setup(gui);
     rosette.setup(gui);
-    circularDrift.setup(gui);
     roots.setup(gui);
     map.setupDrawing(gui);
 

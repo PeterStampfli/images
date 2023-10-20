@@ -61,7 +61,7 @@ powers.map = function() {
         for (let i = 0; i < iters; i++) {
             const r2=x * x + y * y;
             if (r2>cutoff2){
-             //   break;
+                break;
             }
             const phi = Math.atan2(y, x);
             const lnr = 0.5 * Math.log(r2);

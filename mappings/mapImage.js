@@ -4,6 +4,7 @@ import {
     output,
     Pixels,
     CoordinateTransform,
+    keyboard,
     MouseEvents
 } from "../libgui/modules.js";
 
@@ -193,9 +194,10 @@ map.loadInputImage = function() {
     image.src = map.inputImage;
 };
 
-
 map.setupDrawing = function(gui) {
     map.draw = map.callDrawStructure;
+    map.phaseMultiplier = 2;
+    map.phaseMinB = 0.7;
     gui.addParagraph('<strong>image</strong>');
     map.whatToShowController = gui.add({
         type: 'selection',
@@ -213,6 +215,25 @@ map.setupDrawing = function(gui) {
             julia.drawNewImage();
         }
     });
+
+    map.phaseControllers = gui.add({
+        type: 'number',
+        params: map,
+        property: 'phaseMultiplier',
+        labelText: 'phase mult',
+        onChange: function() {
+            julia.drawNewImage();
+        }
+    }).add({
+        type: 'number',
+        params: map,
+        property: 'phaseMinB',
+        labelText: 'min bright',
+        onChange: function() {
+            julia.drawNewImage();
+        }
+    });
+
     // a hidden canvas for the input image
     map.inputCanvas = document.createElement('canvas'); // has default width and height
     map.inputCanvas.style.display = 'none';
@@ -401,6 +422,7 @@ map.allImageControllersHide = function() {
     map.controlDiv.style.display = 'none';
     map.inputTransform.hide();
     map.imageController.hide();
+    map.phaseControllers.hide();
 };
 
 // show the input image controllers
@@ -422,10 +444,10 @@ map.callDrawAmplitude = function() {
     map.allImageControllersHide();
     map.drawAmplitude();
 };
-
 map.callDrawPhase = function() {
     map.drawingInputImage = false;
     map.allImageControllersHide();
+    map.phaseControllers.show();
     map.drawPhase();
 };
 map.callDrawImageLowQuality = function() {
@@ -907,13 +929,14 @@ function setRGBFromHBS(color, hue, brightness, saturation) {
 }
 
 map.drawPhase = function() {
-    const minBrightness = 0.7;
+    const minBrightness = map.phaseMinB;
+    const multiplier = map.phaseMultiplier;
     const extraBrightness = 1 - minBrightness;
     if (map.inputImageLoaded) {
         map.controlPixels.setAlpha(map.controlPixelsAlpha);
         map.controlPixels.show();
     }
-    const iPi2 = 0.5 / Math.PI;
+    const iPi2 = multiplier * 0.5 / Math.PI;
     const limit2 = map.limit * map.limit;
     const xArray = map.xArray;
     const yArray = map.yArray;

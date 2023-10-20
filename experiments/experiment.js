@@ -53,8 +53,9 @@ function setup() {
     base.maps.push(
         //   bulatovRing,
                    powers,
-               //   mandelbrot,
-                 //  bulatovRing,
+                 // mandelbrot,
+                //  insideOutside,
+                   bulatovRing,
        //dihedral,
       // scale,
         kaleidoscope,

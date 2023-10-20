@@ -22,6 +22,8 @@ amplitude.radius = 1;
 amplitude.angle = 0;
 roots.zPower = 1;
 roots.order = 5;
+roots.rMin = 0.9;
+roots.rMax=1.1;
 // root position and switch
 // angle related to 2PI/order, angle of the cyclic group
 roots.nom1Radius = 1;
@@ -81,7 +83,21 @@ roots.setup = function(gui) {
         property: 'angle',
         onChange: julia.drawNewStructure
     });
-    
+
+    gui.add({
+        type: 'number',
+        params: roots,
+        property: 'rMin',
+        labelText: 'roots radius min',
+        onChange: julia.drawNewStructure
+    }).add({
+        type: 'number',
+        params: roots,
+        property: 'rMax',
+        labelText: 'max',
+        onChange: julia.drawNewStructure
+    });
+
     gui.addParagraph('nominator');
     nom1RadiusController = gui.add({
         type: 'number',
@@ -230,16 +246,20 @@ roots.setup = function(gui) {
     map.mapping = roots.mapping;
 };
 
+function randomRadius(){
+    return Math.random() * (roots.rMax - roots.rMin) + roots.rMin;
+}
+
 function randomize() {
-    nom1RadiusController.setValueOnly(Math.random());
-    nom2RadiusController.setValueOnly(Math.random());
-    nom3RadiusController.setValueOnly(Math.random());
+    nom1RadiusController.setValueOnly(randomRadius());
+    nom2RadiusController.setValueOnly(randomRadius());
+    nom3RadiusController.setValueOnly(randomRadius());
     nom1AngleController.setValueOnly(Math.random());
     nom2AngleController.setValueOnly(Math.random());
     nom3AngleController.setValueOnly(Math.random());
-    denom1RadiusController.setValueOnly(Math.random());
-    denom2RadiusController.setValueOnly(Math.random());
-    denom3RadiusController.setValueOnly(Math.random());
+    denom1RadiusController.setValueOnly(randomRadius());
+    denom2RadiusController.setValueOnly(randomRadius());
+    denom3RadiusController.setValueOnly(randomRadius());
     denom1AngleController.setValueOnly(Math.random());
     denom2AngleController.setValueOnly(Math.random());
     denom3AngleController.setValueOnly(Math.random());
@@ -247,35 +267,35 @@ function randomize() {
 }
 
 function pairs() {
-    let r = Math.random();
+    let r = randomRadius();
     nom1RadiusController.setValueOnly(r);
     nom2RadiusController.setValueOnly(r);
-    nom3RadiusController.setValueOnly(Math.random());
-    r = Math.random();
-    nom1AngleController.setValueOnly(r);
-    nom2AngleController.setValueOnly(-r);
-    nom3AngleController.setValueOnly(Math.random());
-    r = Math.random();
+    nom3RadiusController.setValueOnly(randomRadius());
+    let angle = Math.random();
+    nom1AngleController.setValueOnly(angle);
+    nom2AngleController.setValueOnly(-angle);
+    nom3AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
+    r = randomRadius();
     denom1RadiusController.setValueOnly(r);
     denom2RadiusController.setValueOnly(r);
-    denom3RadiusController.setValueOnly(Math.random());
-    r = Math.random();
-    denom1AngleController.setValueOnly(r);
-    denom2AngleController.setValueOnly(-r);
-    denom3AngleController.setValueOnly(Math.random());
+    denom3RadiusController.setValueOnly(randomRadius());
+    angle = Math.random();
+    denom1AngleController.setValueOnly(angle);
+    denom2AngleController.setValueOnly(-angle);
+    denom3AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
     julia.drawNewStructure();
 }
 
 function line() {
-    nom1RadiusController.setValueOnly(Math.random());
-    nom2RadiusController.setValueOnly(Math.random());
-    nom3RadiusController.setValueOnly(Math.random());
+    nom1RadiusController.setValueOnly(randomRadius());
+    nom2RadiusController.setValueOnly(randomRadius());
+    nom3RadiusController.setValueOnly(randomRadius());
     nom1AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
     nom2AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
     nom3AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
-    denom1RadiusController.setValueOnly(Math.random());
-    denom2RadiusController.setValueOnly(Math.random());
-    denom3RadiusController.setValueOnly(Math.random());
+    denom1RadiusController.setValueOnly(randomRadius());
+    denom2RadiusController.setValueOnly(randomRadius());
+    denom3RadiusController.setValueOnly(randomRadius());
     denom1AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
     denom2AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
     denom3AngleController.setValueOnly(0.5 * Math.floor(2 * Math.random()));
@@ -344,5 +364,11 @@ roots.mapping = function() {
         denReal.push(radius * Math.cos(angle));
         denImag.push(radius * Math.sin(angle));
     }
+    console.log("-------------nominator real/imag");
+    console.log(nomReal);
+    console.log(nomImag);
+    console.log("denom real/imag");
+    console.log(denReal);
+    console.log(denImag);
     map.universalRational(roots.zPower, roots.order, amplitudeReal, amplitudeImag, nomReal, nomImag, denReal, denImag);
 };

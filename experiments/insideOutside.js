@@ -45,6 +45,7 @@ insideOutside.map = function() {
     const yArray = map.yArray;
     const driftXArray = map.driftXArray;
     const structureArray = map.structureArray;
+    const nPixels=xArray.length;
     for (var index = 0; index < nPixels; index++) {
         const x = xArray[index];
         const y = yArray[index];

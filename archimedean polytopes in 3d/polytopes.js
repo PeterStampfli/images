@@ -131,9 +131,7 @@ function basicVertex(x, y, z, w) {
     let factor = 1 / Math.sqrt(x * x + y * y + z * z + w * w);
     factor=1;
     const vertex = [factor * x, factor * y, factor * z, factor * w];
-    console.log(basicVertices.length,factor,x,y,z,w);
         basicVertices.push(vertex);
-
 }
 
 function symplex() {
@@ -239,19 +237,17 @@ function the600Cell() {
     const phi = 1.618;
     const iPhi = phi - 1;
     truncationFactor = 0.33333;
-    northpole = [0, 1 / 3, 0, (1 + phi) / 3];
-    northpole = [0, 0,0,1];
-  //  basicCross();
-  //  basicCube(0.5);
+    northpole = [0, 0, phi/3, 2/3];
+    basicCross();
+    basicCube(0.5);
     evenPermutation(0, 0.5, iPhi / 2, phi / 2);
-  //  evenPermutation(0, 0.5, iPhi / 2, -phi / 2);
-  //  evenPermutation(0, 0.5, -iPhi / 2, phi / 2);
-  //  evenPermutation(0, 0.5, -iPhi / 2, -phi / 2);
-  //  evenPermutation(0, -0.5, iPhi / 2, phi / 2);
-  //  evenPermutation(0, -0.5, iPhi / 2, -phi / 2);
-  //  evenPermutation(0, -0.5, -iPhi / 2, phi / 2);
-   // evenPermutation(0, -0.5, -iPhi / 2, -phi / 2);
-   console.log(basicVertices);
+    evenPermutation(0, 0.5, iPhi / 2, -phi / 2);
+    evenPermutation(0, 0.5, -iPhi / 2, phi / 2);
+    evenPermutation(0, 0.5, -iPhi / 2, -phi / 2);
+  evenPermutation(0, -0.5, iPhi / 2, phi / 2);
+    evenPermutation(0, -0.5, iPhi / 2, -phi / 2);
+    evenPermutation(0, -0.5, -iPhi / 2, phi / 2);
+    evenPermutation(0, -0.5, -iPhi / 2, -phi / 2);
 }
 
 main.geometry = symplex;
@@ -290,11 +286,6 @@ function d2Between(a, b) {
     const dz = a[2] - b[2];
     const dw = a[3] - b[3];
     const d2=dx * dx + dy * dy + dz * dz + dw * dw;
-    if (d2<min2){
-        console.log(dx,dy,dz,dw,Math.sqrt(d2));
-        console.log(a[0],a[1],a[2],a[3]);
-        console.log(b[0],b[1],b[2],b[3]);
-    }
     return dx * dx + dy * dy + dz * dz + dw * dw;
 }
 
@@ -305,9 +296,6 @@ function minD2(points) {
     let result = 1e10;
     for (let i = 0; i < length - 1; i++) {
         for (let j = i + 1; j < length; j++) {
-            if (min2>d2Between(points[i], points[j])){
-            console.log(i,j,Math.sqrt(d2Between(points[i], points[j])));
-        }
             result = Math.min(result, d2Between(points[i], points[j]));
         }
     }
@@ -395,13 +383,7 @@ function logbv(n){
 }
 
 function regularPolytope() {
-    console.log('regular');
-     logbv(3);
-    logbv(8);
     const d2 = minD2(basicVertices);
-    console.log('bv')
-    logbv(3);
-    logbv(8);
     polytopeVertices = basicVertices;
     polytopeEdges = makeLines(d2, basicVertices);
 }
@@ -471,9 +453,8 @@ function createDraw() {
     basicVertices.length = 0;
     main.geometry();
     main.polytope();
-//   stereographic(polytopeVertices);
- //   rotate(polytopeVertices);
-
+   stereographic(polytopeVertices);
+    rotate(polytopeVertices);
     SVG.begin();
     SVG.attributes = {
         transform: 'scale(1 -1)',
