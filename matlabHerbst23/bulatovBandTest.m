@@ -8,7 +8,7 @@
 % >>compile;
 % >>  map = testBasicKaleidoscope(5,4,2);
 
-function basicKaleidoscopeTest()
+function bulatovBandTest()
 % test of the basic kaleidoscope and bulatov band projection
 % depending on symmetry paraameters k, n and m
 % interpolation a in [0,1]
@@ -16,17 +16,26 @@ function basicKaleidoscopeTest()
 
 s = 1000;
 mPix=s*s/1e6;
-r=1;
-map=identityMap(mPix,-r,r,-r,r);
+h=1;
+w=3;
+map=identityMap(mPix,-w,w,-h,h);
+
+k=7;
+m=3;
+
+period=getBulatovPeriod(k,m,2);
+
+basicBulatovBand(map,period);
 
 %params map,k,m,n
-cayleyTransform(map);
-outMap = basicKaleidoscope(map,5,4,2);
-im=createStructureImage(outMap);
+outMap = basicKaleidoscope(map,k,m,2);
+xDrift(outMap,0.2);
 
-%inputImage = imread("tier.jpg");
+%im=createStructureImage(outMap);
 
-%im = createOutputImage(outMap,inputImage);
+inputImage = imread("tier.jpg");
+
+im = createOutputImage(outMap,inputImage);
 
 imshow(im);
 end

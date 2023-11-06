@@ -940,18 +940,24 @@ map.drawPhase = function() {
     const limit2 = map.limit * map.limit;
     const xArray = map.xArray;
     const yArray = map.yArray;
+    const structureArray = map.structureArray;
     const pixelsArray = output.pixels.array;
     const color = {};
     color.alpha = 255;
     const length = xArray.length;
     for (var index = 0; index < length; index++) {
-        const x = xArray[index];
-        const y = yArray[index];
-        const r2 = x * x + y * y;
-        const brightness = minBrightness + r2 / limit2 * extraBrightness;
-        const hue = iPi2 * Math.atan2(y, x);
-        setRGBFromHBS(color, hue, brightness, 1);
-        pixelsArray[index] = Pixels.integerOfColor(color);
+        if (structureArray[index] < 128) {
+            const x = xArray[index];
+            const y = yArray[index];
+            const r2 = x * x + y * y;
+            const brightness = minBrightness + r2 / limit2 * extraBrightness;
+            const hue = iPi2 * Math.atan2(y, x);
+            setRGBFromHBS(color, hue, brightness, 1);
+            pixelsArray[index] = Pixels.integerOfColor(color);
+        } else {
+            // transparent black
+            pixelsArray[index] = 0;
+        }
     }
     output.pixels.show();
 };

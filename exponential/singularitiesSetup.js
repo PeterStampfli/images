@@ -6,66 +6,48 @@ import {
 } from "../libgui/modules.js";
 
 import {
-    julia,
-    map,
-    xTranslation,
-    yTranslation,
-    circularDrift,
-    xDrift,
-    kaleidoscope,
-    rosette,
-    cartioid,
-    bulatov,
-    bulatovRing,
-    square,
-    generalBulatov,
-    cayley,
-    spirals,
-    flipXY,
-    polygon,
-    dihedral,
-    powers,
-    scale,
-    inversion,
-    insideOutside,
-    mandelbrot,
-    specialStar
-} from "./modules.js";
+    singularities
+} from "./singularities.js";
 
-export const base = {};
-base.maps = [];
+import {
+    rosette
+} from "../mappings/rosette.js";
+
+import {
+    map,
+    julia
+} from "../mappings/mapImage.js";
+
+import {
+    juliaMap
+} from "./juliaMap.js";
+
+import {
+    kaleidoscope
+} from "../mappings/kaleidoscope.js";
+
+import {
+    circularDrift
+} from "../mappings/circularDrift.js";
 
 function setup() {
-    base.maps.length = 0;
     // base gui
     const gui = new ParamGui({
-        name: 'experimental',
+        name: 'exponential',
         closed: false
     });
-    base.gui = gui;
 
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
     output.setInitialCoordinates(0, 0, 2);
     output.createPixels();
-    // her come the tools/modules
-    //=======================================================
-    
-    base.maps.push(
-        //   bulatovRing,
-            //       powers,
-                 // mandelbrot,
-                //  insideOutside,
-                specialStar,
-               //    bulatovRing,
-       //dihedral,
-      // scale,
-        kaleidoscope,
-        rosette);
-    //====================================================
-
-
-    base.maps.forEach(map => map.setup());
+    output.grid.interval = 0.1;
+    output.addGrid();
+    output.addCursorposition();
+    juliaMap.setup(gui);
+    kaleidoscope.setup(gui);
+    rosette.setup(gui);
+    singularities.setup(gui);
     map.setupDrawing(gui);
 
     // changing the grid
@@ -89,10 +71,10 @@ julia.drawNewImage = function() {
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    for (let i = 0; i < base.maps.length; i++) {
-        base.maps[i].map();
-    }
-    map.addDriftMap();
+    map.iteration();
+    kaleidoscope.type();
+    rosette.type();
+    circularDrift.make();
     map.draw();
     output.drawGrid();
 };

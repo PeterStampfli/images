@@ -1,20 +1,16 @@
 /*==========================================================
- * generalized Bulatov band transform
+ * using real numbers for components to transform a map
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * optional interpolation a in [0,1] (double), default 1
- *0 gives  Poincare disc, 1 gives Bulatov band
- *
- * modifies the map, returns nothing if used as a procedure
- * transform(map, ...);
- * does not change the map and returns a modified map if used as  a function
- * newMap = transform(map, ....);
- *
+ * bulatov band, depending on its period
+ * basicBulatovBand(map,period)
  *========================================================*/
 
 #include "mex.h"
 #include <math.h>
+#include <complex.h>
+#include <tgmath.h>
 #include <stdbool.h>
 #define PI 3.14159f
 #define PRINTI(n) printf(#n " = %d\n", n)
@@ -24,34 +20,40 @@
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
 {
-    const mwSize *dims;
+    const mwSize *dims, *aDims;
+    int i, nParams;
     int nX, nY, nXnY, nXnY2, index;
-    float inverted, x, y;
-    float *inMap, *outMap, a, piA2, iTanPiA4, exp2x, base;
+    float inverted;
+    float x, y;
+    float period, piA2, iTanPiA4, exp2x, base;
+    float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs == 0) {
-        mexErrMsgIdAndTxt("bulatovBandMap:nrhs","A map input required.");
+    if(nrhs < 2) {
+        mexErrMsgIdAndTxt("transformMap:nrhs","A map input and period required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
-        mexErrMsgIdAndTxt("bulatovBandMap:mapDims","The map has to have three dimensions.");
+        mexErrMsgIdAndTxt("transformMap:mapDims","The map has to have three dimensions.");
     }
     dims = mxGetDimensions(prhs[0]);
     if(dims[2] != 3) {
-        mexErrMsgIdAndTxt("bulatovBandMap:map3rdDimension","The map's third dimension has to be three.");
+        mexErrMsgIdAndTxt("transformMap:map3rdDimension","The map's third dimension has to be three.");
     }
     /* check that no or one output is expected*/
     if (nlhs > 1) {
-        mexErrMsgIdAndTxt("bulatovBandMap:nlhs","Has zero or one return parameter.");
+        mexErrMsgIdAndTxt("transformMap:nlhs","Has zero or one return parameter.");
     }
     /* get the map*/
 #if MX_HAS_INTERLEAVED_COMPLEX
     inMap = mxGetSingles(prhs[0]);
 #else
     inMap = (float *) mxGetPr(prhs[0]);
-#endif
+#endif   
+    /* get period */
+    period = (float) mxGetScalar(prhs[1]);
+   /* left hand side */
     if (nlhs == 0){
         outMap = inMap;
     } else {
@@ -64,13 +66,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    if (nrhs >= 2){
-        a = fmaxf(0.001, (float) mxGetScalar(prhs[1]));
-    } else {
-        a = 1.0f;
-    }
-    piA2 = PI * a / 2;
-    iTanPiA4 = 1.0f / tanf(PI * a / 4);
+    piA2 = PI / 2;
+    iTanPiA4 = 1.0f / tanf(PI / 4);
     /* do the map*/
     /* row first order*/
     nX = dims[1];
@@ -85,12 +82,19 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 /* set element only if new output map*/
                 outMap[index] = INVALID;
                 outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID; 
+                outMap[index + nXnY2] = INVALID;  
             }
             continue;
         }
+        y = inMap[index + nXnY];
+        if (fabsf(y) > 1){
+            outMap[index] = INVALID;
+            outMap[index + nXnY] = INVALID;
+            outMap[index + nXnY2] = INVALID;
+            continue;  
+        }
         x = piA2 * inMap[index];
-        y = piA2 * inMap[index + nXnY];
+        y *= piA2;
         exp2x = expf(x);
         base = iTanPiA4 / (exp2x + 1.0f / exp2x + 2 * cosf(y));
         outMap[index] = (exp2x - 1.0f / exp2x) * base;

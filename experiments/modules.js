@@ -115,3 +115,8 @@ from "./mapImage.js";
     mandelbrot
  }
  from "./mandelbrot.js";
+
+ export{
+    specialStar
+ }
+ from "./specialStar.js";
