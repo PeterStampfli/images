@@ -33,7 +33,7 @@ bulatovRing.map = function() {
     if (!bulatovRing.on){
         return;
     }
-    const period = bulatov.getPeriod();
+    const period = bulatov.getPeriod(kaleidoscope.k,kaleidoscope.m);
     if (period < 0) {
         return;
     }

@@ -29,7 +29,11 @@ import {
     inversion,
     insideOutside,
     mandelbrot,
-    specialStar
+    specialStar,
+    rotation,
+    normalViewEquator,
+    normalViewPolar,
+    inverseMercator
 } from "./modules.js";
 
 export const base = {};
@@ -46,20 +50,29 @@ function setup() {
 
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
+    output.addCursorposition();
     output.setInitialCoordinates(0, 0, 2);
     output.createPixels();
     // her come the tools/modules
     //=======================================================
-    
+
     base.maps.push(
         //   bulatovRing,
-            //       powers,
-                 // mandelbrot,
-                //  insideOutside,
-                specialStar,
-               //    bulatovRing,
-       //dihedral,
-      // scale,
+        //       powers,
+        // mandelbrot,
+        //  insideOutside,
+        //  specialStar,
+        //    bulatovRing,
+        //dihedral,
+        // scale
+      //  normalViewEquator,
+       // rotation,
+      //  spirals,
+      normalViewPolar,
+      rotation,
+    //  xTranslation,
+      spirals,
+   //   xDrift,
         kaleidoscope,
         rosette);
     //====================================================

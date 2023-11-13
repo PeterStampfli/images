@@ -120,3 +120,23 @@ from "./mapImage.js";
     specialStar
  }
  from "./specialStar.js";
+
+ export{
+    rotation
+ }
+ from "./rotation.js";
+ 
+ export{
+    normalViewEquator
+ }
+ from "./normalViewEquator.js";
+
+ export{
+    normalViewPolar
+ }
+ from "./normalViewPolar.js";
+
+ export{
+    inverseMercator
+ }
+ from "./inverseMercator.js";

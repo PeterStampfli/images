@@ -28,6 +28,27 @@ else
     % intersection of circle with oblique line
     angle = pi * (0.5 - 1 / k - 1 / m);
     a = sqrt(center*center+radius*radius-2*center*radius*cos(angle));
-    period = 8 / pi * (atanh(center-radius) + atanh(a));
+    % a is the distance from origin to the intersection
+    if (mod(m,2) == 0) 
+        period = 8 / pi * (atanh(center-radius) + atanh(a));
+    else 
+        if (m > 3)
+            error("getBulatovPeriod: k and m are odd, and m > 3, not implemented");
+        end
+        % both are odd, map the rotated intersection point
+        px = a * cos(3 * gamma);
+        py = a * sin(3 * gamma);
+        % invert at circle
+        px = px - center;
+        factor = radius * radius / (px * px + py * py);
+        px = center + factor * px;
+        py = factor * py;
+        % distance to origin gives period limit at left
+        pLeft = sqrt(px * px + py * py);
+        % at the right, invert (a,0) to (pRight,0)
+        pRight = center - radius * radius / (a + center);
+        % map and put together
+        period = 4 / pi * (atanh(pLeft) + atanh(pRight));
+    end
 end
 end

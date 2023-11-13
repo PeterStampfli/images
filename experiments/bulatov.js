@@ -34,9 +34,7 @@ bulatov.setup = function() {
 //  and the third side of the triangle (circle or straight line), angle pi/n
 //  n is order of dihedral symmetry arising at x-axis, the geometry has to be hyperbolic
 
-bulatov.getPeriod = function() {
-    const k = kaleidoscope.k;
-    const m = kaleidoscope.m;
+bulatov.getPeriod = function(k, m) {
     const n = 2;
     const gamma = Math.PI / k;
     const alpha = Math.PI / n;
@@ -51,13 +49,36 @@ bulatov.getPeriod = function() {
     // renormalize to poincare radius 1 (devide by poincare radius)
     const radius = 1 / Math.sqrt(center * center - 1);
     center = radius * center;
+    // radius and center define the inverting circle
     if ((k % 2) === 0) {
-        return 8 / Math.PI * Math.atanh(center - radius);
+            return 8 / Math.PI * Math.atanh(center - radius);
     } else {
         // intersection of circle with oblique line
-        const angle = Math.PI * (0.5 - 1 / k - 1 / m);
+        let angle = Math.PI * (0.5 - 1 / k - 1 / m);
         const a = Math.sqrt(center * center + radius * radius - 2 * center * radius * Math.cos(angle));
-        return 8 / Math.PI * (Math.atanh(center - radius) + Math.atanh(a));
+        // a is the distance from origin to the intersection
+        if ((m % 2) === 0) {
+            return 8 / Math.PI * (Math.atanh(center - radius) + Math.atanh(a));
+        } else {
+            if (m>3){
+                console.error("getBulatovPeriod: k and m are odd, and m > 3, not implemented");
+                return -1;
+            }
+            // both are odd, map the rotated intersection point
+            let px = a * Math.cos(3 * gamma);
+            let py = a * Math.sin(3 * gamma);
+            // invert at circle
+            px = px - center;
+            const factor = radius * radius / (px * px + py * py);
+            px = center + factor * px;
+            py = factor * py;
+            // distance to origin gives period limit at left
+            const pLeft = Math.hypot(px, py);
+            // at the right, invert (a,0) to (pRight,0)
+            const pRight = center - radius * radius / (a + center);
+            // map and put together
+            return 4 / Math.PI * (Math.atanh(pLeft) + Math.atanh(pRight));
+        }
     }
 };
 
@@ -66,7 +87,7 @@ bulatov.map = function() {
     if (!bulatov.on) {
         return;
     }
-    const period = bulatov.getPeriod();
+    const period = bulatov.getPeriod(kaleidoscope.k, kaleidoscope.m);
     if (period < 0) {
         return;
     }

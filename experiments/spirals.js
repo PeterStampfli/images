@@ -55,7 +55,7 @@ spirals.setup = function() {
 
 spirals.map = function() {
      map.makeDriftArrays();
-   const period=bulatov.getPeriod();
+         const period = bulatov.getPeriod(kaleidoscope.k,kaleidoscope.m);
     if (period < 0) {
         return;
     }

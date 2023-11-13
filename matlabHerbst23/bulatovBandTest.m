@@ -17,7 +17,7 @@ function bulatovBandTest()
 s = 1000;
 mPix=s*s/1e6;
 h=1;
-w=3;
+w=30;
 map=identityMap(mPix,-w,w,-h,h);
 
 k=7;
@@ -29,7 +29,7 @@ basicBulatovBand(map,period);
 
 %params map,k,m,n
 outMap = basicKaleidoscope(map,k,m,2);
-xDrift(outMap,0.2);
+%xDrift(outMap,0.2);
 
 %im=createStructureImage(outMap);
 

@@ -3,8 +3,8 @@
  * Input: the map has for each pixel (h,k):
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
- * bulatov band, depending on its period
- * basicBulatovBand(map,period)
+ * bulatov ring, depending on its period and number of repetitions in one turn
+ * bulatovRing(map,period,repeats)
  *========================================================*/
 
 #include "mex.h"
@@ -25,13 +25,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float x, y;
-    float period, nPeriods, piA2, iTanPiA4, exp2x, base;
+    float period, nRepeats, angFactor, piA2, iTanPiA4, exp2x, base;
     float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs < 2) {
-        mexErrMsgIdAndTxt("transformMap:nrhs","A map input and period required.");
+    if(nrhs < 3) {
+        mexErrMsgIdAndTxt("transformMap:nrhs","A map input, period and number of repeats required.");
     }
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
@@ -53,6 +53,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #endif   
     /* get period */
     period = (float) mxGetScalar(prhs[1]);
+    nRepeats = (float) mxGetScalar(prhs[2]);
    /* left hand side */
     if (nlhs == 0){
         outMap = inMap;
@@ -66,6 +67,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
+    angFactor = nRepeats / 2 / PI * period;
     piA2 = PI / 2;
     iTanPiA4 = 1.0f / tanf(PI / 4);
     /* do the map*/
@@ -86,16 +88,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
             }
             continue;
         }
-        y = inMap[index + nXnY];
-        if (fabsf(y) > 1){
-            outMap[index] = INVALID;
-            outMap[index + nXnY] = INVALID;
-            outMap[index + nXnY2] = INVALID;
-            continue;  
-        }
         x = inMap[index];
-        nPeriods = floorf(x / period);
-        x = piA2 * (x - period * nPeriods);
+        y = inMap[index + nXnY];
+        //ring to band
+        
+
+
+        x = piA2 * inMap[index];
         y *= piA2;
         exp2x = expf(x);
         base = iTanPiA4 / (exp2x + 1.0f / exp2x + 2 * cosf(y));
