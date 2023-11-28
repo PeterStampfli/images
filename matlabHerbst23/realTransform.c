@@ -23,7 +23,7 @@
 #include <stdbool.h>
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
-#define INVALID -1000
+#define INVALID -1
 
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])

@@ -14,7 +14,7 @@
  *     It has for each pixel (h,k):
  *     map(h,k,0) = x, map(h,k,1) = y 
  *     map(h,k,2) = 0, 1 for image pixels, parity, number of inversions % 2
- *     map(h,k,2) < 0 for invalid pixels, not part of the image
+ *     map(h,k,2) < 0 for invalid pixels, not part of the image, 0 and 1 for parity of number of reflections
  *
  * additional input: 3 integers, k, m, n. 
  *     Determine the symmetries and the basic triangle.
@@ -50,7 +50,7 @@
 #include <math.h>
 #include <stdbool.h>
 #define PI 3.14159f
-#define INVALID -10000
+#define INVALID -1
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
 
@@ -168,7 +168,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
                     /* set element only if new output map*/
                     outMap[index] = INVALID;
                     outMap[index + nXnY] = INVALID;
-                    outMap[index + nXnY2] = INVALID;           }
+                    outMap[index + nXnY2] = INVALID;           
+                }
                 continue;
             }
             x = inMap[index];

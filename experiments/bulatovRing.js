@@ -52,7 +52,7 @@ bulatovRing.map = function() {
         let y = yArray[index];
         //ring to band
         const h = angFactor * Math.atan2(y, x);
-        y = angFactor * Math.log(Math.hypot(x, y)) + 1;
+        y = angFactor * 0.5* Math.log(x*x+y*y) + 1;
         x = h;
         // bulatovband
         if ((y > -1) && (y < 1)) {

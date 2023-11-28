@@ -33,7 +33,8 @@ import {
     rotation,
     normalViewEquator,
     normalViewPolar,
-    inverseMercator
+    inverseMercator,
+    fractalsFamily
 } from "./modules.js";
 
 export const base = {};
@@ -58,21 +59,23 @@ function setup() {
 
     base.maps.push(
         //   bulatovRing,
-        //       powers,
+        //    powers,
         // mandelbrot,
         //  insideOutside,
         //  specialStar,
         //    bulatovRing,
         //dihedral,
         // scale
-      //  normalViewEquator,
-       // rotation,
-      //  spirals,
-      normalViewPolar,
-      rotation,
-    //  xTranslation,
-      spirals,
-   //   xDrift,
+        //  normalViewEquator,
+        // rotation,
+        //  spirals,
+        // normalViewPolar,
+        // rotation,
+        //  xTranslation,
+        // spirals,
+        //   xDrift,
+        fractalsFamily,
+       // bulatovRing,
         kaleidoscope,
         rosette);
     //====================================================

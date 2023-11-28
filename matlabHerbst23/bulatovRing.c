@@ -15,7 +15,7 @@
 #define PI 3.14159f
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
-#define INVALID -1000
+#define INVALID -1
 
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
@@ -25,7 +25,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int nX, nY, nXnY, nXnY2, index;
     float inverted;
     float x, y;
-    float period, nRepeats, angFactor, piA2, iTanPiA4, exp2x, base;
+    float period, nRepeats, angFactor, h, piA2, iTanPiA4, exp2x, base;
+    float nPeriods;
     float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
@@ -91,15 +92,24 @@ void mexFunction( int nlhs, mxArray *plhs[],
         x = inMap[index];
         y = inMap[index + nXnY];
         //ring to band
-        
+        h = angFactor * atan2f(y, x);
+        y = angFactor * 0.5 * logf(x * x + y * y) + 1;
+        x = h;
+ // bulatovband
+        if ((y > -1) && (y < 1)) {
 
-
-        x = piA2 * inMap[index];
+        nPeriods = floorf(x / period);
+        x = piA2 * (x - period * nPeriods);
         y *= piA2;
         exp2x = expf(x);
         base = iTanPiA4 / (exp2x + 1.0f / exp2x + 2 * cosf(y));
         outMap[index] = (exp2x - 1.0f / exp2x) * base;
         outMap[index + nXnY] = 2 * sinf(y) * base;
         outMap[index + nXnY2] = inverted;
+        } else {
+            outMap[index] = INVALID;
+            outMap[index + nXnY] = INVALID;
+            outMap[index + nXnY2] = INVALID;  
+        }    
     }
 }

@@ -140,3 +140,8 @@ from "./mapImage.js";
     inverseMercator
  }
  from "./inverseMercator.js";
+
+ export{
+    fractalsFamily
+ }
+ from "./fractalsFamily.js";

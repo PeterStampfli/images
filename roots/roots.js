@@ -58,7 +58,6 @@ roots.setup = function(gui) {
         params: roots,
         property: 'order',
         step: 1,
-        min: 1,
         onChange: function() {
             julia.drawNewStructure();
         }

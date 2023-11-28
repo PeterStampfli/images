@@ -68,13 +68,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         nX = dims[1];
         nY = dims[0];
         nXnY = nX * nY;
+        nXnY2 = 2 * nXnY;
         xMin = 1e6;
         xMax = -1e6;
         yMin = 1e6;
         yMax = -1e6;
         for (index = 0; index < nXnY; index++){
             /* exclude INVALID points*/
-            if (map[index] != INVALID) {
+            if (map[index + nXnY2] >= -0.1f) {
                 xMin = fminf(xMin,x);
                 x = map[index];
                 y = map[index + nXnY];

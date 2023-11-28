@@ -8,28 +8,30 @@
 % >>compile;
 % >>  map = testBasicKaleidoscope(5,4,2);
 
-function bulatovBandTest()
+function bulatovRingTest()
 % test of the basic kaleidoscope and bulatov band projection
 % depending on symmetry paraameters k, n and m
 % interpolation a in [0,1]
 % shows pattern of inversions
 
-s = 1000;
+s = 2000;
 mPix=s*s/1e6;
 h=1;
-w=3;
+w=1;
 map=identityMap(mPix,-w,w,-h,h);
 
-k=7;
-m=3;
+k=5;
+m=4;
 
 period=getBulatovPeriod(k,m,2);
+repeats=8;
 
-basicBulatovBand(map,period);
+bulatovRing(map,period,repeats);
 
 %params map,k,m,n
 outMap = basicKaleidoscope(map,k,m,2);
-xDrift(outMap,0.00001,-w,w);
+strength=0.05;
+circularDrift(outMap,strength,-w,w,-h,h);
 
 %im=createStructureImage(outMap);
 

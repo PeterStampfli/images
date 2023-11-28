@@ -14,7 +14,7 @@
 #include <stdbool.h>
 #define PRINTI(n) printf(#n " = %d\n", n)
 #define PRINTF(n) printf(#n " = %f\n", n)
-#define INVALID -1000
+#define INVALID -1
 
 void mexFunction( int nlhs, mxArray *plhs[],
         int nrhs, const mxArray *prhs[])
@@ -77,7 +77,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
                 /* set element only if new output map*/
                 outMap[index] = INVALID;
                 outMap[index + nXnY] = INVALID;
-                outMap[index + nXnY2] = INVALID;           }
+                outMap[index + nXnY2] = INVALID;           
+            }
             continue;
         }
         x = inMap[index];

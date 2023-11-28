@@ -4,7 +4,7 @@
  * map(h,k,0) = x, map(h,k,1) = y, map(h,k,2) = 0 (number of inversions)
  *
  * adds an x-dependent drift to the map   (x,y) => (x+x_0*strength,y)
- * xDrift(map,strength,xMin,xMax)
+ * xDrift(map,strength,xMin,xMax,yMin,yMax)
  *========================================================*/
 
 #include "mex.h"
@@ -24,18 +24,15 @@ void mexFunction( int nlhs, mxArray *plhs[],
     int i, nParams;
     int nX, nY, nXnY, nXnY2, index, j, k;
     float inverted, strength, drift;
+    float xMin, xMax, yMin, yMax, dx, dy;
     float x, y;
-    float xMax, xMin, dx;
     float *inMap, *outMap;
     bool returnsMap = false;
     /* check for proper number of arguments (else crash)*/
     /* checking for presence of a map*/
-    if(nrhs < 4) {
-        mexErrMsgIdAndTxt("xDrift:nrhs","A map input, strength, xMin and xMax required.");
+    if(nrhs < 6) {
+        mexErrMsgIdAndTxt("circularDrift:nrhs","A map input, strength, xMin, xMax, yMin and yMax required.");
     }
-    /* get dimensions */
-    xMin = (float) mxGetScalar(prhs[2]);
-    xMax = (float) mxGetScalar(prhs[3]);
     /* check number of dimensions of the map*/
     if(mxGetNumberOfDimensions(prhs[0]) !=3 ) {
         mexErrMsgIdAndTxt("transformMap:mapDims","The map has to have three dimensions.");
@@ -56,7 +53,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
 #endif   
     /* get period */
     strength = (float) mxGetScalar(prhs[1]);
-   /* left hand side */
+    /* get dimensions */
+    xMin = (float) mxGetScalar(prhs[2]);
+    xMax = (float) mxGetScalar(prhs[3]);
+    yMin = (float) mxGetScalar(prhs[4]);
+    yMax = (float) mxGetScalar(prhs[5]);
+    /* left hand side */
     if (nlhs == 0){
         outMap = inMap;
     } else {
@@ -69,21 +71,25 @@ void mexFunction( int nlhs, mxArray *plhs[],
         outMap = (float *) mxGetPr(plhs[0]);
 #endif
     }
-    dx = (xMax - xMin) / (nX - 1);
     /* do the map*/
     /* row first order*/
     nX = dims[1];
     nY = dims[0];
     nXnY = nX * nY;
     nXnY2 = 2 * nXnY;
+    /* increments */
+    dx = (xMax - xMin) / (nX - 1);
+    dy = (yMax - yMin) / (nY - 1);
     index = 0;
     /* beware of row first indexing order, the inner loop chnges the y-value*/
     /* making it independent of number of pixels -  resolution*/
     x = xMin;
     for (j = 0; j < nX; j++){
-        drift = strength * x;
+        y = yMin;
         for (k = 0; k < nY; k++){
-            outMap[index] = inMap[index] + drift ;
+            outMap[index] = inMap[index] - strength * y ;
+            outMap[index + nXnY] = inMap[index + nXnY] + strength * x ;
+            y += dy;
             index+=1;
         }
         x += dx;
