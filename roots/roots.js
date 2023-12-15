@@ -23,7 +23,7 @@ amplitude.angle = 0;
 roots.zPower = 1;
 roots.order = 5;
 roots.rMin = 0.9;
-roots.rMax=1.1;
+roots.rMax = 1.1;
 // root position and switch
 // angle related to 2PI/order, angle of the cyclic group
 roots.nom1Radius = 1;
@@ -243,9 +243,10 @@ roots.setup = function(gui) {
         onClick: pairs
     });
     map.mapping = roots.mapping;
+    map.step = roots.step;
 };
 
-function randomRadius(){
+function randomRadius() {
     return Math.random() * (roots.rMax - roots.rMin) + roots.rMin;
 }
 
@@ -318,7 +319,7 @@ function circle() {
     julia.drawNewStructure();
 }
 
-roots.mapping = function() {
+roots.setParams = function() {
     var x, y, angle, radius;
     let denReal = [];
     let nomReal = [];
@@ -363,11 +364,10 @@ roots.mapping = function() {
         denReal.push(radius * Math.cos(angle));
         denImag.push(radius * Math.sin(angle));
     }
-    console.log("-------------nominator real/imag");
-    console.log(nomReal);
-    console.log(nomImag);
-    console.log("denom real/imag");
-    console.log(denReal);
-    console.log(denImag);
-    map.universalRational(roots.zPower, roots.order, amplitudeReal, amplitudeImag, nomReal, nomImag, denReal, denImag);
+    map.setParams(roots.zPower, roots.order, amplitudeReal, amplitudeImag, nomReal, nomImag, denReal, denImag);
+};
+
+roots.mapping = function() {
+    roots.setParams();
+    map.universalRational();
 };

@@ -58,7 +58,6 @@ roots.setup = function(gui) {
         params: roots,
         property: 'order',
         step: 1,
-        min: 1,
         onChange: function() {
             julia.drawNewStructure();
         }
@@ -244,6 +243,7 @@ roots.setup = function(gui) {
         onClick: pairs
     });
     map.mapping = roots.mapping;
+    map.step=roots.step;
 };
 
 function randomRadius(){
@@ -364,11 +364,5 @@ roots.mapping = function() {
         denReal.push(radius * Math.cos(angle));
         denImag.push(radius * Math.sin(angle));
     }
-    console.log("-------------nominator real/imag");
-    console.log(nomReal);
-    console.log(nomImag);
-    console.log("denom real/imag");
-    console.log(denReal);
-    console.log(denImag);
     map.universalRational(roots.zPower, roots.order, amplitudeReal, amplitudeImag, nomReal, nomImag, denReal, denImag);
 };

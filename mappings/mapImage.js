@@ -14,7 +14,9 @@ export const map = {};
 // map data, dimensions same as canvas, if not => create new arrays
 
 map.width = 1;
-map.height = 1;
+map.height = 1; // some trajectory
+map.trajectoryColor = '#000000';
+map.trajectory = false; // switching on and off
 
 // map data, accessible from the outside
 // the mapped coordinates
@@ -391,6 +393,35 @@ map.setupDrawing = function(gui) {
 
     mouseEvents.outAction = function() {
         mouseEvents.element.onwheel = null;
+    };
+
+    function disc(radius, x, y) {
+        output.canvasContext.beginPath();
+        output.canvasContext.moveTo(x + radius, y);
+        output.canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
+        output.canvasContext.fill();
+    }
+
+    output.mouseMoveAction = function(transformedEvent) {
+        const lineWidth = 1;
+        const nullRadius = 5;
+        if (map.trajectory) {
+            const canvasContext = output.canvasContext;
+            canvasContext.lineCap = 'round';
+            canvasContext.lineJoin = 'round';
+            canvasContext.strokeStyle = map.trajectoryColor;
+            canvasContext.fillStyle = map.trajectoryColor;
+            canvasContext.lineWidth = lineWidth;
+            console.log('moving at', transformedEvent.x, transformedEvent.y);
+            let x = transformedEvent.x;
+            let y = transformedEvent.y;
+            let i = output.coordinateTransform.inverseX(x);
+            let j = output.coordinateTransform.inverseY(y);
+            console.log('pixel', i, j);
+
+            disc(nullRadius, i, j);
+
+        }
     };
 };
 

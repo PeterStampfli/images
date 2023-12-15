@@ -12,6 +12,7 @@ import {
     yTranslation,
     circularDrift,
     xDrift,
+    xScale,
     kaleidoscope,
     rosette,
     cartioid,
@@ -34,7 +35,10 @@ import {
     normalViewEquator,
     normalViewPolar,
     inverseMercator,
-    fractalsFamily
+    simpleRationalFamily,
+    simplePolyFamily,
+    circularScale,
+    periodicXDrift
 } from "./modules.js";
 
 export const base = {};
@@ -63,7 +67,6 @@ function setup() {
         // mandelbrot,
         //  insideOutside,
         //  specialStar,
-        //    bulatovRing,
         //dihedral,
         // scale
         //  normalViewEquator,
@@ -74,10 +77,15 @@ function setup() {
         //  xTranslation,
         // spirals,
         //   xDrift,
-        fractalsFamily,
-       // bulatovRing,
+     //   simplePolyFamily,
+       // simpleRationalFamily,
+      //  periodicXDrift,
+        bulatovRing,
         kaleidoscope,
-        rosette);
+        rosette,
+        circularDrift,
+        circularScale
+        );
     //====================================================
 
 

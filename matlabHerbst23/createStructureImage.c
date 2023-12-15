@@ -63,7 +63,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     nXnY2 = 2 * nXnY;
     for (index = 0; index < nXnY; index++){
         inverted = map[index + nXnY2];
-        if (inverted < 0.1f) {
+        if (inverted < -0.1f) {
             inverted=0.5f;
         }
         image[index] = inverted;

@@ -16,6 +16,8 @@ export const universalRational = {};
 
 // universal rational function defined by a params-array
 
+// maps all pixels
+
 map.universalRational = function( zPow, order, amplitudeReal, amplitudeImag, nomRootsReal, nomRootsImag, denomRootsReal, denomRootsImag) {
     const eps = 1e-100;
     const totalPower = zPow + order * (nomRootsReal.length - denomRootsReal.length);

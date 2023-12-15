@@ -27,6 +27,16 @@ from "./mapImage.js";
  from "./circularDrift.js";
 
  export{
+    circularScale
+ }
+ from "./circularScale.js";
+
+ export{
+    xScale
+ }
+ from "./xScale.js";
+
+ export{
     xDrift
  }
  from "./xDrift.js";
@@ -142,6 +152,16 @@ from "./mapImage.js";
  from "./inverseMercator.js";
 
  export{
-    fractalsFamily
+    simplePolyFamily
  }
- from "./fractalsFamily.js";
+ from "./simplePolyFamily.js";
+
+ export{
+    periodicXDrift
+ }
+ from "./periodicXDrift.js";
+
+ export{
+    simpleRationalFamily
+ }
+ from "./simpleRationalFamily.js";

@@ -12,21 +12,28 @@ import {
     output
 } from "../libgui/modules.js";
 
-export const circularDrift = {};
-circularDrift.strength=0;
+export const periodicXDrift = {};
+periodicXDrift.strength=0;
+periodicXDrift.period=2;
 
-circularDrift.setup = function(gui) {  
+periodicXDrift.setup = function(gui) {  
     base.gui.add({
         type:'number',
-        params:circularDrift,
+        params:periodicXDrift,
         property:'strength',
-        labelText:'circ-drift',
+        labelText:'drift',
+        onChange:julia.drawNewStructure
+    }).add({
+        type:'number',
+        params:periodicXDrift,
+        property:'period',
         onChange:julia.drawNewStructure
     });
 };
 
-circularDrift.map = function() {
-    const strength=circularDrift.strength;
+periodicXDrift.map = function() {
+    const strength=periodicXDrift.strength;
+    const iPeriod2Pi=Math.PI*2/periodicXDrift.period;
     let scale = output.coordinateTransform.totalScale;
     let shiftX = output.coordinateTransform.shiftX;
     let shiftY = output.coordinateTransform.shiftY;
@@ -37,10 +44,9 @@ circularDrift.map = function() {
     for (var j = 0; j < map.height; j++) {
         let x = shiftX;
         for (var i = 0; i < map.width; i++) {
-            const r=Math.hypot(x,y);
-            const factor=1+strength*y/r;
-            xArray[index] -= strength*y/r;
-            yArray[index] += strength*x/r;
+            const angle=iPeriod2Pi*x;
+            xArray[index] -= strength*y;
+            yArray[index] += strength*x;
             index += 1;
             x += scale;
         }

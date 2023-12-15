@@ -24,20 +24,52 @@ k=5;
 m=4;
 
 period=getBulatovPeriod(k,m,2);
-repeats=8;
+repeats=7;
 
 bulatovRing(map,period,repeats);
 
 %params map,k,m,n
-outMap = basicKaleidoscope(map,k,m,2);
-strength=0.05;
-circularDrift(outMap,strength,-w,w,-h,h);
+map = basicKaleidoscope(map,k,m,2);
 
+% set range of x- and y-values, for reuse in other cases
+xMin=-w;
+xMax=w;
+yMin=-h;
+yMax=h;
+
+% get index ranges
+[jMax,iMax,~]=size(map);
+
+% increments for calculating the original coordinates
+dx=(xMax-xMin)/(iMax-1);
+dy=(yMax-yMin)/(jMax-1);
+
+strength=0.7;
+
+
+y=yMin;
+for j=1:jMax
+    x=xMin;
+    for i=1:iMax
+      %  angle=atan2(y,x)/pi;
+      sinus=y/sqrt(x*x+y*y);
+      factor=1+strength*sinus;
+                map(j,i,1)=map(j,i,1)*factor;
+        map(j,i,2)=map(j,i,2)*factor;
+
+%        map(j,i,1)=map(j,i,1)*cos(0.5*pi*y)+strength*cos(omega*x);
+%        map(j,i,2)=map(j,i,2)*cos(0.5*pi*y)+strength*sin(omega*x);
+%        map(j,i,1)=map(j,i,1)*(1+strength*cos(omega*x));
+%        map(j,i,2)=map(j,i,2)*(1+strength*cos(omega*x));
+        x=x+dx;
+    end
+    y=y+dy;
+end
 %im=createStructureImage(outMap);
 
 inputImage = imread("tier.jpg");
 
-im = createOutputImage(outMap,inputImage);
+im = createOutputImage(map,inputImage);
 
 imshow(im);
 end
