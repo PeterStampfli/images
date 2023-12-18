@@ -32,9 +32,6 @@ juliaMap.setup = function(gui) {
     map.step=function() {
         console.error('map.step is undefined');
     };
-    // some trajectory, overriding params
-    map.trajectoryColor = '#000000';
-    map.trajectory = true; // switching on and off
 
     gui.addParagraph('<strong>iterated mapping</strong>');
     map.itersController = gui.add({
@@ -74,22 +71,10 @@ juliaMap.setup = function(gui) {
         },
         onChange: julia.drawNewStructure
     });
-    gui.add({
-        type: 'boolean',
-        params: map,
-        property: 'trajectory',
-        onChange: function() {
-            map.drawImageChanged();
-        }
-    }).add({
-        type: 'color',
-        params: map,
-        property: 'trajectoryColor',
-        labelText:'',
-        onChange: function() {
-            map.drawImageChanged();
-        }
-    });
+    
+    map.trajectory = true; // switching on and off
+    map.addTrajectory(gui);
+
     gui.add({
         type: 'boolean',
         params: juliaMap,

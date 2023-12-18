@@ -15,7 +15,6 @@ export const map = {};
 
 map.width = 1;
 map.height = 1; // some trajectory
-map.trajectoryColor = '#000000';
 map.trajectory = false; // switching on and off
 
 // map data, accessible from the outside
@@ -395,35 +394,83 @@ map.setupDrawing = function(gui) {
         mouseEvents.element.onwheel = null;
     };
 
-    function disc(radius, x, y) {
-        output.canvasContext.beginPath();
-        output.canvasContext.moveTo(x + radius, y);
-        output.canvasContext.arc(x, y, radius, 0, 2 * Math.PI);
-        output.canvasContext.fill();
+
+
+};
+
+// doing the trajectory
+
+
+function disc(x, y) {
+    const canvasContext = output.canvasContext;
+    output.canvasContext.beginPath();
+    output.canvasContext.moveTo(x + map.nullRadius, y);
+    output.canvasContext.arc(x, y, map.nullRadius, 0, 2 * Math.PI);
+    output.canvasContext.fill();
+}
+
+function line(x1, y1, x2, y2) {
+    const canvasContext = output.canvasContext;
+    output.canvasContext.beginPath();
+    output.canvasContext.moveTo(x1, y1);
+    output.canvasContext.lineTo(x2, y2);
+    output.canvasContext.stroke();
+}
+
+map.drawTrajectory = function(transformedEvent) {
+    if (!map.trajectory) {
+        return;
     }
+    console.log(transformedEvent);
+    const canvasContext = output.canvasContext;
+    canvasContext.lineCap = 'round';
+    canvasContext.lineJoin = 'round';
+    canvasContext.strokeStyle = map.trajectoryColor;
+    canvasContext.fillStyle = map.trajectoryColor;
+    output.setLineWidth(map.lineWidth);
+    map.nullRadius = map.basicNullRadius * output.coordinateTransform.totalScale;
+    console.log('moving at', transformedEvent.x, transformedEvent.y);
+    let x = transformedEvent.x;
+    let y = transformedEvent.y;
+
+
+    disc(x, y);
+    line(x, y, x + 0.1, y + 0.2);
+
+};
+
+map.addTrajectory = function(gui) {
+    map.lineWidth = 1;
+    map.basicNullRadius = 5;
+    map.trajectoryColor = '#000000';
+
+    gui.add({
+        type: 'boolean',
+        params: map,
+        property: 'trajectory',
+        onChange: function() {
+            julia.drawNewImage();
+        }
+    }).add({
+        type: 'color',
+        params: map,
+        property: 'trajectoryColor',
+        labelText: '',
+        onChange: function() {
+            julia.drawNewImage();
+        }
+    });
 
     output.mouseMoveAction = function(transformedEvent) {
-        const lineWidth = 1;
-        const nullRadius = 5;
+        console.log(transformedEvent);
         if (map.trajectory) {
-            const canvasContext = output.canvasContext;
-            canvasContext.lineCap = 'round';
-            canvasContext.lineJoin = 'round';
-            canvasContext.strokeStyle = map.trajectoryColor;
-            canvasContext.fillStyle = map.trajectoryColor;
-            canvasContext.lineWidth = lineWidth;
-            console.log('moving at', transformedEvent.x, transformedEvent.y);
-            let x = transformedEvent.x;
-            let y = transformedEvent.y;
-            let i = output.coordinateTransform.inverseX(x);
-            let j = output.coordinateTransform.inverseY(y);
-            console.log('pixel', i, j);
-
-            disc(nullRadius, i, j);
-
+            output.pixels.show();
+            output.drawGrid();
+            map.drawTrajectory(transformedEvent);
         }
     };
 };
+
 
 // flag to show that the input image is used
 map.drawingInputImage = false;
