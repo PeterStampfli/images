@@ -104,14 +104,20 @@ singularities.setup = function(gui) {
         params: singularities,
         property: 'nom1Radius',
         labelText: 'radius 1',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            nom2RadiusController.setValueOnly(value);
+            julia.drawNewStructure();
+        }
     });
     nom1AngleController = nom1RadiusController.add({
         type: 'number',
         params: singularities,
         property: 'nom1Angle',
         labelText: 'angle',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            nom2AngleController.setValueOnly(-value);
+            julia.drawNewStructure();
+        }
     });
     nom1AngleController.add({
         type: 'boolean',
@@ -168,14 +174,20 @@ singularities.setup = function(gui) {
         params: singularities,
         property: 'denom1Radius',
         labelText: 'radius 1',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            denom2RadiusController.setValueOnly(value);
+            julia.drawNewStructure();
+        }
     });
     denom1AngleController = denom1RadiusController.add({
         type: 'number',
         params: singularities,
         property: 'denom1Angle',
         labelText: 'angle',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            denom2AngleController.setValueOnly(-value);
+            julia.drawNewStructure();
+        }
     });
     denom1AngleController.add({
         type: 'boolean',
@@ -356,7 +368,7 @@ singularities.mapping = function() {
         }
     }
     if (singularities.denom2On) {
-       radius = singularities.denom2Radius;
+        radius = singularities.denom2Radius;
         angle = 2 * Math.PI * singularities.denom2Angle;
         for (let i = 0; i < singularities.order; i++) {
             denReal.push(radius * Math.cos(angle));
@@ -365,7 +377,7 @@ singularities.mapping = function() {
         }
     }
     if (singularities.denom3On) {
-         radius = singularities.denom3Radius;
+        radius = singularities.denom3Radius;
         angle = 2 * Math.PI * singularities.denom3Angle;
         for (let i = 0; i < singularities.order; i++) {
             denReal.push(radius * Math.cos(angle));

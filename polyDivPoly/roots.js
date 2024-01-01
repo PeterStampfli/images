@@ -52,7 +52,7 @@ var nom1AngleController, nom2AngleController, nom3AngleController;
 var denom1AngleController, denom2AngleController, denom3AngleController;
 
 roots.setup = function(gui) {
-    gui.addParagraph('<strong>roots (angle in fractions of 360/n degrees)</strong>');
+    gui.addParagraph('<strong>symmetry, angle in fractions of 360/n degrees</strong>');
     gui.add({
         type: 'number',
         params: roots,
@@ -97,20 +97,26 @@ roots.setup = function(gui) {
         onChange: julia.drawNewStructure
     });
 
-    gui.addParagraph('nominator');
+    gui.addParagraph('zeros');
     nom1RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'nom1Radius',
         labelText: 'radius 1',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            nom2RadiusController.setValueOnly(value);
+            julia.drawNewStructure();
+        }
     });
     nom1AngleController = nom1RadiusController.add({
         type: 'number',
         params: roots,
         property: 'nom1Angle',
         labelText: 'angle',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            nom2AngleController.setValueOnly(-value);
+            julia.drawNewStructure();
+        }
     });
     nom1AngleController.add({
         type: 'boolean',
@@ -161,20 +167,26 @@ roots.setup = function(gui) {
         labelText: 'on',
         onChange: julia.drawNewStructure
     });
-    gui.addParagraph('denominator');
+    gui.addParagraph('singularities');
     denom1RadiusController = gui.add({
         type: 'number',
         params: roots,
         property: 'denom1Radius',
         labelText: 'radius 1',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            denom2RadiusController.setValueOnly(value);
+            julia.drawNewStructure();
+        }
     });
     denom1AngleController = denom1RadiusController.add({
         type: 'number',
         params: roots,
         property: 'denom1Angle',
         labelText: 'angle',
-        onChange: julia.drawNewStructure
+        onChange: function(value) {
+            denom2AngleController.setValueOnly(-value);
+            julia.drawNewStructure();
+        }
     });
     denom1AngleController.add({
         type: 'boolean',

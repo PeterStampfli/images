@@ -33,7 +33,7 @@ import {
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'roots',
+        name: 'poly div poly',
         closed: false
     });
 

@@ -1,13 +1,5 @@
 /* jshint esversion: 6 */
 
-/*
-rational functions of the form:
-
-      p                 n_1             n_?
-f(z)=z  * prefactor *[(z    -c_1)...]/[z     -c_?]
-
-*/
-
 import {
     map
 } from "../mappings/mapImage.js";
@@ -97,26 +89,20 @@ map.universalRational = function(zPow, order, amplitudeReal, amplitudeImag, nomR
 
         length = denomRootsReal.length;
         for (let i = 0; i < length; i++) {
-            const rr = denomRootsReal[i];
-            const ri = denomRootsImag[i];
-            let real = x * rr - y * ri - 1;
-            let imag = y * rr + x * ri;
+            // singularity at denomroots
+            let real = x - denomRootsReal[i];
+            let imag = y - denomRootsImag[i];
             // division, take care of overflows
             const denom2 = real * real + imag * imag;
-
+            // denom2 === infinite resembles case that z is infinite
+            // that is, z is too large ...
             if (!isFinite(denom2)) {
-                if (!isFinite(nom2)) {
-                    xArray[index] = xInfty;
-                    yArray[index] = yInfty;
-                } else {
-                    xArray[index] = 0;
-                    yArray[index] = 0;
-                }
+                xArray[index] = xInfty;
+                yArray[index] = yInfty;
                 continue;
             }
-            // nominator and denominator are both finite
             // beware of division by zero
-            //  assuming that nominator and denominator have different roots
+            //  assuming that zeros of polynoms and singularities are different
             if (denom2 < eps) {
                 xArray[index] = Infinity;
                 yArray[index] = Infinity;
@@ -126,8 +112,6 @@ map.universalRational = function(zPow, order, amplitudeReal, amplitudeImag, nomR
             denReal += factor * real;
             denImag -= factor * imag;
         }
-
-
 
         // multiply polygon with sum of singularities
         const zzReal = nomReal * denReal - nomImag * denImag;

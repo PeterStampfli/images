@@ -145,21 +145,21 @@ map.universalRational = function() {
 // map a simple point
 // an array, pair of coordinates
 
-map.point = function(coordinates) {
-    let x = coordinates[0];
-    let y = coordinates[1];
+map.point = function(point) {
+    let x = point.x;
+    let y = point.y;
     let r2 = x * x + y * y;
 
     // safety: check if z is finite
     if (!isFinite(r2)) {
-        coordinates[0] = xInfty;
-        coordinates[1] = yInfty;
+        point.x = xInfty;
+        point.y = yInfty;
         return;
     }
     // or singularity at z=0
     if ((r2 < eps) && zeroSingular) {
-        coordinates[0] = Infinity;
-        coordinates[1] = Infinity;
+        point.x = Infinity;
+        point.y = Infinity;
         return;
     }
     // power of z as prefactor, initialize nominator and denominator
@@ -198,30 +198,30 @@ map.point = function(coordinates) {
     const denom2 = denReal * denReal + denImag * denImag;
     if (!isFinite(nom2)) {
         if (isFinite(denom2)) {
-            coordinates[0] = Infinity;
-            coordinates[1] = Infinity;
+            point.x = Infinity;
+            point.y = Infinity;
         } else {
-            coordinates[0] = xInfty;
-            coordinates[1] = yInfty;
+            point.x = xInfty;
+            point.y = yInfty;
         }
         return;
     } else if (!isFinite(denom2)) {
-        coordinates[0] = 0;
-        coordinates[1] = 0;
+        point.x = 0;
+        point.y = 0;
         return;
     }
     // nominator and denominator are both finite
     // beware of division by zero
     //  assuming that nominator and denominator have different roots
     if (denom2 < eps) {
-        coordinates[0] = Infinity;
-        coordinates[1] = Infinity;
+        point.x = Infinity;
+        point.y = Infinity;
         return;
     }
     const factor = 1 / denom2;
     const zzReal = factor * (nomReal * denReal + nomImag * denImag);
     const zzImag = factor * (nomImag * denReal - nomReal * denImag);
     // multiplication with amplitude
-    coordinates[0] = amplitudeReal * zzReal - amplitudeImag * zzImag;
-    coordinates[1] = amplitudeReal * zzImag + amplitudeImag * zzReal;
+    point.x = amplitudeReal * zzReal - amplitudeImag * zzImag;
+    point.y = amplitudeReal * zzImag + amplitudeImag * zzReal;
 };

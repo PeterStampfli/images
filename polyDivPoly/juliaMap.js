@@ -17,7 +17,7 @@ import {
 } from "../mappings/kaleidoscope.js";
 
 export const juliaMap = {};
-juliaMap.automaticExpansion = true;
+juliaMap.automaticExpansion = false;
 juliaMap.nIntervals = 10000;
 juliaMap.inverted = false;
 
@@ -72,15 +72,13 @@ juliaMap.setup = function(gui) {
         onChange: julia.drawNewStructure
     });
     
-    map.trajectory = true; // switching on and off
-    map.addTrajectory(gui);
-
     gui.add({
         type: 'boolean',
         params: juliaMap,
         property: 'inverted',
         onChange: julia.drawNewStructure
     });
+    /*
     gui.add({
         type: 'boolean',
         params: juliaMap,
@@ -95,6 +93,7 @@ juliaMap.setup = function(gui) {
         labelText: 'intervals',
         onChange: julia.drawNewStructure
     });
+    */
 };
 
 map.inversion = function() {

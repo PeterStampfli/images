@@ -421,7 +421,6 @@ map.drawTrajectory = function(transformedEvent) {
     if (!map.trajectory) {
         return;
     }
-    console.log(transformedEvent);
     const canvasContext = output.canvasContext;
     canvasContext.lineCap = 'round';
     canvasContext.lineJoin = 'round';
@@ -429,20 +428,29 @@ map.drawTrajectory = function(transformedEvent) {
     canvasContext.fillStyle = map.trajectoryColor;
     output.setLineWidth(map.lineWidth);
     map.nullRadius = map.basicNullRadius * output.coordinateTransform.totalScale;
-    console.log('moving at', transformedEvent.x, transformedEvent.y);
     let x = transformedEvent.x;
     let y = transformedEvent.y;
-
-
     disc(x, y);
-    line(x, y, x + 0.1, y + 0.2);
+    console.log(map.iters);
+    const point={};
+    point.x=x;
+    point.y=y;
+    for (let i = 0; i < map.iters; i++) {
+        console.log(i)
+        let x1=point.x;
+        let y1=point.y;
+        map.point(point);
+        disc(point.x,point.y);
+
+        line(x1, y1, point.x, point.y);
+    }
 
 };
 
 map.addTrajectory = function(gui) {
-    map.lineWidth = 1;
+    map.lineWidth = 2;
     map.basicNullRadius = 5;
-    map.trajectoryColor = '#000000';
+    map.trajectoryColor = '#ff0000';
 
     gui.add({
         type: 'boolean',
@@ -462,7 +470,6 @@ map.addTrajectory = function(gui) {
     });
 
     output.mouseMoveAction = function(transformedEvent) {
-        console.log(transformedEvent);
         if (map.trajectory) {
             output.pixels.show();
             output.drawGrid();

@@ -512,7 +512,26 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
             }
             autoResizeDraw();
         }
-    }).addHelp('Scales the image of the canvas to fit the available space.');
+    });
+    output.autoScaleController.add({
+        type: "button",
+        buttonText: "20Mpix",
+        onClick: function() {
+            console.log('20mpix');
+            const newSize = 2000000;
+            let width = output.canvasWidthController.getValue();
+            let height = output.canvasHeightController.getValue();
+            const scaling = Math.sqrt(newSize / height / width);
+            width = Math.round(scaling * width);
+            height = Math.round(scaling * height);
+            console.log(width,height);
+            output.autoResizeController.setValueOnly(false);
+            output.autoScaleController.setValueOnly(true);
+            output.canvasHeightController.setValueOnly(height);
+            output.canvasWidthController.setValueOnly(width);
+            autoResizeDraw();
+        }
+    });
 
     // extending the canvas width
     output.extendCanvasController = sizeGui.add({
