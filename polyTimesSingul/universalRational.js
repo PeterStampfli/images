@@ -9,6 +9,9 @@ export const universalRational = {};
 // universal rational function defined by a params-array
 
 map.universalRational = function(zPow, order, amplitudeReal, amplitudeImag, nomRootsReal, nomRootsImag, denomRootsReal, denomRootsImag) {
+ console.log(denomRootsReal);
+ console.log(denomRootsImag);
+
     const eps = 1e-100;
     let totalPower = zPow + order * nomRootsReal.length;
     if (denomRootsReal.length > 0) {
@@ -63,14 +66,12 @@ map.universalRational = function(zPow, order, amplitudeReal, amplitudeImag, nomR
         let angle = zPow * phi;
         let nomReal = r * Math.cos(angle);
         let nomImag = r * Math.sin(angle);
-        let denReal = 1;
-        let denImag = 0;
         // z to power of order
         r = Math.exp(lnr * order);
         angle = order * phi;
         const xp = r * Math.cos(angle);
         const yp = r * Math.sin(angle);
-        // calculate nominator and denominator
+        // calculate prduct oof polynomials and power of z
         let length = nomRootsReal.length;
         for (let i = 0; i < length; i++) {
             const factorReal = xp - nomRootsReal[i];
@@ -86,12 +87,22 @@ map.universalRational = function(zPow, order, amplitudeReal, amplitudeImag, nomR
             yArray[index] = yInfty;
             continue;
         }
-
+// sum of singularities
+        let denReal = 1;
+        let denImag = 0;
         length = denomRootsReal.length;
         for (let i = 0; i < length; i++) {
             // singularity at denomroots
             let real = x - denomRootsReal[i];
             let imag = y - denomRootsImag[i];
+        
+
+                        const rr = denomRootsReal[i];
+            const ri = denomRootsImag[i];
+    //        let real = x * rr - y * ri - 1;
+    //        let imag = y * rr + x * ri;
+ 
+
             // division, take care of overflows
             const denom2 = real * real + imag * imag;
             // denom2 === infinite resembles case that z is infinite
