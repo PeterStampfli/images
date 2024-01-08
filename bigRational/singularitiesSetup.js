@@ -33,7 +33,7 @@ import {
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'sing div singul',
+        name: 'big rational',
         closed: false
     });
 

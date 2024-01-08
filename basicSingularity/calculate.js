@@ -17,7 +17,8 @@ map.calculate = function() {
     const realCoeffs = singularities.realCoeffs;
     const imagCoeffs = singularities.imagCoeffs;
     const coeffsLength = realCoeffs.length;
-    const eps = 1e-100;
+    const eps = 1e-50;
+    const eps2 = eps * eps;
 
     // supposing that roots are not zero: Is z=0 a singularity?
     const zeroSingular = (zPow < -eps);
@@ -56,7 +57,7 @@ map.calculate = function() {
             continue;
         }
         // or singularity at z=0
-        if ((r2 < eps) && zeroSingular) {
+        if ((r2 < eps2) && zeroSingular) {
             xArray[index] = Infinity;
             yArray[index] = Infinity;
             continue;
@@ -72,18 +73,9 @@ map.calculate = function() {
             let imag = y * rr + x * ri;
 
             // division, take care of overflows
-            const denom2 = real * real + imag * imag;
-            // denom2 === infinite resembles case that z is infinite
-            // that is, z is too large ...
-            if (!isFinite(denom2)) {
-                continue;
-            }
-            // beware of division by zero
-            if (denom2 < eps) {
-                sumReal = Infinity;
-                sumImag = Infinity;
-                break;
-            }
+            const denom2 = real * real + imag * imag + eps2;
+            // denom2 is approx same as r2, because r2<eps2 also denom2<eps2
+            // real division by zero is avoided
             const factor = 1 / denom2;
             sumReal += factor * real;
             sumImag -= factor * imag;

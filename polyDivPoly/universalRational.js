@@ -15,7 +15,8 @@ import {
 export const universalRational = {};
 
 // universal rational function
-const eps = 1e-100;
+const eps = 1e-50;
+const eps2=eps*eps;
 
 // parameters
 var zPow, order, amplitudeReal, amplitudeImag, nomRootsReal, nomRootsImag, denomRootsReal, denomRootsImag;
@@ -108,9 +109,10 @@ map.universalRational = function() {
             denImag = denReal * factorImag + denImag * factorReal;
             denReal = h;
         }
-        // division, take care of overflows
+        // division, take care of overflows, avoid NaN
         const nom2 = nomReal * nomReal + nomImag * nomImag;
-        const denom2 = denReal * denReal + denImag * denImag;
+        // automatically avoid NaN resulting from division by zero
+        const denom2 = denReal * denReal + denImag * denImag+eps2;
         if (!isFinite(nom2)) {
             if (isFinite(denom2)) {
                 xArray[index] = Infinity;
@@ -125,14 +127,6 @@ map.universalRational = function() {
             yArray[index] = 0;
             continue;
         }
-        // nominator and denominator are both finite
-        // beware of division by zero
-        //  assuming that nominator and denominator have different roots
-        if (denom2 < eps) {
-            xArray[index] = Infinity;
-            yArray[index] = Infinity;
-            continue;
-        }
         const factor = 1 / denom2;
         const zzReal = factor * (nomReal * denReal + nomImag * denImag);
         const zzImag = factor * (nomImag * denReal - nomReal * denImag);
@@ -142,7 +136,7 @@ map.universalRational = function() {
     }
 };
 
-// map a simple point
+// map a simple point for trajectory
 // an array, pair of coordinates
 
 map.point = function(point) {
