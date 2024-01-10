@@ -15,8 +15,13 @@ import {
 export const universalRational = {};
 
 // universal rational function
+// against singularities
 const eps = 1e-50;
-const eps2=eps*eps;
+const eps2 = eps * eps;
+// big number, all above is similar to infinite
+// maximum number of javascript is 1e300
+const big = 1e10;
+// big^30 < Infinity , should be safe enough
 
 // parameters
 var zPow, order, amplitudeReal, amplitudeImag, nomRootsReal, nomRootsImag, denomRootsReal, denomRootsImag;
@@ -66,8 +71,8 @@ map.universalRational = function() {
         let y = yArray[index];
         let r2 = x * x + y * y;
 
-        // safety: check if z is finite
-        if (!isFinite(r2)) {
+        // safety: check if z is not too large
+        if (r2 > big) {
             xArray[index] = xInfty;
             yArray[index] = yInfty;
             continue;
@@ -109,25 +114,8 @@ map.universalRational = function() {
             denImag = denReal * factorImag + denImag * factorReal;
             denReal = h;
         }
-        // division, take care of overflows, avoid NaN
-        const nom2 = nomReal * nomReal + nomImag * nomImag;
-        // automatically avoid NaN resulting from division by zero
-        const denom2 = denReal * denReal + denImag * denImag+eps2;
-        if (!isFinite(nom2)) {
-            if (isFinite(denom2)) {
-                xArray[index] = Infinity;
-                yArray[index] = Infinity;
-            } else {
-                xArray[index] = xInfty;
-                yArray[index] = yInfty;
-            }
-            continue;
-        } else if (!isFinite(denom2)) {
-            xArray[index] = 0;
-            yArray[index] = 0;
-            continue;
-        }
-        const factor = 1 / denom2;
+        // we can safely assume that nominator and denominator are finite
+        const factor = 1 / (denReal * denReal + denImag * denImag + eps2);
         const zzReal = factor * (nomReal * denReal + nomImag * denImag);
         const zzImag = factor * (nomImag * denReal - nomReal * denImag);
         // multiplication with amplitude

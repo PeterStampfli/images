@@ -32,7 +32,7 @@ singularities.singsImag = [];
 // angle related to 2PI/order, angle of the cyclic group
 singularities.zero1Radius = 1;
 singularities.zero1Angle = 0;
-singularities.zero1On = true;
+singularities.zero1On = false;
 singularities.zero2Radius = 1;
 singularities.zero2Angle = 0;
 singularities.zero2On = false;
@@ -41,7 +41,7 @@ singularities.zero3Angle = 0;
 singularities.zero3On = false;
 singularities.sing1Radius = 1;
 singularities.sing1Angle = 0;
-singularities.sing1On = false;
+singularities.sing1On = true;
 singularities.sing2Radius = 1;
 singularities.sing2Angle = 0;
 singularities.sing2On = false;
@@ -55,7 +55,7 @@ roots.nomReal = [];
 roots.nomImag = [];
 roots.nom1Radius = 1;
 roots.nom1Angle = 0;
-roots.nom1On = true;
+roots.nom1On = false;
 roots.nom2Radius = 1;
 roots.nom2Angle = 0;
 roots.nom2On = false;
@@ -118,7 +118,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'zerosConstant',
-        labelText: 'singularities constant',
+        labelText: 'divisions constant',
         onChange: julia.drawNewStructure
     });
 
@@ -126,7 +126,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'zero1Radius',
-        labelText: 'sing rad 1',
+        labelText: 'divs rad 1',
         onChange: function(value) {
             zero2RadiusController.setValueOnly(value);
             julia.drawNewStructure();
@@ -153,7 +153,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'zero2Radius',
-        labelText: 'sing rad 2',
+        labelText: 'divs rad 2',
         onChange: julia.drawNewStructure
     });
     zero2AngleController = zero2RadiusController.add({
@@ -174,7 +174,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'zero3Radius',
-        labelText: 'sing rad 3',
+        labelText: 'divs rad 3',
         onChange: julia.drawNewStructure
     });
     zero3AngleController = zero3RadiusController.add({
@@ -195,7 +195,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: roots,
         property: 'nom1Radius',
-        labelText: 'pol rad 1',
+        labelText: 'poly rad 1',
         onChange: function(value) {
             nom2RadiusController.setValueOnly(value);
             julia.drawNewStructure();
@@ -222,7 +222,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: roots,
         property: 'nom2Radius',
-        labelText: 'pol rad 2',
+        labelText: 'poly rad 2',
         onChange: julia.drawNewStructure
     });
     nom2AngleController = nom2RadiusController.add({
@@ -243,7 +243,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: roots,
         property: 'nom3Radius',
-        labelText: 'pol rad 3',
+        labelText: 'poly rad 3',
         onChange: julia.drawNewStructure
     });
     nom3AngleController = nom3RadiusController.add({
@@ -267,7 +267,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'singsConstant',
-        labelText: 'singularities constant',
+        labelText: 'divisions constant',
         onChange: julia.drawNewStructure
     });
 
@@ -275,7 +275,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'sing1Radius',
-        labelText: 'sing rad 1',
+        labelText: 'divs rad 1',
         onChange: function(value) {
             sing2RadiusController.setValueOnly(value);
             julia.drawNewStructure();
@@ -302,7 +302,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'sing2Radius',
-        labelText: 'sing rad 2',
+        labelText: 'divs rad 2',
         onChange: julia.drawNewStructure
     });
     sing2AngleController = sing2RadiusController.add({
@@ -323,7 +323,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: singularities,
         property: 'sing3Radius',
-        labelText: 'sing rad 3',
+        labelText: 'divs rad 3',
         onChange: julia.drawNewStructure
     });
     sing3AngleController = sing3RadiusController.add({
@@ -345,7 +345,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: roots,
         property: 'denom1Radius',
-        labelText: 'pol rad 1',
+        labelText: 'poly rad 1',
         onChange: function(value) {
             denom2RadiusController.setValueOnly(value);
             julia.drawNewStructure();
@@ -372,7 +372,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: roots,
         property: 'denom2Radius',
-        labelText: 'pol rad 2',
+        labelText: 'poly rad 2',
         onChange: julia.drawNewStructure
     });
     denom2AngleController = denom2RadiusController.add({
@@ -393,7 +393,7 @@ singularities.setup = function(gui) {
         type: 'number',
         params: roots,
         property: 'denom3Radius',
-        labelText: 'pol rad 3',
+        labelText: 'poly rad 3',
         onChange: julia.drawNewStructure
     });
     denom3AngleController = denom3RadiusController.add({
@@ -415,7 +415,7 @@ singularities.setup = function(gui) {
 };
 
 singularities.mapping = function() {
-    var invRadius, angle;
+    var invRadius, angle, radius;
     singularities.zerosReal.length = 0;
     singularities.zerosImag.length = 0;
     singularities.singsReal.length = 0;
