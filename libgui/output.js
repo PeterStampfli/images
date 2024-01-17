@@ -518,7 +518,7 @@ output.createCanvas = function(gui, hasBackgroundColor = true, hasTransparency =
         buttonText: "20Mpix",
         onClick: function() {
             console.log('20mpix');
-            const newSize = 2000000;
+            const newSize = 20000000;
             let width = output.canvasWidthController.getValue();
             let height = output.canvasHeightController.getValue();
             const scaling = Math.sqrt(newSize / height / width);

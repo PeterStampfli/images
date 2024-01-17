@@ -17,6 +17,7 @@ map.calculate = function() {
     const realCoeffs = singularities.realCoeffs;
     const imagCoeffs = singularities.imagCoeffs;
     const coeffsLength = realCoeffs.length;
+    const k = singularities.k;
     const eps = 1e-10;
     const eps2 = eps * eps;
     // big number, all above is similar to infinite
@@ -43,13 +44,13 @@ map.calculate = function() {
         if (r2 > big2) {
             x = big;
             y = 0;
-            r2=big2;
+            r2 = big2;
         }
         // or singularity at z=0
         else if (r2 < eps) {
             x = eps;
             y = 0;
-            r2=eps2;
+            r2 = eps2;
         }
 
         // sum of singularities
@@ -61,13 +62,10 @@ map.calculate = function() {
             let real = x * rr - y * ri - 1;
             let imag = y * rr + x * ri;
 
-            // division, take care of overflows
-            const denom2 = real * real + imag * imag + eps2;
-            // denom2 is approx same as r2, because r2<eps2 also denom2<eps2
-            // real division by zero is avoided
-            const factor = 1 / denom2;
-            sumReal += factor * real;
-            sumImag -= factor * imag;
+            let r = Math.exp(k * real);
+            let angle = k * imag;
+            sumReal += r * Math.cos(angle);
+            sumImag += r * Math.sin(angle);
         }
         // power of z as prefactor
         const phi = Math.atan2(y, x);

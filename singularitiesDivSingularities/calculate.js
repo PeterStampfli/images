@@ -21,24 +21,13 @@ map.calculate = function() {
     const singsImag = singularities.singsImag;
     const zerosLength = zerosReal.length;
     const singsLength = singsReal.length;
-    const eps = 1e-50;
-    const eps2=eps*eps;
-
-    // supposing that roots are not zero: Is z=0 a singularity?
-    const zeroSingular = (zPow < -eps);
-    //result for infinite z, or very large z
-    var xInfty, yInfty;
-    if (zPow > eps) {
-        xInfty = Infinity;
-        yInfty = Infinity;
-    } else
-    if (zPow > -eps) {
-        xInfty = amplitude * singsConstant/zerosConstant;
-        yInfty = 0;
-    } else {
-        xInfty = 0;
-        yInfty = 0;
-    }
+    const eps = 1e-10;
+    const eps2 = eps * eps;
+    // big number, all above is similar to infinite
+    // maximum number of javascript is 1e300
+    const big = 1e10;
+    const big2 = big * big;
+    // big^30 < Infinity , should be safe enough
 
     const xArray = map.xArray;
     const yArray = map.yArray;
@@ -54,18 +43,19 @@ map.calculate = function() {
         let y = yArray[index];
         let r2 = x * x + y * y;
 
-        // safety: check if z is finite
-        if (!isFinite(r2)) {
-            xArray[index] = xInfty;
-            yArray[index] = yInfty;
-            continue;
+        // safety: check if z is not too large
+        if (r2 > big2) {
+            x = big;
+            y = 0;
+            r2=big2;
         }
         // or singularity at z=0
-        if ((r2 < eps) && zeroSingular) {
-            xArray[index] = Infinity;
-            yArray[index] = Infinity;
-            continue;
+        else if (r2 < eps) {
+            x = eps;
+            y = 0;
+            r2=eps2;
         }
+
         // power of z as prefactor
         const phi = Math.atan2(y, x);
         const lnr = 0.5 * Math.log(r2);
@@ -82,7 +72,7 @@ map.calculate = function() {
             const ri = singsImag[i];
             let real = x * rr - y * ri - 1;
             let imag = y * rr + x * ri;
-            const denom2 = real * real + imag * imag+eps2;
+            const denom2 = real * real + imag * imag + eps2;
             const factor = 1 / denom2;
             sumSingReal += factor * real;
             sumSingImag -= factor * imag;
@@ -98,13 +88,14 @@ map.calculate = function() {
             let imag = y * rr + x * ri;
 
             // division, take care of overflows
-            const denom2 = real * real + imag * imag+eps2;
+            const denom2 = real * real + imag * imag + eps2;
             const factor = 1 / denom2;
             sumZeroReal += factor * real;
             sumZeroImag -= factor * imag;
         }
+        
         // division sing/zero
-        const denom2 = sumZeroReal * sumZeroReal + sumZeroImag * sumZeroImag+eps2;
+        const denom2 = sumZeroReal * sumZeroReal + sumZeroImag * sumZeroImag + eps2;
         const factor = 1 / denom2;
         const qReal = factor * (sumSingReal * sumZeroReal + sumSingImag * sumZeroImag);
         const qImag = factor * (sumSingImag * sumZeroReal - sumSingReal * sumZeroImag);

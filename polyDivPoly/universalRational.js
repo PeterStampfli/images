@@ -16,16 +16,16 @@ export const universalRational = {};
 
 // universal rational function
 // against singularities
-const eps = 1e-50;
+const eps = 1e-10;
 const eps2 = eps * eps;
 // big number, all above is similar to infinite
 // maximum number of javascript is 1e300
 const big = 1e10;
+const big2=big*big;
 // big^30 < Infinity , should be safe enough
 
 // parameters
 var zPow, order, amplitudeReal, amplitudeImag, nomRootsReal, nomRootsImag, denomRootsReal, denomRootsImag;
-var totalPower, zeroSingular, xInfty, yInfty;
 
 // setting the params
 map.setParams = function(zPowP, orderP, amplitudeRealP, amplitudeImagP, nomRootsRealP, nomRootsImagP, denomRootsRealP, denomRootsImagP) {
@@ -37,21 +37,6 @@ map.setParams = function(zPowP, orderP, amplitudeRealP, amplitudeImagP, nomRoots
     nomRootsImag = nomRootsImagP;
     denomRootsReal = denomRootsRealP;
     denomRootsImag = denomRootsImagP;
-    totalPower = zPow + order * (nomRootsReal.length - denomRootsReal.length);
-    // supposing that roots are not zero: Is z=0 a singularity?
-    zeroSingular = (zPow < -eps);
-    //result for infinite z, or very large z
-    if (totalPower > eps) {
-        xInfty = Infinity;
-        yInfty = Infinity;
-    } else
-    if (totalPower > -eps) {
-        xInfty = amplitudeReal;
-        yInfty = amplitudeImag;
-    } else {
-        xInfty = 0;
-        yInfty = 0;
-    }
 };
 
 // maps all pixels
@@ -72,16 +57,16 @@ map.universalRational = function() {
         let r2 = x * x + y * y;
 
         // safety: check if z is not too large
-        if (r2 > big) {
-            xArray[index] = xInfty;
-            yArray[index] = yInfty;
-            continue;
+        if (r2 > big2) {
+            x = big;
+            y = 0;
+            r2=big2;
         }
         // or singularity at z=0
-        if ((r2 < eps) && zeroSingular) {
-            xArray[index] = Infinity;
-            yArray[index] = Infinity;
-            continue;
+        else if (r2 < eps) {
+            x = eps;
+            y = 0;
+            r2=eps2;
         }
         // power of z as prefactor, initialize nominator and denominator
         const phi = Math.atan2(y, x);

@@ -441,10 +441,8 @@ map.drawTrajectory = function(transformedEvent) {
         let y1=point.y;
         map.point(point);
         disc(point.x,point.y);
-
         line(x1, y1, point.x, point.y);
     }
-
 };
 
 map.addTrajectory = function(gui) {

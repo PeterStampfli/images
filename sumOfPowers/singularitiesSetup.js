@@ -33,7 +33,7 @@ import {
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'basic singul',
+        name: 'sum of powers',
         closed: false
     });
 

@@ -18,7 +18,7 @@ import {
 
 export const juliaMap = {};
 juliaMap.automaticExpansion = false;
-juliaMap.nIntervals=10000;
+juliaMap.nIntervals = 10000;
 juliaMap.inverted = false;
 
 juliaMap.setup = function(gui) {
@@ -48,23 +48,24 @@ juliaMap.setup = function(gui) {
 
     map.iteration = map.juliaSet;
     // use only (piecewise) conformal mappings
-    gui.add({
-        type: 'selection',
-        params: map,
-        property: 'iteration',
-        options: {
-            'nothing': map.nothing,
-            'julia set approximation': map.juliaSetApproximation,
-            'julia set': map.juliaSet,
-            'julia complement': map.juliaComplement,
-            'julia all': map.juliaAll,
-            'mandelbrot approximation': map.mandelbrotApproximation,
-            'mandelbrot': map.mandelbrot,
-            'mandelbrot complement': map.mandelbrotComplement,
-            'mandelbrot all': map.mandelbrotAll
-        },
-        onChange: julia.drawNewStructure
-    });
+    /*   gui.add({
+           type: 'selection',
+           params: map,
+           property: 'iteration',
+           options: {
+               'nothing': map.nothing,
+               'julia set approximation': map.juliaSetApproximation,
+               'julia set': map.juliaSet,
+               'julia complement': map.juliaComplement,
+               'julia all': map.juliaAll,
+               'mandelbrot approximation': map.mandelbrotApproximation,
+               'mandelbrot': map.mandelbrot,
+               'mandelbrot complement': map.mandelbrotComplement,
+               'mandelbrot all': map.mandelbrotAll
+           },
+           onChange: julia.drawNewStructure
+       });
+       */
     /*
     gui.add({
         type: 'boolean',
@@ -263,8 +264,8 @@ function redistribute() {
     const yArray = map.yArray;
     const structureArray = map.structureArray;
     const nPixels = xArray.length;
-    const nIntervals=juliaMap.nIntervals;
-    nPixelsInterval.length=nIntervals
+    const nIntervals = juliaMap.nIntervals;
+    nPixelsInterval.length = nIntervals
     nPixelsInterval.fill(0);
     newRadius.length = nIntervals + 1;
     const nIntervalsM1 = nIntervals - 1;
@@ -349,8 +350,8 @@ map.nothing = function() {
     map.inversion();
     if (juliaMap.automaticExpansion) {
         redistribute();
-      //  logDistribution();
-    } 
+        //  logDistribution();
+    }
 };
 
 map.juliaSet = function() {
@@ -361,8 +362,8 @@ map.juliaSet = function() {
     map.set(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-       // logDistribution();
-    } 
+        // logDistribution();
+    }
 };
 
 map.juliaComplement = function() {
@@ -373,8 +374,8 @@ map.juliaComplement = function() {
     map.complement(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-      //  logDistribution();
-    } 
+        //  logDistribution();
+    }
 };
 
 map.juliaAll = function() {
@@ -385,8 +386,8 @@ map.juliaAll = function() {
     map.all(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-     //   logDistribution();
-    } 
+        //   logDistribution();
+    }
 };
 
 map.juliaSetApproximation = function() {
@@ -401,8 +402,8 @@ map.juliaSetApproximation = function() {
     map.scale(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-       // logDistribution();
-    } 
+        // logDistribution();
+    }
 };
 
 // for the pseudo mandelbrot
@@ -425,9 +426,9 @@ map.setInitialXY = function() {
     const initialYArray = map.initialYArray;
     for (var index = 0; index < nPixels; index++) {
         initialXArray[index] = xArray[index];
-        xArray[index]=0;
+        xArray[index] = 0;
         initialYArray[index] = yArray[index];
-        yArray[index]=0;
+        yArray[index] = 0;
     }
 };
 
@@ -454,7 +455,7 @@ map.mandelbrot = function() {
     map.set(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-       // logDistribution();
+        // logDistribution();
     }
 };
 
@@ -469,7 +470,7 @@ map.mandelbrotComplement = function() {
     if (juliaMap.automaticExpansion) {
         redistribute();
         //logDistribution();
-    } 
+    }
 };
 
 map.mandelbrotAll = function() {
@@ -482,8 +483,8 @@ map.mandelbrotAll = function() {
     map.all(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-      //  logDistribution();
-    } 
+        //  logDistribution();
+    }
 };
 
 map.mandelbrotApproximation = function() {
@@ -500,6 +501,6 @@ map.mandelbrotApproximation = function() {
     map.scale(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();
-      //  logDistribution();
-    } 
+        //  logDistribution();
+    }
 };

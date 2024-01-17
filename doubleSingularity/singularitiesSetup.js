@@ -33,7 +33,7 @@ import {
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'basic singul',
+        name: 'double singul',
         closed: false
     });
 

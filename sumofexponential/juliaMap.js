@@ -24,13 +24,8 @@ juliaMap.inverted = false;
 juliaMap.setup = function(gui) {
     map.iters = 5;
     map.limit = 10;
-    // mapping all pixels
     map.mapping = function() {
         console.error('map.mapping is undefined');
-    };
-    // mapping a single point(x,y)
-    map.step=function() {
-        console.error('map.step is undefined');
     };
 
     gui.addParagraph('<strong>iterated mapping</strong>');
@@ -53,31 +48,31 @@ juliaMap.setup = function(gui) {
 
     map.iteration = map.juliaSet;
     // use only (piecewise) conformal mappings
-  /*  gui.add({
-        type: 'selection',
-        params: map,
-        property: 'iteration',
-        options: {
-            'nothing': map.nothing,
-            'julia set approximation': map.juliaSetApproximation,
-            'julia set': map.juliaSet,
-            'julia complement': map.juliaComplement,
-            'julia all': map.juliaAll,
-            'inversions outside': map.inversions,
-            'mandelbrot approximation': map.mandelbrotApproximation,
-            'mandelbrot': map.mandelbrot,
-            'mandelbrot complement': map.mandelbrotComplement,
-            'mandelbrot all': map.mandelbrotAll
-        },
-        onChange: julia.drawNewStructure
-    });*/
+    /*   gui.add({
+           type: 'selection',
+           params: map,
+           property: 'iteration',
+           options: {
+               'nothing': map.nothing,
+               'julia set approximation': map.juliaSetApproximation,
+               'julia set': map.juliaSet,
+               'julia complement': map.juliaComplement,
+               'julia all': map.juliaAll,
+               'mandelbrot approximation': map.mandelbrotApproximation,
+               'mandelbrot': map.mandelbrot,
+               'mandelbrot complement': map.mandelbrotComplement,
+               'mandelbrot all': map.mandelbrotAll
+           },
+           onChange: julia.drawNewStructure
+       });*/
     /*
     gui.add({
         type: 'boolean',
         params: juliaMap,
         property: 'inverted',
         onChange: julia.drawNewStructure
-    });*/
+    });
+    */
     /*
     gui.add({
         type: 'boolean',
@@ -90,7 +85,7 @@ juliaMap.setup = function(gui) {
         params: juliaMap,
         property: 'nIntervals',
         min: 1,
-        labelText: 'intervals',
+        labelText:'intervals',
         onChange: julia.drawNewStructure
     });
     */
@@ -109,26 +104,6 @@ map.inversion = function() {
         const factor = 1 / (x * x + y * y);
         xArray[index] = factor * x;
         yArray[index] = factor * y;
-    }
-};
-
-map.invertOutside = function(limit) {
-    const limit2 = limit * limit;
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const nPixels = xArray.length;
-    for (var index = 0; index < nPixels; index++) {
-        const x = xArray[index];
-        const y = yArray[index];
-        const r2 = x * x + y * y;
-        if (!isFinite(r2)) {
-            xArray[index] = 0;
-            yArray[index] = 0;
-        } else if (r2 > limit2) {
-            const factor = limit2 / r2;
-            xArray[index] = factor * x;
-            yArray[index] = factor * y;
-        }
     }
 };
 
@@ -212,7 +187,7 @@ map.all = function(limit) {
 };
 
 /**
- * invert all pixels that are larger than limit
+ * invert all pixels
  */
 map.complement = function(limit) {
     const limit2 = limit * limit;
@@ -229,7 +204,7 @@ map.complement = function(limit) {
             xArray[index] = 0;
             yArray[index] = 0;
         } else if (r2 > limit2) {
-            const factor = limit2 / r2;
+            const factor = limit / r2;
             xArray[index] = factor * x;
             yArray[index] = factor * y;
             structureArray[index] = 0;
@@ -289,7 +264,7 @@ function redistribute() {
     const structureArray = map.structureArray;
     const nPixels = xArray.length;
     const nIntervals = juliaMap.nIntervals;
-    nPixelsInterval.length = nIntervals;
+    nPixelsInterval.length = nIntervals
     nPixelsInterval.fill(0);
     newRadius.length = nIntervals + 1;
     const nIntervalsM1 = nIntervals - 1;
@@ -423,18 +398,6 @@ map.juliaSetApproximation = function() {
         map.countIterations();
     }
     map.invertSelect();
-    map.scale(map.limit);
-    if (juliaMap.automaticExpansion) {
-        redistribute();
-        // logDistribution();
-    }
-};
-
-map.inversions = function() {
-    for (let i = 0; i < map.iters; i++) {
-        map.mapping();
-        map.invertOutside(map.limit);
-    }
     map.scale(map.limit);
     if (juliaMap.automaticExpansion) {
         redistribute();

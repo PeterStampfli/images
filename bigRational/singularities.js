@@ -424,10 +424,6 @@ singularities.mapping = function() {
     roots.denImag.length = 0;
     roots.nomReal.length = 0;
     roots.nomImag.length = 0;
-    const denReal = roots.denReal;
-    const denImag = roots.denImag;
-    const nomReal = roots.denReal;
-    const nomImag = roots.nomImag;
     const dAngle = 2 * Math.PI / singularities.order;
     if (singularities.zero1On) {
         angle = dAngle * singularities.zero1Angle;
@@ -487,43 +483,41 @@ singularities.mapping = function() {
     if (roots.nom1On) {
         radius = Math.pow(roots.nom1Radius, singularities.order);
         angle = 2 * Math.PI * roots.nom1Angle;
-        nomReal.push(radius * Math.cos(angle));
-        nomImag.push(radius * Math.sin(angle));
+        roots.nomReal.push(radius * Math.cos(angle));
+        roots.nomImag.push(radius * Math.sin(angle));
     }
     if (roots.nom2On) {
         radius = Math.pow(roots.nom2Radius, singularities.order);
         angle = 2 * Math.PI * roots.nom2Angle;
-        nomReal.push(radius * Math.cos(angle));
-        nomImag.push(radius * Math.sin(angle));
+        roots.nomReal.push(radius * Math.cos(angle));
+        roots.nomImag.push(radius * Math.sin(angle));
     }
     if (roots.nom3On) {
         radius = Math.pow(roots.nom3Radius, singularities.order);
         angle = 2 * Math.PI * roots.nom3Angle;
-        nomReal.push(radius * Math.cos(angle));
-        nomImag.push(radius * Math.sin(angle));
+        roots.nomReal.push(radius * Math.cos(angle));
+        roots.nomImag.push(radius * Math.sin(angle));
     }
     if (roots.denom1On) {
         radius = Math.pow(roots.denom1Radius, singularities.order);
         angle = 2 * Math.PI * roots.denom1Angle;
-        denReal.push(radius * Math.cos(angle));
-        denImag.push(radius * Math.sin(angle));
+        roots.denReal.push(radius * Math.cos(angle));
+        roots.denImag.push(radius * Math.sin(angle));
     }
     if (roots.denom2On) {
         radius = Math.pow(roots.denom2Radius, singularities.order);
         angle = 2 * Math.PI * roots.denom2Angle;
-        denReal.push(radius * Math.cos(angle));
-        denImag.push(radius * Math.sin(angle));
+        roots.denReal.push(radius * Math.cos(angle));
+        roots.denImag.push(radius * Math.sin(angle));
     }
     if (roots.denom3On) {
         radius = Math.pow(roots.denom3Radius, singularities.order);
         angle = 2 * Math.PI * roots.denom3Angle;
-        denReal.push(radius * Math.cos(angle));
-        denImag.push(radius * Math.sin(angle));
+        roots.denReal.push(radius * Math.cos(angle));
+        roots.denImag.push(radius * Math.sin(angle));
     }
 
-    console.log(singularities.zerosReal);
-    console.log(singularities.zerosImag);
-    console.log(singularities.singsReal);
-    console.log(singularities.singsImag);
+    console.log(roots.nomReal);
+  
     map.calculate();
 };

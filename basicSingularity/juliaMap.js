@@ -48,7 +48,7 @@ juliaMap.setup = function(gui) {
 
     map.iteration = map.juliaSet;
     // use only (piecewise) conformal mappings
-    gui.add({
+ /*   gui.add({
         type: 'selection',
         params: map,
         property: 'iteration',
@@ -64,7 +64,7 @@ juliaMap.setup = function(gui) {
             'mandelbrot all': map.mandelbrotAll
         },
         onChange: julia.drawNewStructure
-    });
+    });*/
     /*
     gui.add({
         type: 'boolean',

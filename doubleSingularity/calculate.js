@@ -43,23 +43,29 @@ map.calculate = function() {
         if (r2 > big2) {
             x = big;
             y = 0;
-            r2=big2;
+            r2 = big2;
         }
         // or singularity at z=0
         else if (r2 < eps) {
             x = eps;
             y = 0;
-            r2=eps2;
+            r2 = eps2;
         }
 
         // sum of singularities
         let sumReal = constant;
         let sumImag = 0;
-        for (let i = 0; i < coeffsLength; i++) {
-            const rr = realCoeffs[i];
-            const ri = imagCoeffs[i];
-            let real = x * rr - y * ri - 1;
-            let imag = y * rr + x * ri;
+        for (let i = 0; i < coeffsLength; i += 2) {
+            let rr = realCoeffs[i];
+            let ri = imagCoeffs[i];
+            let real1 = x * rr - y * ri - 1;
+            let imag1 = y * rr + x * ri;
+            rr = realCoeffs[i + 1];
+            ri = imagCoeffs[i + 1];
+            const real2 = x * rr - y * ri - 1;
+            const imag2 = y * rr + x * ri;
+            const real = real1 * real2 - imag1 * imag2;
+            const imag = real1 * imag2 + imag1 * real2;
 
             // division, take care of overflows
             const denom2 = real * real + imag * imag + eps2;
