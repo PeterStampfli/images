@@ -196,7 +196,7 @@ map.loadInputImage = function() {
 };
 
 map.setupDrawing = function(gui) {
-    map.draw = map.callDrawStructure;
+    map.draw = map.callDrawImageVeryHighQuality;
     map.phaseMultiplier = 2;
     map.phaseMinB = 0.7;
     gui.addParagraph('<strong>image</strong>');

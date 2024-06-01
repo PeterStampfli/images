@@ -42,7 +42,6 @@ import {
     waves,
     brokenEvenWaves,
     brokenOddWaves,
-    productWaves,
     triangles
 } from "./modules.js";
 
@@ -92,9 +91,9 @@ function setup() {
         //  circularScale,
 
         // brokenEvenWaves,
-        // brokenOddWaves,
-        //productWaves
-          waves
+       // brokenOddWaves
+        productWaves
+        //  waves
         // triangles
     );
     //====================================================

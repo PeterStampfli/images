@@ -386,7 +386,7 @@ map.callDrawNoImage = function() {
     context.restore();
 };
 
-map.draw = map.callDrawStructure;
+map.draw = map.callDrawImageVeryHighQuality;
 
 // the gui: selecting the regions that will be shown, max 256 regions
 map.showRegion = [];

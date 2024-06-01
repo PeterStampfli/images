@@ -35,7 +35,7 @@ mask.setup = function() {
     output.autoResizeController.hide();
     output.autoScaleController.setValueOnly(true);
     // create choices for what to show
-    map.draw = map.callDrawImageLowQuality;
+    map.draw = map.callDrawImageVeryHighQuality;
     map.makeShowingGui(gui);
     // destroy irrelevant controllers and options
     map.trajectoryColorController.destroy();

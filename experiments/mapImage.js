@@ -4,7 +4,8 @@ import {
     output,
     Pixels,
     CoordinateTransform,
-    MouseEvents,keyboard
+    MouseEvents,
+    keyboard
 } from "../libgui/modules.js";
 
 export const julia = {};
@@ -82,7 +83,7 @@ map.init = function() {
 
 // for drifts, storing initial or intermediate values
 map.makeDriftArrays = function() {
-    map.addDrift=true;
+    map.addDrift = true;
     const length = map.xArray.length;
     if ((map.xArray.length !== map.driftXArray.length)) {
         map.driftXArray = new Float32Array(length);
@@ -90,21 +91,21 @@ map.makeDriftArrays = function() {
     }
 };
 
-map.addDrift=false;
+map.addDrift = false;
 map.addDriftMap = function() {
-    if (map.addDrift){
-    const xArray = map.xArray;
-    const yArray = map.yArray;
-    const driftXArray = map.driftXArray;
-    const driftYArray = map.driftYArray;
-    const length = xArray.length;
-    for (let index = 0; index < length; index++) {
-        xArray[index] -= driftXArray[index];
-        yArray[index] += driftYArray[index];
+    if (map.addDrift) {
+        const xArray = map.xArray;
+        const yArray = map.yArray;
+        const driftXArray = map.driftXArray;
+        const driftYArray = map.driftYArray;
+        const length = xArray.length;
+        for (let index = 0; index < length; index++) {
+            xArray[index] -= driftXArray[index];
+            yArray[index] += driftYArray[index];
+        }
+        driftXArray.fill(0);
+        driftYArray.fill(0);
     }
-    driftXArray.fill(0);
-    driftYArray.fill(0);
-}
 };
 
 //  making images
@@ -145,7 +146,7 @@ map.loadInputImage = function() {
 
 
 map.setupDrawing = function(gui) {
-    map.draw = map.callDrawStructure;
+    map.draw = map.callDrawImageVeryHighQuality;
     gui.addParagraph('<strong>image</strong>');
     map.whatToShowController = gui.add({
         type: 'selection',

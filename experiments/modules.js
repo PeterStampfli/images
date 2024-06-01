@@ -10,158 +10,183 @@ export {
     map
 }
 from "./mapImage.js";
- 
- export{
+
+export {
     xTranslation
- }
- from "./xTranslation.js";
+}
+from "./xTranslation.js";
 
- export{
+export {
     yTranslation
- }
- from "./yTranslation.js";
+}
+from "./yTranslation.js";
 
- export{
+export {
     circularDrift
- }
- from "./circularDrift.js";
+}
+from "./circularDrift.js";
 
- export{
+export {
     circularScale
- }
- from "./circularScale.js";
+}
+from "./circularScale.js";
 
- export{
+export {
     xScale
- }
- from "./xScale.js";
+}
+from "./xScale.js";
 
- export{
+export {
     xDrift
- }
- from "./xDrift.js";
+}
+from "./xDrift.js";
 
- export{
+export {
     kaleidoscope
- }
- from "./kaleidoscope.js";
+}
+from "./kaleidoscope.js";
 
- export{
+export {
     rosette
- }
- from "./rosette.js";
+}
+from "./rosette.js";
 
- export{
+export {
     cartioid
- }
- from "./cartioid.js";
+}
+from "./cartioid.js";
 
- export{
+export {
     bulatov
- }
- from "./bulatov.js";
+}
+from "./bulatov.js";
 
- export{
+export {
     bulatovRing
- }
- from "./bulatovRing.js";
+}
+from "./bulatovRing.js";
 
- export{
+export {
     square
- }
- from "./square.js";
+}
+from "./square.js";
 
- export{
+export {
     generalBulatov
- }
- from "./generalBulatov.js";
+}
+from "./generalBulatov.js";
 
- export{
+export {
     cayley
- }
- from "./cayley.js";
+}
+from "./cayley.js";
 
- export{
+export {
     spirals
- }
- from "./spirals.js";
+}
+from "./spirals.js";
 
- export{
+export {
     flipXY
- }
- from "./flipXY.js";
+}
+from "./flipXY.js";
 
- export{
+export {
     polygon
- }
- from "./polygon.js";
+}
+from "./polygon.js";
 
- export{
+export {
     dihedral
- }
- from "./dihedral.js";
+}
+from "./dihedral.js";
 
- export{
+export {
     powers
- }
- from "./powers.js";
+}
+from "./powers.js";
 
- export{
+export {
     scale
- }
- from "./scale.js";
+}
+from "./scale.js";
 
- export{
+export {
     inversion
- }
- from "./inversion.js";
+}
+from "./inversion.js";
 
- export{
+export {
     insideOutside
- }
- from "./insideOutside.js";
+}
+from "./insideOutside.js";
 
- export{
+export {
     mandelbrot
- }
- from "./mandelbrot.js";
+}
+from "./mandelbrot.js";
 
- export{
+export {
     specialStar
- }
- from "./specialStar.js";
+}
+from "./specialStar.js";
 
- export{
+export {
     rotation
- }
- from "./rotation.js";
- 
- export{
+}
+from "./rotation.js";
+
+export {
     normalViewEquator
- }
- from "./normalViewEquator.js";
+}
+from "./normalViewEquator.js";
 
- export{
+export {
     normalViewPolar
- }
- from "./normalViewPolar.js";
+}
+from "./normalViewPolar.js";
 
- export{
+export {
     inverseMercator
- }
- from "./inverseMercator.js";
+}
+from "./inverseMercator.js";
 
- export{
+export {
     simplePolyFamily
- }
- from "./simplePolyFamily.js";
+}
+from "./simplePolyFamily.js";
 
- export{
+export {
     periodicXDrift
- }
- from "./periodicXDrift.js";
+}
+from "./periodicXDrift.js";
 
- export{
+export {
     simpleRationalFamily
- }
- from "./simpleRationalFamily.js";
+}
+from "./simpleRationalFamily.js";
+
+export {
+    waves
+}
+from "./waves.js";
+
+export {
+    productWaves
+}
+from "./productWaves.js";
+
+export {
+    triangles
+}
+from "./triangles.js";
+
+export {
+    brokenEvenWaves
+}
+from "./brokenEvenWaves.js";
+
+export {
+    brokenOddWaves
+}
+from "./brokenOddWaves.js";
