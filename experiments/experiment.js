@@ -100,7 +100,7 @@ function setup() {
     //====================================================
 
 
-    base.maps.forEach(map => map.setup());
+    base.maps.forEach(map => map.setup(gui));
     map.setupDrawing(gui);
 
     // changing the grid

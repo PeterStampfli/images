@@ -4,8 +4,7 @@
 
 import {
     julia,
-    map,
-    base
+    map
 } from "./modules.js";
 
 export const waves = {};
@@ -455,7 +454,7 @@ waves.prodSimpleCos = function() {
 waves.type = waves.regular;
 
 waves.setup = function(gui) {
-    base.gui.add({
+    gui.add({
         type: 'number',
         params: waves,
         property: 'symmetry',
@@ -482,7 +481,7 @@ waves.setup = function(gui) {
         },
         onChange: julia.drawNewStructure
     });
-    base.gui.add({
+    gui.add({
         type: 'number',
         params: waves,
         property: 'scale',
@@ -500,14 +499,14 @@ waves.setup = function(gui) {
         labelText: 'y',
         onChange: julia.drawNewStructure
     });
-    base.gui.add({
+    gui.add({
         type: 'boolean',
         params: waves,
         property: 'structureOfX',
         labelText: 'structure of x',
         onChange: julia.drawNewStructure
     });
-    base.gui.add({
+    gui.add({
         type: 'boolean',
         params: waves,
         property: 'brokenX',

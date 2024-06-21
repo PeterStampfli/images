@@ -431,7 +431,6 @@ map.drawTrajectory = function(transformedEvent) {
     let x = transformedEvent.x;
     let y = transformedEvent.y;
     disc(x, y);
-    console.log(map.iters);
     const point={};
     point.x=x;
     point.y=y;
