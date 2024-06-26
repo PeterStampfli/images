@@ -11,7 +11,9 @@ export const waves = {};
 waves.rescale = true;
 waves.symmetry = 5;
 waves.offset = 0;
+waves.asymOffset = 0;
 waves.scale = 1;
+waves.rotation = 0;
 waves.transX = 0;
 waves.transY = 0;
 waves.structureOfX = true;
@@ -24,8 +26,12 @@ waves.nothing = function() {};
 
 waves.regular = function() {
     const symmetry = waves.symmetry;
-    const offset = waves.offset;
+    const offsetX = Math.PI * (waves.offset - waves.asymOffset);
+    const offsetY = Math.PI * (waves.offset + waves.asymOffset);
     const scale = waves.scale;
+    const rotation = 2 * Math.PI * waves.rotation;
+    const cosScale = scale * Math.cos(rotation);
+    const sinScale = scale * Math.sin(rotation);
     const transX = waves.transX;
     const transY = waves.transY;
     const structureOfX = waves.structureOfX;
@@ -47,18 +53,15 @@ waves.regular = function() {
         for (let index = 0; index < nPixels; index++) {
             let x = xArray[index];
             let y = yArray[index];
-            let projection = x + offset;
-            let xNew = Math.cos(projection);
-            let yNew = Math.sin(projection);
+            let xNew = Math.cos(x + offsetX);
+            let yNew = Math.sin(x + offsetY);
             for (let n = 1; n < symmetry; n++) {
-                const projection = x * cosines[n] + y * sines[n] + offset;
-                xNew += Math.cos(projection);
-                yNew += Math.sin(projection);
+                const projection = x * cosines[n] + y * sines[n];
+                xNew += Math.cos(projection + offsetX);
+                yNew += Math.sin(projection + offsetY);
             }
-            xNew = scale * xNew + transX;
-            yNew = scale * yNew + transY;
-            xArray[index] = xNew;
-            yArray[index] = yNew;
+            xArray[index] = cosScale * xNew - sinScale * yNew + transX;
+            yArray[index] = sinScale * xNew + cosScale * yNew + transY;
             if (structureOfX) {
                 structureArray[index] = (xNew > 0) ? 1 : 0;
             } else {
@@ -82,20 +85,18 @@ waves.regular = function() {
                     let xNew = 0;
                     let yNew = 0;
                     let sign = 1;
-                    let projection = x + offset;
+                    let projection = x;
                     for (let n = 1; n < m; n++) {
-                        const nextProjection = x * cosines[n] + y * sines[n] + offset;
-                        xNew += sign * Math.cos(projection);
-                        yNew += sign * Math.cos(projection + nextProjection);
+                        const nextProjection = x * cosines[n] + y * sines[n];
+                        xNew += sign * Math.cos(projection + offsetX);
+                        yNew += sign * Math.cos(projection + nextProjection + offsetY);
                         projection = nextProjection;
                         sign = -sign;
                     }
-                    xNew += sign * Math.cos(projection);
-                    yNew += sign * Math.cos(projection - x);
-                    xNew = scale * xNew + transX;
-                    yNew = scale * yNew + transY;
-                    xArray[index] = xNew;
-                    yArray[index] = yNew;
+                    xNew += sign * Math.cos(projection - x + offsetX);
+                    yNew += sign * Math.cos(projection - x + offsetY);
+                    xArray[index] = cosScale * xNew - sinScale * yNew + transX;
+                    yArray[index] = sinScale * xNew + cosScale * yNew + transY;
                     if (structureOfX) {
                         structureArray[index] = (xNew > 0) ? 1 : 0;
                     } else {
@@ -108,17 +109,15 @@ waves.regular = function() {
                     let y = yArray[index];
                     let xNew = 0;
                     let yNew = 0;
-                    let sign = 1;
-                    let projection = x + offset;
+                    let projection = x;
                     for (let n = 1; n < m; n++) {
-                        const nextProjection = x * cosines[n] + y * sines[n] + offset;
-                        xNew += sign * Math.cos(projection);
-                        yNew += Math.cos(projection + nextProjection);
+                        const nextProjection = x * cosines[n] + y * sines[n];
+                        xNew += Math.cos(projection + offsetX);
+                        yNew += Math.cos(projection + nextProjection + offsetY);
                         projection = nextProjection;
-                        sign = -sign;
                     }
-                    xNew += sign * Math.cos(projection);
-                    yNew += Math.cos(projection - x);
+                    xNew += Math.cos(projection - x + offsetX);
+                    yNew += Math.cos(projection - x + offsetY);
                     xNew = scale * xNew + transX;
                     yNew = scale * yNew + transY;
                     xArray[index] = xNew;
@@ -557,14 +556,6 @@ waves.setup = function(gui) {
             julia.drawNewStructure();
         }
     }).add({
-        type: 'number',
-        params: waves,
-        property: 'offset',
-        onChange: function() {
-            map.inputTransformValid = !waves.rescale;
-            julia.drawNewStructure();
-        }
-    }).add({
         type: 'selection',
         params: waves,
         property: 'type',
@@ -587,12 +578,39 @@ waves.setup = function(gui) {
     gui.add({
         type: 'number',
         params: waves,
+        property: 'offset',
+        onChange: function() {
+            map.inputTransformValid = !waves.rescale;
+            julia.drawNewStructure();
+        }
+    }).add({
+        type: 'number',
+        params: waves,
+        property: 'asymOffset',
+        labelText: 'asymmetry',
+        onChange: function() {
+            map.inputTransformValid = !waves.rescale;
+            julia.drawNewStructure();
+        }
+    });
+    gui.add({
+        type: 'number',
+        params: waves,
         property: 'scale',
         onChange: function() {
             map.inputTransformValid = !waves.rescale;
             julia.drawNewStructure();
         }
     }).add({
+        type: 'number',
+        params: waves,
+        property: 'rotation',
+        onChange: function() {
+            map.inputTransformValid = !waves.rescale;
+            julia.drawNewStructure();
+        }
+    });
+    gui.add({
         type: 'number',
         params: waves,
         property: 'transX',

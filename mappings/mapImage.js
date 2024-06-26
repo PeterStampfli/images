@@ -234,6 +234,7 @@ map.setupDrawing = function(gui) {
             julia.drawNewImage();
         }
     });
+    map.phaseControllers.hide();
 
     // a hidden canvas for the input image
     map.inputCanvas = document.createElement('canvas'); // has default width and height

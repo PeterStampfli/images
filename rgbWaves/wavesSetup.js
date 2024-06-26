@@ -23,7 +23,7 @@ function setup() {
 
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
-    output.setInitialCoordinates(0, 0, 30);
+    output.setInitialCoordinates(0, 0, 200);
     output.createPixels();
     output.grid.interval = 0.1;
     output.addGrid();
