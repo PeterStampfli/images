@@ -1337,7 +1337,7 @@ output.drawGrid = function() {
  * @method output.fillCanvas
  * @param {String} color - hex color string
  */
-output.fillCanvas = function(color) {
+output.fillCanvas = function(color='#00000000') {
     const canvasContext = output.canvasContext;
     const transform = canvasContext.getTransform();
     canvasContext.setTransform(1, 0, 0, 1, 0, 0); // reset transform
