@@ -7,7 +7,7 @@ import {
 
 import {
     waves
-} from "./waves.js";
+} from "./rgbWaves.js";
 
 import {
     map,
@@ -19,30 +19,27 @@ import {
 } from "../mappings/drawingLines.js";
 
 import {
-    penrose
+    ammann
 }
-from "./penrose.js";
+from "./ammann.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'waves 5-fold',
+        name: 'rgbWaves 8-fold',
         closed: false
     });
 
     output.createCanvas(gui, true);
     output.addCoordinateTransform(false);
-    output.setInitialCoordinates(0, 0, 100);
+    output.setInitialCoordinates(0, 0, 200);
     output.createPixels();
     output.grid.interval = 0.1;
     output.addGrid();
     output.addCursorposition();
     waves.setup(gui);
-    penrose.setup(gui);
+    ammann.setup(gui);
     DrawingLines.setup(gui);
-
-    map.setupDrawing(gui);
-    map.whatToShowController.hide();
 
     // changing the grid
     // image pixels do not change, put on canvas, draw grid&points
@@ -54,18 +51,12 @@ function setup() {
     output.drawCanvasChanged = julia.drawNewStructure;
 }
 
-// structure does not change
-// (input) image may change (other quality, input image)
-julia.drawNewImage = function() {
-    julia.drawNoChange();
-};
-
 // structure changes
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
-    waves.type();
-    penrose.start();
+    waves.map();
+    ammann.start();
     julia.drawNoChange();
 };
 
@@ -74,14 +65,14 @@ julia.drawNewStructure = function() {
 julia.drawNoChange = function() {
     output.fillCanvas();
     if (waves.drawOn) {
-        waves.drawImageHighQuality();
+        waves.draw();
     }
-    penrose.lines.draw();
+    ammann.lines.draw();
     output.drawGrid();
 };
+output.drawImageChanged = julia.drawNoChange;
 
-DrawingLines.draw=julia.drawNoChange;
-penrose.draw=julia.drawNewStructure;
-
+DrawingLines.draw = julia.drawNoChange;
+ammann.draw = julia.drawNewStructure;
 setup();
 julia.drawNewStructure();

@@ -19,14 +19,14 @@ import {
 } from "../mappings/drawingLines.js";
 
 import {
-    penrose
+    ammann
 }
-from "./penrose.js";
+from "./ammann.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'waves 5-fold',
+        name: 'waves 8-fold',
         closed: false
     });
 
@@ -38,7 +38,7 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     waves.setup(gui);
-    penrose.setup(gui);
+    ammann.setup(gui);
     DrawingLines.setup(gui);
 
     map.setupDrawing(gui);
@@ -65,7 +65,7 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     map.init();
     waves.type();
-    penrose.start();
+    ammann.start();
     julia.drawNoChange();
 };
 
@@ -76,12 +76,12 @@ julia.drawNoChange = function() {
     if (waves.drawOn) {
         waves.drawImageHighQuality();
     }
-    penrose.lines.draw();
+    ammann.lines.draw();
     output.drawGrid();
 };
 
 DrawingLines.draw=julia.drawNoChange;
-penrose.draw=julia.drawNewStructure;
+ammann.draw=julia.drawNewStructure;
 
 setup();
 julia.drawNewStructure();

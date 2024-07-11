@@ -14,10 +14,19 @@ import {
     julia
 } from "../mappings/mapImage.js";
 
+import {
+    DrawingLines
+} from "../mappings/drawingLines.js";
+
+import {
+    penrose
+}
+from "./penrose.js";
+
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'rgbWaves',
+        name: 'rgbWaves 5-fold',
         closed: false
     });
 
@@ -29,6 +38,8 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     waves.setup(gui);
+    penrose.setup(gui);
+    DrawingLines.setup(gui);
 
     // changing the grid
     // image pixels do not change, put on canvas, draw grid&points
@@ -40,29 +51,28 @@ function setup() {
     output.drawCanvasChanged = julia.drawNewStructure;
 }
 
-// structure does not change
-// (input) image may change (other quality, input image)
-julia.drawNewImage = function() {
-    waves.draw();
-    output.drawGrid();
-};
-
 // structure changes
 // image may change (other quality, input image)
 julia.drawNewStructure = function() {
     map.init();
     waves.map();
-    waves.draw();
-    output.drawGrid();
+    penrose.start();
+    julia.drawNoChange();
 };
 
 // structure and image does not change
 // grid may change, selection of points may change
 julia.drawNoChange = function() {
-    waves.draw();
+    output.fillCanvas();
+    if (waves.drawOn) {
+        waves.draw();
+    }
+    penrose.lines.draw();
     output.drawGrid();
 };
 output.drawImageChanged = julia.drawNoChange;
 
+DrawingLines.draw = julia.drawNoChange;
+penrose.draw = julia.drawNewStructure;
 setup();
 julia.drawNewStructure();

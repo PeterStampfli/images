@@ -8,9 +8,9 @@ import {
 from "../libgui/modules.js";
 
 import {
-    penrose
+    ammann
 }
-from "./penrose.js";
+from "./ammann.js";
 
 import {
     DrawingLines
@@ -36,15 +36,15 @@ output.setInitialCoordinates(0, 0, 6);
 output.addGrid();
 
 DrawingLines.setup(gui);
-penrose.setup(gui);
+ammann.setup(gui);
 
 
 function draw() {
     output.fillCanvas();
-    penrose.start();
-    penrose.lines.draw();
+    ammann.start();
+    ammann.lines.draw();
 }
 DrawingLines.draw=draw;
-penrose.draw=draw;
+ammann.draw=draw;
 output.setDrawMethods(draw);
 output.backgroundColorController.setValue('#ffffff');

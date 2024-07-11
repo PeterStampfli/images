@@ -8,9 +8,9 @@ import {
 from "../libgui/modules.js";
 
 import {
-    penrose
+    stampfli
 }
-from "./penrose.js";
+from "./stampfli.js";
 
 import {
     DrawingLines
@@ -36,15 +36,16 @@ output.setInitialCoordinates(0, 0, 6);
 output.addGrid();
 
 DrawingLines.setup(gui);
-penrose.setup(gui);
-
+stampfli.setup(gui);
 
 function draw() {
     output.fillCanvas();
-    penrose.start();
-    penrose.lines.draw();
+    stampfli.start();
+    stampfli.lines.draw();
 }
+
 DrawingLines.draw=draw;
-penrose.draw=draw;
+stampfli.draw=draw;
+
 output.setDrawMethods(draw);
 output.backgroundColorController.setValue('#ffffff');

@@ -19,14 +19,14 @@ import {
 } from "../mappings/drawingLines.js";
 
 import {
-    penrose
+    stampfli
 }
-from "./penrose.js";
+from "./stampfli.js";
 
 function setup() {
     // base gui
     const gui = new ParamGui({
-        name: 'waves 5-fold',
+        name: 'waves 8-fold',
         closed: false
     });
 
@@ -38,7 +38,7 @@ function setup() {
     output.addGrid();
     output.addCursorposition();
     waves.setup(gui);
-    penrose.setup(gui);
+    stampfli.setup(gui);
     DrawingLines.setup(gui);
 
     map.setupDrawing(gui);
@@ -65,23 +65,24 @@ julia.drawNewImage = function() {
 julia.drawNewStructure = function() {
     map.init();
     waves.type();
-    penrose.start();
+    stampfli.start();
     julia.drawNoChange();
 };
 
 // structure and image does not change
 // grid may change, selection of points may change
 julia.drawNoChange = function() {
+    console.log(DrawingLines.width)
     output.fillCanvas();
     if (waves.drawOn) {
         waves.drawImageHighQuality();
     }
-    penrose.lines.draw();
+    stampfli.lines.draw();
     output.drawGrid();
 };
 
 DrawingLines.draw=julia.drawNoChange;
-penrose.draw=julia.drawNewStructure;
+stampfli.draw=julia.drawNewStructure;
 
 setup();
 julia.drawNewStructure();

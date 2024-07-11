@@ -17,7 +17,7 @@ export const waves = {};
 const sines = [];
 const cosines = [];
 
-waves.symmetry = 5;
+waves.symmetry = 12;
 waves.offset = 0;
 waves.sum = true;
 waves.drawOn=true;

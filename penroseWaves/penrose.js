@@ -1,15 +1,14 @@
 // penrose tiling with rhombs p3-tiling
 
 import {
-    DrawingLines
-}
-from "./drawingLines.js";
-
-import {
     Vector2
 }
-from "./vector2.js";
+from "../mappings/vector2.js";
 
+import {
+    DrawingLines
+}
+from "../mappings/drawingLines.js";
 
 export const penrose = {};
 
@@ -18,8 +17,9 @@ const smallAngle = Math.PI / 5;
 const ratio = 2 / (1 + Math.sqrt(5));
 const centerRatio = ratio / 2 / Math.cos(smallAngle);
 
-penrose.maxIterations=5;
-penrose.side=4;
+penrose.maxIterations = 5;
+penrose.side = 190;
+penrose.rotated = true;
 
 penrose.lines = new DrawingLines();
 
@@ -32,6 +32,11 @@ penrose.start = function() {
     const zero = new Vector2(0, 0);
     const b1 = new Vector2(penrose.side, 0);
     const b2 = b1.clone().rotate72();
+    if (penrose.rotated){
+        const angle=Math.PI/5;
+        b1.rotate(angle);
+        b2.rotate(angle);
+    }
     const c = Vector2.sum(b1, b2);
     for (var i = 0; i < 5; i++) {
         penrose.fat(0, true, zero, b1.clone(), c);
@@ -70,24 +75,33 @@ penrose.fat = function(ite, counterclockwise, a, b, c) {
     }
 };
 
-penrose.setup=function(gui){
-
-gui.add({
-    type: 'number',
-    params: penrose,
-    property: 'side',
-    labelText: 'size',
-    onChange: function() {
-        draw();
-    }
-}).add({
-    type: 'number',
-    params: penrose,
-    step: 1,
-    min: 0,
-    property: 'maxIterations',
-    labelText: 'ites',
-    onChange: function() {
-        draw();
-    }
-});}
+penrose.setup = function(gui) {
+    gui.addParagraph('<strong>Penrose tiling</strong>');
+    gui.add({
+        type: 'number',
+        params: penrose,
+        property: 'side',
+        labelText: 'size',
+        onChange: function() {
+            penrose.draw();
+        }
+    }).add({
+        type: 'number',
+        params: penrose,
+        step: 1,
+        min: 0,
+        property: 'maxIterations',
+        labelText: 'ites',
+        onChange: function() {
+            penrose.draw();
+        }
+    }).add({
+        type: 'boolean',
+        params: penrose,
+        property: 'rotated',
+        labelText: 'rot',
+        onChange: function() {
+            penrose.draw();
+        }
+    });
+}

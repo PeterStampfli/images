@@ -24,7 +24,7 @@ export function DrawingLines() {
 }
 
 DrawingLines.color = '#000000';
-DrawingLines.width = 5;
+DrawingLines.width = 2;
 DrawingLines.on = true;
 
 /**
@@ -109,9 +109,8 @@ const sinCos = new Vector2();
  * @param {float} angle
  */
 DrawingLines.setRotationAngle = function(angle) {
-    Fast.cosSin(angle, sinCos);
-    DrawingLines.cosAngle = sinCos.x;
-    DrawingLines.sinAngle = sinCos.y;
+    DrawingLines.cosAngle = Math.cos(angle);
+    DrawingLines.sinAngle = Math.sin(angle);
 };
 
 /**
@@ -196,7 +195,7 @@ DrawingLines.setup = function(gui) {
         params: DrawingLines,
         property: 'on',
         onChange: function() {
-            draw();
+            DrawingLines.draw();
         }
     });
 
@@ -205,7 +204,7 @@ DrawingLines.setup = function(gui) {
         params: DrawingLines,
         property: 'width',
         onChange: function() {
-            draw();
+            DrawingLines.draw();
         }
     }).add({
         type: 'color',
@@ -213,7 +212,7 @@ DrawingLines.setup = function(gui) {
         property: 'color',
         labelText: 'line',
         onChange: function() {
-            draw();
+            DrawingLines.draw();
         }
     });
 }
